@@ -1,5 +1,25 @@
-import styles from "./page.module.css";
-import React from "react";
+import type { Metadata } from "next"
+import { IBM_Plex_Mono, VT323 } from "next/font/google"
+import styles from "./page.module.css"
+import React from "react"
+
+const terminal = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-terminal",
+  weight: ["400", "500", "600"],
+})
+
+const display = VT323({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: "400",
+})
+
+export const metadata: Metadata = {
+  title: "StatusGuard | Terminal Monitoring",
+  description:
+    "DNS-verified domain and API uptime monitoring with terminal-grade operational visibility.",
+}
 
 const features = [
   {
@@ -26,7 +46,7 @@ const features = [
       "Multi-region execution ensures your APIs are accessible from everywhere your users are.",
     icon: "●",
   },
-];
+]
 
 const TerminalVisual = () => (
   <div className={styles.terminalWindow}>
@@ -85,11 +105,11 @@ const TerminalVisual = () => (
       </div>
     </div>
   </div>
-);
+)
 
 export default function Home() {
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${terminal.variable} ${display.variable}`}>
       <main className={styles.main}>
         {/* HERO */}
         <section className={styles.hero}>
@@ -283,5 +303,5 @@ export default function Home() {
         </footer>
       </main>
     </div>
-  );
+  )
 }
