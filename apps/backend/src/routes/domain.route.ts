@@ -1,0 +1,26 @@
+import { Router } from "express";
+import { asyncHandler } from "../lib/asyncHandler.js";
+import DomainController from "../controller/domain.controller.js";
+import { authenticationMiddleware } from "../middleware/authentication.middleware.js";
+
+const router = Router();
+
+router.use(authenticationMiddleware);
+
+router.post("/register-domain", asyncHandler(DomainController.registerDomain));
+
+router.post("/verify-domain", asyncHandler(DomainController.verifyDomain));
+
+router.get(
+"/verification-status",
+  asyncHandler(DomainController.GetVerificationStatus),
+);
+
+router.get(
+  "/verification-instructions",
+  asyncHandler(DomainController.GetVerificationStatus),
+);
+
+router.get("/details", asyncHandler(DomainController.apiStatusDetails));
+
+export default router;
