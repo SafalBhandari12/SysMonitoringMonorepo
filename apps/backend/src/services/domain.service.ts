@@ -70,7 +70,7 @@ class DomainService {
     if (
       domainDetails.verificationStatus === DomainVerificationStatus.VERIFIED
     ) {
-      throw new CONFLICT_ERROR("Domain already verified");
+      return { verificationStatus: DomainVerificationStatus.VERIFIED };
     }
     let isVerified = false;
     try {

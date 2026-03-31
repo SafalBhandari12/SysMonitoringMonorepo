@@ -10,9 +10,7 @@ const worker = new Worker(
     const { domain } = job.data as domainVerificationJobDataType;
     console.log(`Processing job for domain: ${domain}`);
     const result = await DomainService.verifyDomain(domain);
-    if (result.verificationStatus === "VERIFIED") {
-      await job.remove();
-    } else {
+    if (result.verificationStatus !== "VERIFIED") {
       throw new Error(`Domain ${domain} verification failed`);
     }
   },
