@@ -71,7 +71,6 @@ model Domain {
   lastVerificationAttempt DateTime?
   verificationAttempts    Int                      @default(0)
   verifiedAt              DateTime?
-  nextVerificationAt      DateTime                 @default(now())
 
   apis Api[]
 

@@ -1,13 +1,18 @@
 import { Worker } from "bullmq";
 import connection from "../utils/ioRedis.js";
 import { domainVerficationQueueName } from "../constants/queueNames.js";
-
-
+import type { domainVerificationJobDataType } from "../types/domainWorker.type.js";
+import DomainService from "../services/domain.service.js";
 
 const worker = new Worker(
   domainVerficationQueueName,
   async (job) => {
-    console.log(`Processing job ${job.id} with data:`, job.data);
+    const { domain } = job.data as domainVerificationJobDataType;
+    console.log(`Processing job for domain: ${domain}`);
+    const result = await DomainService.verifyDomain(domain);
+    if (result.verificationStatus === "VERIFIED") {
+      await job.remove();
+    }
   },
   {
     connection: connection,

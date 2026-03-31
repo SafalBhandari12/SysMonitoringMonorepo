@@ -36,14 +36,16 @@ class DomainService {
       "verify-domain",
       {
         domain: response.domain,
-        verificationCode: response.verificationCode,
       },
       {
+        jobId: `verify-domain-${response.domain}`,
         attempts: 20,
         backoff: {
           type: "exponential",
-          delay: 60 * 1000, // 5 minutes
+          delay: 60 * 1000, //1 minute
         },
+        removeOnComplete: 200,
+        removeOnFail: 200,
       },
     );
     return response;
@@ -92,19 +94,10 @@ class DomainService {
         }
       }
     } catch (error) {
-      console.error(`DNS lookup failed for ${domain}:`, error);
+      throw new BadRequestError(
+        `DNS lookup failed: ${(error as Error).message}`,
+      );
     }
-
-    const ATTEMPT_MULTIPLIER = 5; // 5 minutes base
-    const nextAttempt = isVerified
-      ? new Date()
-      : new Date(
-          Date.now() +
-            (domainDetails.verificationAttempts + 1) *
-              ATTEMPT_MULTIPLIER *
-              60 *
-              1000,
-        );
 
     const updateData = {
       lastVerificationAttempt: new Date(),
@@ -113,8 +106,8 @@ class DomainService {
         ? DomainVerificationStatus.VERIFIED
         : DomainVerificationStatus.FAILED,
       verifiedAt: isVerified ? new Date() : null,
-      nextVerificationAt: nextAttempt,
     };
+    
     const updated = await prisma.domain.update({
       where: { domain },
       data: {
@@ -138,49 +131,6 @@ class DomainService {
       return true;
     } else {
       return false;
-    }
-  }
-  static async cronJobDomainVerification() {
-    const MAX_ATTEMPTS = 20;
-
-    const domainsToVerify = await prisma.domain.findMany({
-      where: {
-        verificationStatus: DomainVerificationStatus.PENDING,
-        verificationAttempts: {
-          lt: MAX_ATTEMPTS,
-        },
-        nextVerificationAt: {
-          lte: new Date(),
-        },
-      },
-      orderBy: {
-        nextVerificationAt: "asc",
-      },
-      take: 1000,
-      select: {
-        domain: true,
-      },
-    });
-
-    if (domainsToVerify.length === 0) {
-      console.log("No domains to verify at this time");
-      return;
-    }
-    console.log(`Verifying ${domainsToVerify.length} domains`);
-
-    // Process domains in batches of 10 in parallel
-    const BATCH_SIZE = 100;
-    for (let i = 0; i < domainsToVerify.length; i += BATCH_SIZE) {
-      const batch = domainsToVerify.slice(i, i + BATCH_SIZE);
-      await Promise.all(
-        batch.map(async (domain) => {
-          try {
-            await this.verifyDomain(domain.domain);
-          } catch (error) {
-            console.error(`Error verifying domain ${domain.domain}:`, error);
-          }
-        }),
-      );
     }
   }
   static async apiStatusDetails(domain: string, userId: string) {
