@@ -19,12 +19,3 @@ cron.schedule("0 0 * * *", async () => {
     console.error("Error in processApiForUptime cron job:", error);
   }
 });
-
-cron.schedule("*/5 * * * *", async () => {
-  try {
-    console.log("Running a task every 5 minutes to process domains");
-    await DomainService.cronJobDomainVerification();
-  } catch (error) {
-    console.error("Error in domain verification cron job:", error);
-  }
-});

@@ -51,10 +51,16 @@ class DomainService {
     return response;
   }
   static async verifyDomain(domain: string, userId?: string) {
-    const domainDetails = await prisma.domain.findFirst({
+    const domainDetails = await prisma.domain.update({
       where: { domain: domain },
+      data: {
+        lastVerificationAttempt: new Date(),
+        verificationAttempts: {
+          increment: 1,
+        },
+      },
     });
-    console.log(domainDetails);
+
     if (!domainDetails) {
       throw new NotFoundError("Domain not found");
     }
@@ -107,7 +113,6 @@ class DomainService {
         : DomainVerificationStatus.FAILED,
       verifiedAt: isVerified ? new Date() : null,
     };
-    
     const updated = await prisma.domain.update({
       where: { domain },
       data: {

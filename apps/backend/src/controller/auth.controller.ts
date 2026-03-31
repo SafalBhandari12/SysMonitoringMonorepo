@@ -36,15 +36,6 @@ class AuthController {
     delete req.session.oidc;
 
     res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
-
-    res.json({
-      msg: "Login successful",
-      user: {
-        email: userData.email,
-        name: userData.name,
-        avatarUrl: userData.avatarUrl,
-      },
-    });
   }
 
   static async getProfile(req: Request, res: Response) {
