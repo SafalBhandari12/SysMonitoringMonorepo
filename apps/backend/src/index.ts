@@ -1,4 +1,3 @@
-import "dotenv/config";
 import "./cron/index.js";
 
 import express, { type Request, type Response } from "express";

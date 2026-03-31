@@ -2,6 +2,8 @@ import prisma from "../utils/prisma.js";
 import type { apiDetailsSchema } from "../schema/schema.js";
 import { CONFLICT_ERROR, NotFoundError } from "../lib/AppError.js";
 import type { plans } from "../generated/prisma/enums.js";
+import REGIONS from "../constants/regions.js";
+import getApiMonitoringQueue from "../queue/apiMonitoringQueue.js";
 
 const apiCountPerPlan: Record<plans, number> = {
   FREE: 5,
@@ -69,6 +71,20 @@ class ApiService {
         id: true,
       },
     });
+    for (const region of REGIONS) {
+      const apiMonitoringQueue = getApiMonitoringQueue(region);
+      await apiMonitoringQueue.add(
+        "check-api",
+        {
+          apiId: response.id,
+          region,
+        },
+        {
+          repeat: { every: 1000, immediately: true },
+          jobId: `api-${response.id}`,
+        },
+      );
+    }
     return response;
   }
 }

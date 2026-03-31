@@ -4,6 +4,7 @@ import {
   CONFLICT_ERROR,
   NotFoundError,
 } from "../lib/AppError.js";
+import domainVerificationQueue from "../queue/domainVerificationQueue.js";
 import prisma from "../utils/prisma.js";
 import dns from "dns/promises";
 dns.setServers(["8.8.8.8"]);
@@ -30,6 +31,21 @@ class DomainService {
         verificationStatus: true,
       },
     });
+    console.log("Domain registered:", response);
+    await domainVerificationQueue.add(
+      "verify-domain",
+      {
+        domain: response.domain,
+        verificationCode: response.verificationCode,
+      },
+      {
+        attempts: 20,
+        backoff: {
+          type: "exponential",
+          delay: 60 * 1000, // 5 minutes
+        },
+      },
+    );
     return response;
   }
   static async verifyDomain(domain: string, userId?: string) {
@@ -233,21 +249,7 @@ class DomainService {
       throw new NotFoundError("Domain not found");
     }
     return {
-      instructions: `To verify your domain, please add the following TXT record to your DNS settings:`,
-      txtRecord: `monitoring-verify=${domainData.verificationCode}`,
-      steps: [
-        "Log in to your domain registrar or DNS provider",
-        "Navigate to DNS settings or DNS records management",
-        "Create a new TXT record with the following details:",
-      ],
-      recordDetails: {
-        type: "TXT",
-        name: domain,
-        value: `monitoring-verify=${domainData.verificationCode}`,
-        ttl: "3600 (or your provider's default)",
-      },
-      notes:
-        "DNS propagation may take up to 24 hours. We'll automatically verify your domain once the record is detected.",
+      verificationCode: domainData.verificationCode,
     };
   }
 }

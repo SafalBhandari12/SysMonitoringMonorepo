@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx src/index.ts",
+    "workers": "npx tsx src/workers/DomainVerificationWorker.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },
@@ -16,15 +17,18 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
+    "bullmq": "^5.71.1",
     "connect-redis": "^9.0.0",
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "ioredis": "^5.10.1",
     "node-cron": "^4.2.1",
     "openid-client": "^6.8.2",
     "pg": "^8.18.0",
     "redis": "^5.11.0",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "@repo/types": "*"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
