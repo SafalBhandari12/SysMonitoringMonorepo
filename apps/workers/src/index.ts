@@ -1,15 +1,13 @@
 import connection from "./utils/redis.js";
 import { Worker } from "bullmq";
-
-const region = process.env.region || "IN";
-const queueName = `api-monitoring-queue-${region}`;
-console.log(`Worker is running for region: ${region} and queue: ${queueName}`);
+import queueName from "./utils/getQueueName.js";
+import type { jobDataType } from "./types/job.js";
 
 const worker = new Worker(
   queueName,
   async (job) => {
     console.log(job.id);
-    console.log(job.data);
+    const { apiId } = job.data as jobDataType;
   },
   {
     connection,

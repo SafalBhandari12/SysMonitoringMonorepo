@@ -1,7 +1,7 @@
 import * as oidc from "openid-client";
 import { getOidConfig } from "../utils/openId.js";
 import { config } from "../utils/config.js";
-import prisma from "../utils/prisma.js";
+import prisma from "@repo/db/client";
 
 class AuthService {
   static async initiateGoogleLogin() {

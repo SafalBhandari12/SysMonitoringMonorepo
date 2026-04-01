@@ -1,9 +1,9 @@
-import prisma from "../utils/prisma.js";
 import type { apiDetailsSchema } from "../schema/schema.js";
 import { CONFLICT_ERROR, NotFoundError } from "../lib/AppError.js";
-import type { plans } from "../generated/prisma/enums.js";
 import REGIONS from "../constants/regions.js";
 import getApiMonitoringQueue from "../queue/apiMonitoringQueue.js";
+import prisma from "@repo/db/client";
+import type { plans } from "@repo/db";
 
 const apiCountPerPlan: Record<plans, number> = {
   FREE: 5,
@@ -77,7 +77,6 @@ class ApiService {
         "check-api",
         {
           apiId: response.id,
-          region,
         },
         {
           repeat: { every: 1000, immediately: true },

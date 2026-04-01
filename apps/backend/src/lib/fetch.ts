@@ -1,5 +1,5 @@
-import { apiStatusEnum, type methodEnum } from "../generated/prisma/enums.js";
-import prisma from "../utils/prisma.js";
+import { apiStatusEnum, DomainVerificationStatus, incidentStatusEnum, type methodEnum } from "@repo/db";
+import prisma from "@repo/db/client";
 
 export const getResponse = async (
   url: string,
@@ -25,7 +25,7 @@ export const getResponse = async (
     clearTimeout(timeout);
 
     const responseTime = Date.now() - startTime;
-  
+
     if (response.ok) {
       return {
         status: apiStatusEnum.UP,
@@ -67,7 +67,7 @@ export const hitApi = async () => {
         processingStatus: false,
         domain: {
           verificationStatus: {
-            equals: "VERIFIED",
+            equals: DomainVerificationStatus.VERIFIED,
           },
         },
       },
@@ -143,12 +143,12 @@ export const hitApi = async () => {
                   orderBy: { createdAt: "desc" },
                   select: { status: true },
                 });
-                if (!lastIncident || lastIncident.status === "RESOLVED") {
+                if (!lastIncident || lastIncident.status === incidentStatusEnum.RESOLVED) {
                   await tx.incident.create({
                     data: {
                       title: "",
                       apiId: id,
-                      status: "ONGOING",
+                      status: incidentStatusEnum.ONGOING,
                     },
                   });
                 }

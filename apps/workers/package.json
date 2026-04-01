@@ -21,6 +21,9 @@
   "dependencies": {
     "bullmq": "^5.71.1",
     "dotenv": "^16.0.3",
-    "ioredis": "^5.10.1"
+    "ioredis": "^5.10.1",
+    "pg": "^8.20.0",
+    "@repo/types": "*",
+    "@repo/db": "*"
   }
 }

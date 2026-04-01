@@ -1,11 +1,12 @@
-import { DomainVerificationStatus } from "../generated/prisma/enums.js";
+
+import { DomainVerificationStatus } from "@repo/db";
 import {
   BadRequestError,
   CONFLICT_ERROR,
   NotFoundError,
 } from "../lib/AppError.js";
 import domainVerificationQueue from "../queue/domainVerificationQueue.js";
-import prisma from "../utils/prisma.js";
+import prisma from "@repo/db/client";
 import dns from "dns/promises";
 dns.setServers(["8.8.8.8"]);
 
@@ -132,7 +133,7 @@ class DomainService {
     if (!api) {
       throw new NotFoundError("Domain not found");
     }
-    if (api.verificationStatus === "VERIFIED") {
+    if (api.verificationStatus === DomainVerificationStatus.VERIFIED) {
       return true;
     } else {
       return false;
