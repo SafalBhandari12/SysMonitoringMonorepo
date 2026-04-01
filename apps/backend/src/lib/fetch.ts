@@ -1,4 +1,9 @@
-import { apiStatusEnum, DomainVerificationStatus, incidentStatusEnum, type methodEnum } from "@repo/db";
+import {
+  apiStatusEnum,
+  DomainVerificationStatus,
+  incidentStatusEnum,
+  type methodEnum,
+} from "@repo/db";
 import prisma from "@repo/db/client";
 
 export const getResponse = async (
@@ -143,7 +148,10 @@ export const hitApi = async () => {
                   orderBy: { createdAt: "desc" },
                   select: { status: true },
                 });
-                if (!lastIncident || lastIncident.status === incidentStatusEnum.RESOLVED) {
+                if (
+                  !lastIncident ||
+                  lastIncident.status === incidentStatusEnum.RESOLVED
+                ) {
                   await tx.incident.create({
                     data: {
                       title: "",
