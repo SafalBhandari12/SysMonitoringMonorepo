@@ -7,12 +7,12 @@
   "types": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./src/index.type.ts",
+      "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
     "./client": {
-      "types": "./src/config.ts/client.ts",
-      "default": "./src/config.ts/client.ts"
+      "types": "./src/config/client.ts",
+      "default": "./src/config/client.ts"
     }
   },
   "scripts": {},

@@ -1,5 +1,3 @@
-import "./cron/index.js";
-
 import express, { type Request, type Response } from "express";
 import { errorHandler } from "./lib/errorHandler.js";
 import router from "./routes/index.js";
@@ -14,8 +12,6 @@ const app = express();
 app.set("trust proxy", 1);
 
 app.use(express.json());
-
-
 
 app.use(
   session({

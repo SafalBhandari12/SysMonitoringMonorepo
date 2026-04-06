@@ -3,6 +3,8 @@ import { Worker } from "bullmq";
 import queueName from "./utils/getQueueName.js";
 import type { jobDataType } from "./types/job.js";
 
+import prisma from "@repo/db/client";
+
 const worker = new Worker(
   queueName,
   async (job) => {
