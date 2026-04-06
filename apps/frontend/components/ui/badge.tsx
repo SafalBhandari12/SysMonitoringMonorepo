@@ -27,23 +27,30 @@ const badgeVariants = cva(
   }
 )
 
-function Badge({
-  className,
-  variant = "default",
-  asChild = false,
-  ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot.Root : "span"
-
-  return (
-    <Comp
-      data-slot="badge"
-      data-variant={variant}
-      className={cn(badgeVariants({ variant }), className)}
-      {...props}
-    />
-  )
+interface BadgeProps
+  extends React.ComponentProps<"span">, VariantProps<typeof badgeVariants> {
+  asChild?: boolean
 }
+
+const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
+  ({ className, variant = "default", asChild = false, ...props }, ref) => {
+    // Filter out key prop as it's not valid to pass to elements
+    const { key, ...elementProps } = props as any
+
+    const baseProps = {
+      "data-slot": "badge",
+      "data-variant": variant,
+      className: cn(badgeVariants({ variant }), className),
+      ...elementProps,
+    }
+
+    if (asChild) {
+      return <Slot.Root {...baseProps} />
+    }
+
+    return <span ref={ref} {...baseProps} />
+  }
+)
+Badge.displayName = "Badge"
 
 export { Badge, badgeVariants }

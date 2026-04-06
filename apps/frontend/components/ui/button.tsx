@@ -51,16 +51,22 @@ function Button({
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
   }) {
-  const Comp = asChild ? Slot.Root : "button"
+  const { key, ...elementProps } = props as any
+
+  const baseProps = {
+    "data-slot": "button",
+    "data-variant": variant,
+    "data-size": size,
+    className: cn(buttonVariants({ variant, size, className })),
+    ...elementProps,
+  }
+
+  if (asChild) {
+    return <Slot.Root {...baseProps} />
+  }
 
   return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
+    <button {...baseProps} />
   )
 }
 
