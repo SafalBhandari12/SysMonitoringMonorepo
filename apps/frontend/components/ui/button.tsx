@@ -65,9 +65,7 @@ function Button({
     return <Slot.Root {...baseProps} />
   }
 
-  return (
-    <button {...baseProps} />
-  )
+  return <button {...baseProps} />
 }
 
 export { Button, buttonVariants }

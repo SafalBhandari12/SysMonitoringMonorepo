@@ -410,9 +410,7 @@ function SidebarGroupLabel({
     return <Slot.Root {...baseProps} />
   }
 
-  return (
-    <div {...baseProps} />
-  )
+  return <div {...baseProps} />
 }
 
 function SidebarGroupAction({
@@ -436,9 +434,7 @@ function SidebarGroupAction({
     return <Slot.Root {...baseProps} />
   }
 
-  return (
-    <button {...baseProps} />
-  )
+  return <button {...baseProps} />
 }
 
 function SidebarGroupContent({
@@ -580,9 +576,7 @@ function SidebarMenuAction({
     return <Slot.Root {...baseProps} />
   }
 
-  return (
-    <button {...baseProps} />
-  )
+  return <button {...baseProps} />
 }
 
 function SidebarMenuBadge({
@@ -697,9 +691,7 @@ function SidebarMenuSubButton({
     return <Slot.Root {...baseProps} />
   }
 
-  return (
-    <a {...baseProps} />
-  )
+  return <a {...baseProps} />
 }
 
 export {
