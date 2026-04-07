@@ -45,9 +45,21 @@ CREATE TABLE "Domain" (
 );
 
 -- CreateTable
+CREATE TABLE "ApiGroup" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ApiGroup_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Api" (
     "id" TEXT NOT NULL,
     "domainId" TEXT NOT NULL,
+    "apiGroupId" TEXT,
     "path" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "method" "methodEnum" NOT NULL,
@@ -128,6 +140,9 @@ ALTER TABLE "Domain" ADD CONSTRAINT "Domain_userId_fkey" FOREIGN KEY ("userId") 
 
 -- AddForeignKey
 ALTER TABLE "Api" ADD CONSTRAINT "Api_domainId_fkey" FOREIGN KEY ("domainId") REFERENCES "Domain"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Api" ADD CONSTRAINT "Api_apiGroupId_fkey" FOREIGN KEY ("apiGroupId") REFERENCES "ApiGroup"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ApiResponse" ADD CONSTRAINT "ApiResponse_apiId_fkey" FOREIGN KEY ("apiId") REFERENCES "Api"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

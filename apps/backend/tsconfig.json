@@ -12,6 +12,7 @@
     "preserveSymlinks": true,
     "types": [],
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],

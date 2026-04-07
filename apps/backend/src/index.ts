@@ -32,7 +32,7 @@ app.get("/health", (req: Request, res: Response) => {
   return res.json({ status: "OK" });
 });
 
-app.use("/", router);
+app.use("/api/v1", router);
 
 app.use(notFound);
 app.use(errorHandler);

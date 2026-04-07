@@ -4,12 +4,14 @@ import queueName from "./utils/getQueueName.js";
 import type { jobDataType } from "./types/job.js";
 
 import prisma from "@repo/db/client";
+import ApiService from "./service/api.service.js";
 
 const worker = new Worker(
   queueName,
   async (job) => {
     console.log(job.id);
     const { apiId } = job.data as jobDataType;
+    await ApiService.fetchAndStore(apiId);
   },
   {
     connection,

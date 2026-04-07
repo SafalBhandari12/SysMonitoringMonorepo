@@ -1,4 +1,4 @@
-import type { apiDetailsSchema } from "../schema/schema.js";
+import type { apiDetailsSchema } from "../schema/api.schema.js";
 import { CONFLICT_ERROR, NotFoundError } from "../lib/AppError.js";
 import REGIONS from "../constants/regions.js";
 import getApiMonitoringQueue from "../queue/apiMonitoringQueue.js";
@@ -24,6 +24,17 @@ class ApiService {
     if (!domainExists) {
       throw new NotFoundError("Domain not found");
     }
+
+    // Validate API group if provided
+    if (apiDetails.apiGroupId) {
+      const apiGroupExists = await prisma.apiGroup.findUnique({
+        where: { id: apiDetails.apiGroupId },
+      });
+      if (!apiGroupExists) {
+        throw new NotFoundError("API Group not found");
+      }
+    }
+
     const apiCount = await prisma.api.count({
       where: { domainId },
     });
@@ -65,6 +76,7 @@ class ApiService {
         ...(apiDetails.body && { body: apiDetails.body }),
         ...(apiDetails.queryParams && { queryParams: apiDetails.queryParams }),
         ...(apiDetails.pathParams && { pathParams: apiDetails.pathParams }),
+        ...(apiDetails.apiGroupId && { apiGroupId: apiDetails.apiGroupId }),
         domainId,
       },
       select: {
@@ -79,7 +91,7 @@ class ApiService {
           apiId: response.id,
         },
         {
-          repeat: { every: 1000, immediately: true },
+          repeat: { every: 10000, immediately: true },
           jobId: `api-${response.id}`,
         },
       );

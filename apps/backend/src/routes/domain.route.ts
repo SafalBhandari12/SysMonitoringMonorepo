@@ -12,13 +12,13 @@ router.post("/register-domain", asyncHandler(DomainController.registerDomain));
 router.post("/verify-domain", asyncHandler(DomainController.verifyDomain));
 
 router.get(
-"/verification-status",
+  "/verification-status",
   asyncHandler(DomainController.GetVerificationStatus),
 );
 
 router.get(
   "/verification-instructions",
-  asyncHandler(DomainController.GetVerificationStatus),
+  asyncHandler(DomainController.verificationInstructions),
 );
 
 router.get("/details", asyncHandler(DomainController.apiStatusDetails));

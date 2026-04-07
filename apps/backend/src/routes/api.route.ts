@@ -7,6 +7,7 @@ const router = Router();
 
 router.use(authenticationMiddleware);
 
+
 router.post("/add/:domainId", asyncHandler(ApiController.addApi));
 
 export default router;

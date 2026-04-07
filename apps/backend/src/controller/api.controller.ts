@@ -1,9 +1,5 @@
 import type { Request, Response } from "express";
-import {
-  apiDetailsSchema,
-  domainSchema,
-  uuidSchema,
-} from "../schema/schema.js";
+import { apiDetailsSchema, uuidSchema } from "../schema/api.schema.js";
 import ApiService from "../services/api.service.js";
 class ApiController {
   static async addApi(req: Request, res: Response) {

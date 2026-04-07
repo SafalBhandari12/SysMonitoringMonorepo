@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { apiDetailsSchema, domainSchema } from "../schema/schema.js";
+import { domainSchema } from "../schema/domain.schema.js";
 import DomainService from "../services/domain.service.js";
 
 class DomainController {
