@@ -1,4 +1,5 @@
-const region = process.env.region || "IN";
-const queueName = `api-monitoring-${region}`;
+import { ENV } from "../constants/env.js";
+
+const queueName = `api-monitoring-${ENV.REGION}`;
 
 export default queueName;

@@ -1,10 +1,9 @@
-import connection from "./utils/redis.js";
 import { Worker } from "bullmq";
 import queueName from "./utils/getQueueName.js";
 import type { jobDataType } from "./types/job.js";
 
-import prisma from "@repo/db/client";
 import ApiService from "./service/api.service.js";
+import redis from "./utils/redis.js";
 
 const worker = new Worker(
   queueName,
@@ -14,14 +13,14 @@ const worker = new Worker(
     await ApiService.fetchAndStore(apiId);
   },
   {
-    connection,
+    connection: redis,
   },
 );
 
 worker.on("completed", (job) => {
-  console.log(`Job with id ${job.id} has completed!`);
+  console.log(`Job with id ${job.id} has completed`);
 });
 
 worker.on("failed", (job, err) => {
-  console.log(`Job has failed with error ${err.message}`);
+  console.error(`Job with id ${job?.id} has failed with error: ${err.message}`);
 });

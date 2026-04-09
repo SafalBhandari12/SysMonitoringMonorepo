@@ -1,6 +1,13 @@
 import prisma from "@repo/db/client";
 import { apiStatusEnum, methodEnum } from "@repo/db";
 import { getResponse } from "./fetch.js";
+import redis from "../utils/redis.js";
+import {
+  FAILURE_THRESHOLD,
+  LOOKBACK_PERIOD,
+  RECOVERY_THRESHOLD,
+} from "../constants/incident.js";
+import { ENV } from "../constants/env.js";
 
 class ApiService {
   static async fetchAndStore(apiId: string) {
@@ -29,30 +36,42 @@ class ApiService {
         : `https://${api.domain.domain}${api.path}`;
     const data = await getResponse(apiUrl, api.method);
 
+    const key = `api_failures:${apiId}`;
+    const now = Date.now();
+
     await prisma.$transaction(async (tx) => {
       if (data.status !== apiStatusEnum.UP) {
-        const isThereIncident = await tx.incident.findFirst({
-          where: { apiId, status: "ONGOING" },
-        });
-        if (!isThereIncident) {
-          await tx.incident.create({
-            data: {
-              apiId,
-              title: "",
-              status: "ONGOING",
-            },
+        await redis.zadd(key, now, `${apiId}-${ENV.REGION}:${now}`);
+        await redis.zremrangebyscore(key, 0, now - LOOKBACK_PERIOD);
+        const count = await redis.zcount(key, now - LOOKBACK_PERIOD, now);
+        if (count >= FAILURE_THRESHOLD) {
+          const isThereIncident = await tx.incident.findFirst({
+            where: { apiId, status: "ONGOING" },
           });
+          if (!isThereIncident) {
+            await tx.incident.create({
+              data: {
+                apiId,
+                title: `API Failure Detected - ${api.path}`,
+                status: "ONGOING",
+              },
+            });
+          }
         }
       } else {
-        const lastIncident = await tx.incident.findFirst({
-          where: { apiId },
-          orderBy: { createdAt: "desc" },
-        });
-        if (lastIncident && lastIncident.status === "ONGOING") {
-          await tx.incident.update({
-            where: { id: lastIncident.id },
-            data: { status: "RESOLVED" },
+        const count = await redis.zcount(key, now - LOOKBACK_PERIOD, now);
+
+        if (count < RECOVERY_THRESHOLD) {
+          const lastIncident = await tx.incident.findFirst({
+            where: { apiId },
+            orderBy: { createdAt: "desc" },
           });
+          if (lastIncident && lastIncident.status === "ONGOING") {
+            await tx.incident.update({
+              where: { id: lastIncident.id },
+              data: { status: "RESOLVED" },
+            });
+          }
         }
       }
       await tx.apiResponse.create({
