@@ -1,4 +1,3 @@
-
 import { DomainVerificationStatus } from "@repo/db";
 import {
   BadRequestError,
@@ -45,7 +44,7 @@ class DomainService {
           type: "exponential",
           delay: 60 * 1000, //1 minute
         },
-        removeOnComplete: 200,
+        removeOnComplete: true,
         removeOnFail: 200,
       },
     );
@@ -71,7 +70,10 @@ class DomainService {
     if (
       domainDetails.verificationStatus === DomainVerificationStatus.VERIFIED
     ) {
-      return { verificationStatus: DomainVerificationStatus.VERIFIED };
+      return {
+        verificationStatus: DomainVerificationStatus.VERIFIED,
+        id: domainDetails.id,
+      };
     }
     let isVerified = false;
     try {
@@ -121,6 +123,7 @@ class DomainService {
       },
       select: {
         verificationStatus: true,
+        id: true,
       },
     });
     return updated;
@@ -162,7 +165,8 @@ class DomainService {
         name: true,
         path: true,
         method: true,
-        upTime: true,
+        upCount: true,
+        totalCounts: true,
         dailyStats: {
           where: {
             date: {

@@ -6,6 +6,7 @@ import type {
 } from "../schema/incident.schema.js";
 import { NotFoundError } from "../lib/AppError.js";
 
+
 class IncidentService {
   static async getAllIncidents(filters: getIncidentsFilterSchema) {
     const { status, apiId, startDate, endDate, page, limit } = filters;

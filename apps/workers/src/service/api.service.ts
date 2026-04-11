@@ -47,6 +47,7 @@ class ApiService {
         if (count >= FAILURE_THRESHOLD) {
           const isThereIncident = await tx.incident.findFirst({
             where: { apiId, status: "ONGOING" },
+            select: { regions: true, id: true },
           });
           if (!isThereIncident) {
             await tx.incident.create({
@@ -54,6 +55,20 @@ class ApiService {
                 apiId,
                 title: `API Failure Detected - ${api.path}`,
                 status: "ONGOING",
+                regions: [ENV.REGION],
+              },
+            });
+          }
+          if (
+            isThereIncident?.regions &&
+            !isThereIncident.regions.includes(ENV.REGION)
+          ) {
+            await tx.incident.update({
+              where: { id: isThereIncident.id },
+              data: {
+                regions: Array.from(
+                  new Set([...isThereIncident.regions, ENV.REGION]),
+                ),
               },
             });
           }
@@ -80,6 +95,7 @@ class ApiService {
           status: data.status,
           responseTime: data.responseTime,
           statusCode: data.statusCode,
+          region: ENV.REGION,
         },
       });
       const today = new Date();
@@ -98,10 +114,19 @@ class ApiService {
           }),
         },
         create: {
-          apiId,
+          apiId,  
           totalCount: 1,
           ...(data.status === apiStatusEnum.UP && { upCount: 1 }),
           date: today,
+        },
+      });
+      await tx.api.update({
+        where: { id: apiId },
+        data: {
+          totalCounts: { increment: 1 },
+          ...(data.status === apiStatusEnum.UP && {
+            upCount: { increment: 1 },
+          }),
         },
       });
     });

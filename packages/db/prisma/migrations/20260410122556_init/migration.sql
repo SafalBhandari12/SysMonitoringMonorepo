@@ -51,6 +51,7 @@ CREATE TABLE "ApiGroup" (
     "description" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT NOT NULL,
 
     CONSTRAINT "ApiGroup_pkey" PRIMARY KEY ("id")
 );
@@ -137,6 +138,9 @@ CREATE INDEX "Incident_apiId_createdAt_idx" ON "Incident"("apiId", "createdAt" D
 
 -- AddForeignKey
 ALTER TABLE "Domain" ADD CONSTRAINT "Domain_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ApiGroup" ADD CONSTRAINT "ApiGroup_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Api" ADD CONSTRAINT "Api_domainId_fkey" FOREIGN KEY ("domainId") REFERENCES "Domain"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

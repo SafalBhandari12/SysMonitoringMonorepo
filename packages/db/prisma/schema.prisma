@@ -44,6 +44,14 @@ enum plans{
   ENTERPRISE 
 }
 
+enum regions{
+  SA
+  SG
+  EU
+  US
+  IN
+}
+
 model User{
   id String @id @default(uuid())  
   email String @unique
@@ -115,7 +123,8 @@ model Api {
   pathParams Json?
   queryParams Json?
 
-  upTime              Int @default(0) // Percentage of  successful responses
+  upCount              Int @default(0) // Number of successful responses
+  totalCounts         Int @default(0)
 
   response   ApiResponse[]
   dailyStats DailyStats[]
@@ -136,6 +145,7 @@ model ApiResponse {
   responseTime Int // in milliseconds
   statusCode   Int
   status       apiStatusEnum
+  region regions
 
   createdAt DateTime @default(now())
 
@@ -163,6 +173,8 @@ model Incident {
 
   title String
   description String?
+
+  regions regions[]
 
   apiId String
   api Api @relation(fields: [apiId], references: [id])
