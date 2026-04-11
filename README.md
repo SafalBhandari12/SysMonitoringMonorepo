@@ -1,159 +1,186 @@
-# Turborepo starter
+# Monitoring Platform Architecture
 
-This Turborepo starter is maintained by the Turborepo core team.
+This repository is a Turborepo monorepo for a domain and API monitoring platform.
+It includes:
 
-## Using this example
+- A Next.js frontend for authentication and dashboard UX
+- An Express backend for API, auth, orchestration, and queue producers
+- A dedicated BullMQ worker app for API monitoring execution
+- A shared Prisma database package and shared types package
 
-Run the following command:
+## Monorepo Layout
+
+Top-level workspace groups:
+
+- apps
+  - backend: Express API and service orchestration
+  - frontend: Next.js App Router application
+  - workers: background worker process for monitoring jobs
+- packages
+  - db: Prisma schema, generated client, enums, and DB exports
+  - types: shared cross-app types
+  - eslint-config, typescript-config, ui: shared tooling and UI library
+
+Build and task orchestration is managed by Turbo through root scripts.
+
+## Runtime Components
+
+### 1) Frontend (Next.js)
+
+The frontend is located in apps/frontend and uses the App Router.
+
+Primary responsibilities:
+
+- Landing and login user flows
+- Dashboard and operational views
+- Calling backend API endpoints
+- Rendering monitoring insights using componentized UI
+
+Global app layout wires theme support and shared styling.
+
+### 2) Backend API (Express)
+
+The backend runs an Express server with:
+
+- JSON parsing middleware
+- Redis-backed session management (express-session + connect-redis)
+- Versioned route namespace under /api/v1
+- Central not-found and error handlers
+
+Current route groups include:
+
+- /auth
+- /domain
+- /api
+- /api-group
+- /incident
+
+The backend follows a layered structure:
+
+- controller: request/response handlers
+- services: business logic and orchestration
+- routes: route definitions and composition
+- middleware: auth and domain guards
+- queue: BullMQ queue producers/factories
+- workers: backend-owned queue consumers for selected jobs
+
+### 3) Worker App (BullMQ Consumer)
+
+The workers app (apps/workers) runs a BullMQ Worker that consumes a region-specific monitoring queue and executes API checks.
+
+Core behavior:
+
+- Reads jobs containing apiId
+- Calls service logic to fetch/store monitoring outcomes
+- Logs completion and failure for operational visibility
+
+This process is separated from the API server to isolate background execution from request latency.
+
+### 4) Shared Database Package (Prisma)
+
+The db package defines the PostgreSQL data model and exports generated Prisma artifacts and enums for all apps.
+
+Key entities:
+
+- User
+- Domain
+- ApiGroup
+- Api
+- ApiMetrics
+- ApiResponse
+- DailyStats
+- Incident
+
+Key enums:
+
+- DomainVerificationStatus
+- methodEnum
+- apiStatusEnum
+- incidentStatusEnum
+- plans
+- regions
+
+## Data and Control Flow
+
+### Domain onboarding and verification
+
+1. User registers a domain via backend API.
+2. Backend persists the Domain with verification metadata.
+3. Backend enqueues a domain verification job with retries/backoff.
+4. Domain verification worker resolves DNS and validates TXT token.
+5. Domain verification status is updated in Postgres.
+
+### API monitoring setup
+
+1. User adds an API endpoint under a domain.
+2. Backend validates domain ownership, plan limits, and uniqueness.
+3. Backend creates API metrics rows per region.
+4. Backend schedules recurring monitoring jobs per region queue.
+5. Worker app consumes jobs and stores response outcomes.
+
+### Percentile calculations
+
+1. On domain registration, backend schedules repeating percentile jobs.
+2. Percentile worker consumes jobs and computes aggregates.
+3. Aggregated metrics are written to ApiMetrics for dashboard use.
+
+## Queue Architecture (BullMQ + Redis)
+
+Current queue topology:
+
+- domain-verification
+- percentile-calculation
+- api-monitoring-<region>
+
+Design notes:
+
+- Backend produces jobs and controls scheduling semantics.
+- Workers consume and execute compute/network-heavy tasks.
+- Queue names are centralized in constants and helper utilities.
+
+## Persistence Architecture (PostgreSQL)
+
+Storage concerns are centralized in Prisma models:
+
+- Domain ownership and verification lifecycle
+- Endpoint definitions and request details (method, headers/body/params)
+- Time-series response records by region
+- Aggregated availability and latency metrics
+- Incident lifecycle tracking
+
+This split supports both real-time checks and historical trend analysis.
+
+## Security and Session Model
+
+- Authentication uses Google OIDC flow in backend auth service/controller.
+- Session state is persisted in Redis.
+- Backend stores authenticated user identity in session for protected routes.
+
+## Current Architectural Characteristics
+
+- Clear separation between synchronous API handling and asynchronous monitoring work
+- Region-partitioned queue strategy for monitoring scalability
+- Shared schema/types packages to avoid contract drift across services
+- Monorepo task orchestration via Turbo for consistent build/dev flows
+
+## Running the Repository
+
+From the repository root:
 
 ```sh
-npx create-turbo@latest
+npm install
+npm run dev
 ```
 
-## What's inside?
+Common root scripts:
 
-This Turborepo includes the following packages/apps:
+- npm run dev
+- npm run build
+- npm run lint
+- npm run check-types
 
-### Apps and Packages
+## Notes
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- Node engine is configured as >= 18 at the root.
+- Backend and workers depend on Redis and PostgreSQL availability.
+- The architecture is optimized for continuous API health checks with background processing.
