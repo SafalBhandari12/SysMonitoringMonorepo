@@ -4,6 +4,7 @@ import REGIONS from "../constants/regions.js";
 import getApiMonitoringQueue from "../queue/apiMonitoringQueue.js";
 import prisma from "@repo/db/client";
 import type { plans } from "@repo/db";
+import getRegions from "src/utils/getRegions.js";
 
 const apiCountPerPlan: Record<plans, number> = {
   FREE: 5,
@@ -84,6 +85,13 @@ class ApiService {
       },
     });
     for (const region of REGIONS) {
+      console.log(region);
+      await prisma.apiMetrics.create({
+        data: {
+          apiId: response.id,
+          region: getRegions(region),
+        },
+      });
       const apiMonitoringQueue = getApiMonitoringQueue(region);
       await apiMonitoringQueue.add(
         "check-api",

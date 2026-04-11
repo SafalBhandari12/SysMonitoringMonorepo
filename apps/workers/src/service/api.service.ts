@@ -102,9 +102,9 @@ class ApiService {
       today.setHours(0, 0, 0, 0);
       await tx.dailyStats.upsert({
         where: {
-          apiId_date: {
-            apiId,
+          date_region: {
             date: today,
+            region: ENV.REGION,
           },
         },
         update: {
@@ -114,16 +114,22 @@ class ApiService {
           }),
         },
         create: {
-          apiId,  
+          apiId,
           totalCount: 1,
           ...(data.status === apiStatusEnum.UP && { upCount: 1 }),
           date: today,
+          region: ENV.REGION,
         },
       });
-      await tx.api.update({
-        where: { id: apiId },
+      await tx.apiMetrics.update({
+        where: {
+          apiId_region: {
+            apiId,
+            region: ENV.REGION,
+          },
+        },
         data: {
-          totalCounts: { increment: 1 },
+          totalCount: { increment: 1 },
           ...(data.status === apiStatusEnum.UP && {
             upCount: { increment: 1 },
           }),

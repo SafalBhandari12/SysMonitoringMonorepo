@@ -23,4 +23,6 @@ router.get(
 
 router.get("/details", asyncHandler(DomainController.apiStatusDetails));
 
+router.get("/domainStats",asyncHandler(DomainController.getDomainStats));
+
 export default router;

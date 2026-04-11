@@ -123,11 +123,9 @@ model Api {
   pathParams Json?
   queryParams Json?
 
-  upCount              Int @default(0) // Number of successful responses
-  totalCounts         Int @default(0)
-
   response   ApiResponse[]
   dailyStats DailyStats[]
+  metrics    ApiMetrics[]
   incidents  Incident[]
 
   processingStatus Boolean @default(false)
@@ -136,6 +134,27 @@ model Api {
   updatedAt DateTime @updatedAt
 
   @@unique([domainId, path])
+}
+
+model ApiMetrics {
+  id String @id @default(uuid())
+  
+  apiId String
+  api   Api    @relation(fields: [apiId], references: [id], onDelete: Cascade)
+  
+  region regions
+
+  averageResponseTime Float @default(0) // in milliseconds
+  p90ResponseTime     Float @default(0) // in milliseconds
+  p99ResponseTime     Float @default(0) // in milliseconds
+
+  upCount Int @default(0)
+  totalCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([apiId, region])
 }
 
 model ApiResponse {
@@ -160,13 +179,15 @@ model DailyStats {
   api   Api    @relation(fields: [apiId], references: [id])
 
   date       DateTime
-  upCount    Int      @default(0)
-  totalCount Int      @default(0)
+ 
+  region regions
+  
+  upCount Int @default(0)
+  totalCount Int @default(0)
 
-  upTime Int @default(0) // Percentage of successful responses
-
-  @@unique([apiId, date])
+  @@unique([date,region])
 }
+
 
 model Incident {
   id String @id @default(uuid())

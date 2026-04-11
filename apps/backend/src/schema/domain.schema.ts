@@ -26,3 +26,5 @@ export const domainSchema = zod.object({
 });
 
 export type domainSchema = zod.infer<typeof domainSchema>;
+
+export const domainStatsRequestSchema = domainSchema;

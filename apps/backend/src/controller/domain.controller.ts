@@ -47,5 +47,11 @@ class DomainController {
     );
     return res.json(response);
   }
+  static async getDomainStats(req: Request, res: Response) {
+    const data = await domainSchema.parseAsync(req.query);
+    const userId = req.session.sessionId!;
+    const response = await DomainService.getDomainStats(data.domain, userId);
+    return res.json(response);
+  }
 }
 export default DomainController;

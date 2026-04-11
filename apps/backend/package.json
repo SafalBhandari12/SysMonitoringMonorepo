@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx src/index.ts",
-    "workers": "npx tsx src/workers/DomainVerificationWorker.ts",
+    "workers": "npx tsx src/workers/DomainVerificationWorker.ts && npx tsx src/workers/percentileWorker.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },
