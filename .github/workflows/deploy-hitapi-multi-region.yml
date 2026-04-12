@@ -27,10 +27,8 @@ jobs:
         include:
           - logicalRegion: KR
             azureRegion: koreacentral
-            functionAppName: ${{ secrets.AZURE_FUNCTIONAPP_NAME_KR }}
           - logicalRegion: IN
             azureRegion: centralindia
-            functionAppName: ${{ secrets.AZURE_FUNCTIONAPP_NAME_IN }}
 
     steps:
       - name: Checkout
@@ -59,5 +57,5 @@ jobs:
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ matrix.functionAppName }}
+          app-name: ${{ matrix.logicalRegion == 'KR' && secrets.AZURE_FUNCTIONAPP_NAME_KR || secrets.AZURE_FUNCTIONAPP_NAME_IN }}
           package: ${{ env.FUNCTION_APP_PACKAGE_PATH }}
