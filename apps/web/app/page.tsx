@@ -1,4 +1,5 @@
 import "./landing.css";
+import Link from "next/link";
 import {
   Sparkles,
   Zap,
@@ -20,28 +21,28 @@ export default function Home() {
     <>
       {/* Navigation */}
       <nav>
-        <a href="#" className="nav-logo">
+        <Link href="/" className="nav-logo">
           <span className="nav-logo-mark"></span>
           Watchlayer
-        </a>
+        </Link>
         <ul className="nav-links">
           <li>
-            <a href="#features">Features</a>
+            <Link href="#features">Features</Link>
           </li>
           <li>
-            <a href="#how">How it works</a>
+            <Link href="#how">How it works</Link>
           </li>
           <li>
-            <a href="#incidents">Incidents</a>
+            <Link href="#incidents">Incidents</Link>
           </li>
           <li>
-            <a href="#regions">Regions</a>
+            <Link href="#regions">Regions</Link>
           </li>
         </ul>
         <div className="nav-right">
-          <a href="#" className="btn btn-outline">
+          <Link href="/login" className="btn btn-outline">
             Sign in
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -58,19 +59,20 @@ export default function Home() {
           get alerted before anyone notices.
         </p>
         <div className="hero-actions">
-          <a href="#" className="btn-hero btn-hero-dark">
+          <Link href="/signup" className="btn-hero btn-hero-dark">
             Start monitoring free{" "}
             <ArrowRight
               size={18}
               style={{ display: "inline", marginLeft: "6px" }}
             />
-          </a>
-          <a href="#" className="btn-hero btn-hero-light">
+          </Link>
+          <Link href="/docs" className="btn-hero btn-hero-light">
             Read the docs
-          </a>
+          </Link>
         </div>
         <p className="hero-note">
-          Or, <a href="#">run it yourself</a> with the open-source version.
+          Or, <Link href="/open-source">run it yourself</Link> with the
+          open-source version.
         </p>
 
         {/* Terminal */}
@@ -829,13 +831,18 @@ export default function Home() {
               Express.js server with Prisma ORM. Handle domain registration, API
               setup, and queue jobs.
             </div>
-            <a href="#" className="oss-link">
+            <Link
+              href="https://github.com/watchlayer/backend"
+              className="oss-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               github.com/watchlayer/backend{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
               />
-            </a>
+            </Link>
           </div>
           <div className="oss-cell">
             <div className="oss-label">Worker Queue</div>
@@ -843,13 +850,18 @@ export default function Home() {
               BullMQ-powered workers for DNS verification and HTTP monitoring.
               Deploy to any Node.js container.
             </div>
-            <a href="#" className="oss-link">
+            <Link
+              href="https://github.com/watchlayer/workers"
+              className="oss-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               github.com/watchlayer/workers{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
               />
-            </a>
+            </Link>
           </div>
           <div className="oss-cell">
             <div className="oss-label">Schema & Types</div>
@@ -857,13 +869,18 @@ export default function Home() {
               Prisma schema, TypeScript types, and shared utilities. Unified
               across all apps in the monorepo.
             </div>
-            <a href="#" className="oss-link">
+            <Link
+              href="https://github.com/watchlayer/packages"
+              className="oss-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               github.com/watchlayer/packages{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
               />
-            </a>
+            </Link>
           </div>
           <div className="oss-cell">
             <div className="oss-label">Web Dashboard</div>
@@ -871,13 +888,18 @@ export default function Home() {
               Next.js frontend for viewing incidents, metrics, and historical
               data. Self-hosted or Watchlayer Cloud.
             </div>
-            <a href="#" className="oss-link">
+            <Link
+              href="https://github.com/watchlayer/web"
+              className="oss-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               github.com/watchlayer/web{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
               />
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -962,16 +984,16 @@ export default function Home() {
           </div>
 
           <div className="quickstart-actions">
-            <a href="#" className="btn-hero btn-hero-dark">
+            <Link href="/signup" className="btn-hero btn-hero-dark">
               Start monitoring free{" "}
               <ArrowRight
                 size={18}
                 style={{ display: "inline", marginLeft: "6px" }}
               />
-            </a>
-            <a href="#" className="btn-hero btn-hero-light">
+            </Link>
+            <Link href="/docs" className="btn-hero btn-hero-light">
               View documentation
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -979,10 +1001,10 @@ export default function Home() {
       {/* FOOTER */}
       <footer>
         <div>
-          <div className="nav-logo" style={{ marginBottom: "8px" }}>
+          <Link href="/" className="nav-logo" style={{ marginBottom: "8px" }}>
             <span className="nav-logo-mark"></span>
             Watchlayer
-          </div>
+          </Link>
           <p
             style={{
               fontSize: "12.5px",
@@ -1010,19 +1032,19 @@ export default function Home() {
           <div className="footer-col-label">Product</div>
           <ul className="footer-links">
             <li>
-              <a href="#">Features</a>
+              <Link href="#features">Features</Link>
             </li>
             <li>
-              <a href="#">Pricing</a>
+              <Link href="/pricing">Pricing</Link>
             </li>
             <li>
-              <a href="#">Documentation</a>
+              <Link href="/docs">Documentation</Link>
             </li>
             <li>
-              <a href="#">Status</a>
+              <Link href="/status">Status</Link>
             </li>
             <li>
-              <a href="#">Open Source</a>
+              <Link href="#">Open Source</Link>
             </li>
           </ul>
         </div>
@@ -1031,16 +1053,34 @@ export default function Home() {
           <div className="footer-col-label">Community</div>
           <ul className="footer-links">
             <li>
-              <a href="#">GitHub</a>
+              <Link
+                href="https://github.com/watchlayer"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </Link>
             </li>
             <li>
-              <a href="#">Discord</a>
+              <Link
+                href="https://discord.gg/watchlayer"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Discord
+              </Link>
             </li>
             <li>
-              <a href="#">Twitter</a>
+              <Link
+                href="https://twitter.com/watchlayer"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Twitter
+              </Link>
             </li>
             <li>
-              <a href="#">Blog</a>
+              <Link href="/blog">Blog</Link>
             </li>
           </ul>
         </div>
@@ -1049,16 +1089,16 @@ export default function Home() {
           <div className="footer-col-label">Company</div>
           <ul className="footer-links">
             <li>
-              <a href="#">About</a>
+              <Link href="/about">About</Link>
             </li>
             <li>
-              <a href="#">Contact</a>
+              <Link href="/contact">Contact</Link>
             </li>
             <li>
-              <a href="#">Privacy</a>
+              <Link href="/privacy">Privacy</Link>
             </li>
             <li>
-              <a href="#">Terms</a>
+              <Link href="/terms">Terms</Link>
             </li>
           </ul>
         </div>

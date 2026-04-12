@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { loraFont, ibmPlexMono, ibmPlexSans } from "./fonts";
 import "./globals.css";
-import "./landing.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

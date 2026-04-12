@@ -1,54 +1,10 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  --bg: #fafaf8;
-  --bg-off: #f2f2ee;
-  --bg-dark: #111110;
-  --border: #e2e2dc;
-  --border-dark: #2a2a28;
-  --text: #111110;
-  --text-2: #666660;
-  --text-3: #999992;
-  --accent: #e85d04;
-  --accent2: #2563eb;
-  --green: #16a34a;
-  --red: #dc2626;
-  --serif: var(--font-lora), Georgia, serif;
-  --mono: var(--font-ibm-plex-mono), "Courier New", monospace;
-  --sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
-}
-
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-}
-
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
 /* NAVIGATION */
 nav {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--landing-bg);
+  border-bottom: 1px solid var(--landing-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -58,7 +14,7 @@ nav {
 }
 
 .nav-logo {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-weight: 500;
   font-size: 16px;
   letter-spacing: -0.01em;
@@ -96,13 +52,13 @@ nav {
 }
 
 .nav-links a {
-  color: var(--text-2);
+  color: var(--landing-text-2);
   font-size: 14px;
   transition: color 0.15s;
 }
 
 .nav-links a:hover {
-  color: var(--text);
+  color: var(--landing-text);
 }
 
 .nav-right {
@@ -116,7 +72,7 @@ nav {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 13px;
   font-weight: 500;
   padding: 8px 18px;
@@ -129,18 +85,18 @@ nav {
 
 .btn-outline {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-2);
+  border: 1px solid var(--landing-border);
+  color: var(--landing-text-2);
 }
 
 .btn-outline:hover {
-  border-color: var(--text-3);
-  color: var(--text);
+  border-color: var(--landing-text-3);
+  color: var(--landing-text);
 }
 
 .btn-solid {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--landing-text);
+  color: var(--landing-bg);
 }
 
 .btn-solid:hover {
@@ -148,7 +104,7 @@ nav {
 }
 
 .btn-hero {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
   font-weight: 500;
   padding: 12px 24px;
@@ -163,8 +119,8 @@ nav {
 }
 
 .btn-hero-dark {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--landing-text);
+  color: var(--landing-bg);
 }
 
 .btn-hero-dark:hover {
@@ -173,13 +129,13 @@ nav {
 
 .btn-hero-light {
   background: transparent;
-  color: var(--text-2);
-  border: 1px solid var(--border);
+  color: var(--landing-text-2);
+  border: 1px solid var(--landing-border);
 }
 
 .btn-hero-light:hover {
-  border-color: var(--text-3);
-  color: var(--text);
+  border-color: var(--landing-text-3);
+  color: var(--landing-text);
 }
 
 /* HERO SECTION */
@@ -191,7 +147,7 @@ nav {
 }
 
 .hero h1 {
-  font-family: var(--serif);
+  font-family: var(--font-lora), Georgia, serif;
   font-size: clamp(2.8rem, 6vw, 4.5rem);
   font-weight: 400;
   line-height: 1.15;
@@ -201,12 +157,12 @@ nav {
 
 .hero h1 em {
   font-style: italic;
-  color: var(--text-2);
+  color: var(--landing-text-2);
 }
 
 .hero-sub {
   font-size: 1.15rem;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   max-width: 600px;
   margin: 0 auto 2.5rem;
   line-height: 1.8;
@@ -223,22 +179,22 @@ nav {
 }
 
 .hero-note {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 13px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   margin-top: 1.5rem;
 }
 
 .hero-note a {
-  color: var(--text-2);
-  border-bottom: 1px solid var(--border);
+  color: var(--landing-text-2);
+  border-bottom: 1px solid var(--landing-border);
 }
 
 /* TERMINAL */
 .terminal-wrap {
   max-width: 800px;
   margin: 3.5rem auto 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 8px;
   overflow: hidden;
   text-align: left;
@@ -251,8 +207,8 @@ nav {
   align-items: center;
   gap: 6px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-off);
+  border-bottom: 1px solid var(--landing-border);
+  background: var(--landing-bg-off);
 }
 
 .t-dot {
@@ -263,60 +219,69 @@ nav {
 
 .t-bar-label {
   margin-left: 10px;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
 }
 
 .terminal-body {
   padding: 2rem;
 }
 
-pre {
-  font-family: var(--mono);
+.pre {
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 13px;
   line-height: 1.8;
-  color: var(--text);
+  color: var(--landing-text);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+pre {
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--landing-text);
   white-space: pre;
   overflow-x: auto;
 }
 
 .c-dim {
-  color: var(--text-3);
+  color: var(--landing-text-3);
 }
 
 .c-green {
-  color: var(--green);
+  color: var(--landing-green);
   font-weight: 500;
 }
 
 .c-orange {
-  color: var(--accent);
+  color: var(--landing-accent);
   font-weight: 500;
 }
 
 .c-blue {
-  color: var(--accent2);
+  color: var(--landing-accent2);
   font-weight: 500;
 }
 
 .c-red {
-  color: var(--red);
+  color: var(--landing-red);
   font-weight: 500;
 }
 
 /* LOGOS SECTION */
 .logos-section {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--landing-border);
+  border-bottom: 1px solid var(--landing-border);
   padding: 3rem 2.5rem;
 }
 
 .logos-label {
   text-align: center;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 2rem;
@@ -332,15 +297,15 @@ pre {
 }
 
 .logo-item {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   font-weight: 500;
 }
 
 hr.divider {
   border: none;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--landing-border);
 }
 
 /* SECTIONS */
@@ -354,25 +319,25 @@ hr.divider {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 13px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   margin-bottom: 1.5rem;
   font-weight: 500;
 }
 
 .inline-icon {
-  color: var(--text-3);
+  color: var(--landing-text-3);
   flex-shrink: 0;
 }
 
 .feat-sym-icon {
-  color: var(--text-2);
+  color: var(--landing-text-2);
   flex-shrink: 0;
 }
 
 .section-h2 {
-  font-family: var(--serif);
+  font-family: var(--font-lora), Georgia, serif;
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 400;
   line-height: 1.2;
@@ -383,7 +348,7 @@ hr.divider {
 
 .section-desc {
   font-size: 16px;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   max-width: 600px;
   line-height: 1.8;
   font-weight: 300;
@@ -394,7 +359,7 @@ hr.divider {
 .stats-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 3rem;
@@ -403,7 +368,7 @@ hr.divider {
 
 .stat-cell {
   padding: 2rem 1.5rem;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--landing-border);
 }
 
 .stat-cell:last-child {
@@ -411,7 +376,7 @@ hr.divider {
 }
 
 .stat-num {
-  font-family: var(--serif);
+  font-family: var(--font-lora), Georgia, serif;
   font-size: 3rem;
   font-weight: 400;
   line-height: 1;
@@ -419,9 +384,9 @@ hr.divider {
 }
 
 .stat-label {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 500;
@@ -461,14 +426,14 @@ hr.divider {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
 }
 
 /* FEATURES TABLE */
 .feat-table-wrap {
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 2.5rem;
@@ -478,7 +443,7 @@ hr.divider {
 .feat-row {
   display: grid;
   grid-template-columns: 240px 1fr;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--landing-border);
 }
 
 .feat-row:last-child {
@@ -487,47 +452,47 @@ hr.divider {
 
 .feat-left {
   padding: 1.75rem;
-  border-right: 1px solid var(--border);
-  background: var(--bg-off);
+  border-right: 1px solid var(--landing-border);
+  background: var(--landing-bg-off);
   display: flex;
   align-items: flex-start;
   gap: 12px;
 }
 
 .feat-sym {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 18px;
-  color: var(--accent);
+  color: var(--landing-accent);
   flex-shrink: 0;
   margin-top: 2px;
   display: none;
 }
 
 .feat-sym-icon {
-  color: var(--accent);
+  color: var(--landing-accent);
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .feat-name {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--landing-text);
   line-height: 1.4;
 }
 
 .feat-sub {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   margin-top: 4px;
 }
 
 .feat-right {
   padding: 1.75rem;
   font-size: 15px;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   line-height: 1.8;
   font-weight: 300;
 }
@@ -551,7 +516,7 @@ hr.divider {
   display: flex;
   gap: 1.5rem;
   padding: 1.75rem 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--landing-border);
 }
 
 .step:last-child {
@@ -559,41 +524,41 @@ hr.divider {
 }
 
 .step-num {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
-  color: var(--accent);
+  color: var(--landing-accent);
   font-weight: 700;
   min-width: 32px;
   margin-top: 2px;
 }
 
 .step-title {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--landing-text);
   margin-bottom: 6px;
 }
 
 .step-desc {
   font-size: 15px;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   font-weight: 300;
   line-height: 1.8;
 }
 
 /* ASCII BLOCKS */
 .ascii-block {
-  background: var(--bg-dark);
+  background: var(--landing-bg-dark);
   color: #d0d0c8;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
   line-height: 1.7;
   padding: 2rem;
   border-radius: 8px;
   overflow-x: auto;
   white-space: pre;
-  border: 1px solid var(--border-dark);
+  border: 1px solid var(--landing-border-dark);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -620,7 +585,7 @@ hr.divider {
 .latency-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
   margin-top: 2rem;
 }
@@ -629,18 +594,18 @@ hr.divider {
   text-align: left;
   padding: 12px 14px;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 2px solid var(--landing-border);
   font-weight: 600;
-  background: var(--bg-off);
+  background: var(--landing-bg-off);
 }
 
 .latency-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-2);
+  border-bottom: 1px solid var(--landing-border);
+  color: var(--landing-text-2);
 }
 
 .latency-table tr:last-child td {
@@ -648,18 +613,18 @@ hr.divider {
 }
 
 .latency-good {
-  color: var(--green) !important;
+  color: var(--landing-green) !important;
   font-weight: 600;
 }
 
 .latency-ok {
-  color: var(--accent) !important;
+  color: var(--landing-accent) !important;
   font-weight: 600;
 }
 
 /* INCIDENTS */
 .incident-block {
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 2rem;
@@ -671,15 +636,15 @@ hr.divider {
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px;
-  background: var(--bg-off);
-  border-bottom: 1px solid var(--border);
+  background: var(--landing-bg-off);
+  border-bottom: 1px solid var(--landing-border);
 }
 
 .inc-title {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--landing-text);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -687,7 +652,7 @@ hr.divider {
 
 .inc-pill {
   display: inline-block;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 11px;
   font-weight: 600;
   padding: 4px 10px;
@@ -696,27 +661,27 @@ hr.divider {
 
 .pill-ongoing {
   background: #fef2f2;
-  color: var(--red);
+  color: var(--landing-red);
   border: 1px solid #fecaca;
 }
 
 .pill-resolved {
   background: #f0fdf4;
-  color: var(--green);
+  color: var(--landing-green);
   border: 1px solid #bbf7d0;
 }
 
 .inc-id {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
 }
 
 .inc-row {
   display: flex;
   gap: 1.5rem;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--landing-border);
   font-size: 14px;
 }
 
@@ -725,32 +690,32 @@ hr.divider {
 }
 
 .inc-time {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   min-width: 80px;
   flex-shrink: 0;
 }
 
 .inc-msg {
-  color: var(--text-2);
+  color: var(--landing-text-2);
   line-height: 1.6;
 }
 
 .inc-msg strong {
-  color: var(--text);
+  color: var(--landing-text);
   font-weight: 600;
 }
 
 .inc-msg.good {
-  color: var(--green);
+  color: var(--landing-green);
 }
 
 /* REGIONS GRID */
 .regions-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 2.5rem;
@@ -759,7 +724,7 @@ hr.divider {
 
 .region-cell {
   padding: 2rem;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--landing-border);
 }
 
 .region-cell:last-child {
@@ -767,32 +732,32 @@ hr.divider {
 }
 
 .region-name {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--landing-text);
   margin-bottom: 4px;
 }
 
 .region-code {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   margin-bottom: 14px;
 }
 
 .region-stat {
-  font-family: var(--serif);
+  font-family: var(--font-lora), Georgia, serif;
   font-size: 2.2rem;
   font-weight: 400;
-  color: var(--accent);
+  color: var(--landing-accent);
   line-height: 1;
 }
 
 .region-unit {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   margin-top: 6px;
 }
 
@@ -800,7 +765,7 @@ hr.divider {
 .oss-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 2.5rem;
@@ -809,8 +774,8 @@ hr.divider {
 
 .oss-cell {
   padding: 2rem;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--landing-border);
+  border-bottom: 1px solid var(--landing-border);
 }
 
 .oss-cell:nth-child(2n) {
@@ -822,10 +787,10 @@ hr.divider {
 }
 
 .oss-label {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 13px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--landing-accent);
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -833,7 +798,7 @@ hr.divider {
 
 .oss-desc {
   font-size: 15px;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   font-weight: 300;
   line-height: 1.8;
 }
@@ -842,25 +807,25 @@ hr.divider {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 13px;
-  color: var(--accent2);
+  color: var(--landing-accent2);
   margin-top: 12px;
-  border-bottom: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--landing-border);
   padding-bottom: 2px;
   transition: all 0.15s;
   font-weight: 500;
 }
 
 .oss-link:hover {
-  color: var(--text);
-  border-bottom-color: var(--accent2);
+  color: var(--landing-text);
+  border-bottom-color: var(--landing-accent2);
 }
 
 /* UPDATES */
 .updates-list {
   margin-top: 2.5rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -871,7 +836,7 @@ hr.divider {
   align-items: baseline;
   gap: 1.75rem;
   padding: 16px 1.75rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--landing-border);
   transition: background 0.15s;
 }
 
@@ -880,36 +845,36 @@ hr.divider {
 }
 
 .update-row:hover {
-  background: var(--bg-off);
+  background: var(--landing-bg-off);
 }
 
 .update-date {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   min-width: 90px;
   flex-shrink: 0;
   font-weight: 500;
 }
 
 .update-title {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--landing-text);
   flex: 1;
 }
 
 .update-desc {
   font-size: 15px;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   font-weight: 300;
   flex: 2;
 }
 
 /* DARK SECTION */
 .dark-section {
-  background: var(--bg-dark);
+  background: var(--landing-bg-dark);
   color: #e8e8e0;
   padding: 6rem 2rem;
   border-top: 1px solid #222;
@@ -922,8 +887,8 @@ hr.divider {
 
 /* QUICKSTART */
 .quickstart {
-  background: var(--bg-off);
-  border-top: 1px solid var(--border);
+  background: var(--landing-bg-off);
+  border-top: 1px solid var(--landing-border);
   padding: 6rem 2rem;
   text-align: center;
 }
@@ -934,7 +899,7 @@ hr.divider {
 }
 
 .quickstart h2 {
-  font-family: var(--serif);
+  font-family: var(--font-lora), Georgia, serif;
   font-size: clamp(2rem, 3.5vw, 2.8rem);
   font-weight: 400;
   margin-bottom: 1rem;
@@ -943,7 +908,7 @@ hr.divider {
 
 .quickstart p {
   font-size: 16px;
-  color: var(--text-2);
+  color: var(--landing-text-2);
   margin-bottom: 2.5rem;
   font-weight: 300;
 }
@@ -953,7 +918,7 @@ hr.divider {
   align-items: center;
   justify-content: space-between;
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid var(--landing-border);
   border-radius: 6px;
   padding: 14px 18px;
   margin-bottom: 12px;
@@ -962,21 +927,21 @@ hr.divider {
 }
 
 .install-block:hover {
-  border-color: var(--text-3);
-  background: var(--bg-off);
+  border-color: var(--landing-text-3);
+  background: var(--landing-bg-off);
 }
 
 .install-cmd {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 14px;
-  color: var(--text);
+  color: var(--landing-text);
   font-weight: 500;
 }
 
 .install-lang {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   font-weight: 500;
 }
 
@@ -990,7 +955,7 @@ hr.divider {
 
 /* FOOTER */
 footer {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--landing-border);
   padding: 4rem 2.5rem;
   display: grid;
   grid-template-columns: 1fr auto auto auto;
@@ -1000,10 +965,10 @@ footer {
 }
 
 .footer-col-label {
-  font-family: var(--mono);
+  font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-3);
+  color: var(--landing-text-3);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 12px;
@@ -1017,13 +982,13 @@ footer {
 }
 
 .footer-links a {
-  color: var(--text-2);
+  color: var(--landing-text-2);
   font-size: 14px;
   transition: color 0.15s;
 }
 
 .footer-links a:hover {
-  color: var(--text);
+  color: var(--landing-text);
 }
 
 /* RESPONSIVE */
@@ -1052,7 +1017,7 @@ footer {
 
   .feat-left {
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--landing-border);
   }
 
   .oss-grid {
@@ -1072,7 +1037,7 @@ footer {
   }
 
   .region-cell {
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--landing-border);
   }
 
   footer {
@@ -1105,7 +1070,7 @@ footer {
 
   .stat-cell {
     border-right: none !important;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--landing-border);
   }
 
   .stat-num {
@@ -1141,8 +1106,8 @@ footer {
 .mermaid {
   display: flex;
   justify-content: center;
-  background: var(--bg-off);
-  border: 1px solid var(--border);
+  background: var(--landing-bg-off);
+  border: 1px solid var(--landing-border);
   border-radius: 8px;
   padding: 2rem;
   margin-top: 3rem;
@@ -1159,11 +1124,11 @@ footer {
   text-align: center;
   padding: 0.5rem;
   margin: 0;
-  background: var(--text);
+  background: var(--landing-text);
   border: 0;
   border-radius: 2px;
   pointer-events: none;
   z-index: 100;
-  color: var(--bg);
+  color: var(--landing-bg);
   font-size: 12px;
 }
