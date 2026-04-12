@@ -1,0 +1,63 @@
+name: Deploy Hit API Function (2 Regions)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/serverless/hitApi/**
+      - .github/workflows/deploy-hitapi-multi-region.yml
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  NODE_VERSION: "20.x"
+  FUNCTION_APP_PACKAGE_PATH: "apps/serverless/hitApi"
+
+jobs:
+  deploy:
+    name: Deploy (${{ matrix.logicalRegion }} -> ${{ matrix.azureRegion }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - logicalRegion: KR
+            azureRegion: koreacentral
+            functionAppName: ${{ secrets.AZURE_FUNCTIONAPP_NAME_KR }}
+          - logicalRegion: IN
+            azureRegion: centralindia
+            functionAppName: ${{ secrets.AZURE_FUNCTIONAPP_NAME_IN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.FUNCTION_APP_PACKAGE_PATH }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ env.FUNCTION_APP_PACKAGE_PATH }}
+        run: npm ci
+
+      - name: Build function app
+        working-directory: ${{ env.FUNCTION_APP_PACKAGE_PATH }}
+        run: npm run build
+
+      - name: Azure login (OIDC/service principal)
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ matrix.functionAppName }}
+          package: ${{ env.FUNCTION_APP_PACKAGE_PATH }}

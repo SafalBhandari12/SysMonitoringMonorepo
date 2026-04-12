@@ -102,27 +102,170 @@ Key enums:
 
 ## Data and Control Flow
 
-### Domain onboarding and verification
+### End-to-end lifecycle overview
 
-1. User registers a domain via backend API.
-2. Backend persists the Domain with verification metadata.
-3. Backend enqueues a domain verification job with retries/backoff.
-4. Domain verification worker resolves DNS and validates TXT token.
-5. Domain verification status is updated in Postgres.
+The platform lifecycle has three major phases:
 
-### API monitoring setup
+1. Domain registration and ownership verification
+2. API registration and recurring regional monitoring
+3. Aggregation and incident lifecycle management
 
-1. User adds an API endpoint under a domain.
-2. Backend validates domain ownership, plan limits, and uniqueness.
-3. Backend creates API metrics rows per region.
-4. Backend schedules recurring monitoring jobs per region queue.
-5. Worker app consumes jobs and stores response outcomes.
+All three phases share the same pattern:
 
-### Percentile calculations
+1. Backend receives and validates request
+2. Backend persists baseline records in Postgres
+3. Backend enqueues one-off or repeating BullMQ jobs in Redis
+4. Workers execute network or compute-heavy tasks
+5. Workers write raw and aggregated outputs back to Postgres
 
-1. On domain registration, backend schedules repeating percentile jobs.
-2. Percentile worker consumes jobs and computes aggregates.
-3. Aggregated metrics are written to ApiMetrics for dashboard use.
+### Phase 1: Domain registration and DNS verification
+
+#### Request and persistence
+
+1. User calls domain registration endpoint.
+2. Backend checks for duplicate domain ownership.
+3. Backend creates a Domain row with:
+
+- verificationStatus defaulting to PENDING
+- generated verificationCode token
+- verificationAttempts and timestamps for auditability
+
+#### Queue scheduling
+
+4. Backend enqueues a domain-verification job with:
+
+- deterministic jobId (`verify-domain-<domain>`)
+- retries (attempts) and exponential backoff
+- cleanup policy for completed/failed jobs
+
+#### Worker execution
+
+5. Domain verification worker consumes the job.
+6. Worker updates verification attempt metadata.
+7. Worker resolves NS records, resolves the nameserver IP, and queries TXT records from that nameserver.
+8. Worker compares TXT values against expected token format:
+
+- `monitoring-verify=<verificationCode>`
+
+#### Final state update
+
+9. Domain status is set to VERIFIED or FAILED.
+10. On success, verifiedAt is set.
+11. Verification metadata remains queryable for UX/status endpoints.
+
+### Phase 2: API registration and monitoring schedule creation
+
+#### Request validation
+
+1. User adds an API under a verified/owned domain.
+2. Backend validates:
+
+- domain ownership
+- optional API group existence
+- plan-specific API count limit
+- path + method uniqueness per domain
+
+#### Initial record creation
+
+3. Backend creates Api record containing method/path and optional request payload metadata (headers, body, queryParams, pathParams).
+4. For each configured region, backend creates an ApiMetrics row keyed by apiId + region.
+
+#### Recurring job creation
+
+5. Backend creates repeating jobs in region-scoped queues:
+
+- queue name pattern: `api-monitoring-<region>`
+- job payload includes apiId
+- current repeat interval is every 10 seconds
+- immediate first run is enabled
+
+This means one API registration fans out into multiple regional schedules.
+
+### Phase 3: Monitoring execution (fetching APIs and storing responses)
+
+This is the most important runtime path for operational data.
+
+#### Job consumption and target resolution
+
+1. Worker process consumes `api-monitoring-<region>` job.
+2. Worker loads API details from Postgres (method, path, optional payload metadata, linked domain).
+3. Worker builds target URL using domain + path:
+
+- development: `http://<domain><path>`
+- non-development: `https://<domain><path>`
+
+#### HTTP probe execution
+
+4. Worker executes fetch with timeout control (AbortController).
+5. Probe outcome is normalized to one of:
+
+- UP for successful HTTP responses
+- DOWN for non-2xx/3xx or network-level failures
+- TIMEOUT when request exceeds timeout threshold
+
+6. Worker captures responseTime and statusCode for storage.
+
+#### Transactional persistence and counters
+
+7. Worker executes a DB transaction and writes:
+
+- ApiResponse row (raw event): apiId, region, status, statusCode, responseTime, createdAt
+- DailyStats upsert (date + region key): increments totalCount and upCount when status is UP
+- ApiMetrics update (apiId + region key): increments rolling totalCount and upCount
+
+This keeps both raw events and dashboard-friendly counters in sync per check.
+
+### Incident detection and recovery logic
+
+Incident handling is embedded in the same monitoring transaction path.
+
+#### Failure window tracking
+
+1. For DOWN/TIMEOUT outcomes, worker writes timestamped failure markers in Redis sorted set (`api_failures:<apiId>`).
+2. Worker trims old markers outside the configured lookback window.
+3. Worker counts failures in-window and compares with failure threshold.
+
+#### Incident creation/update
+
+4. If threshold is crossed:
+
+- create ONGOING incident if none exists
+- append current region if incident exists but region is not yet listed
+
+#### Recovery
+
+5. For UP outcomes, worker checks recent failure count against recovery threshold.
+6. If under recovery threshold and latest incident is ONGOING, worker marks it RESOLVED.
+
+This provides region-aware, threshold-based incident state transitions without requiring a separate incident daemon.
+
+### Percentile aggregation lifecycle
+
+Percentile computation is handled by backend-owned worker process.
+
+1. During domain registration, backend schedules repeating percentile-calculation job for that domain (hourly).
+2. Percentile worker consumes job and loads all APIs for the domain.
+3. For each API, worker scans ApiResponse records for the last 90 days.
+4. Worker calculates per-region:
+
+- p99 response time
+- p90 response time
+- average response time
+
+5. Worker upserts ApiMetrics per region with computed percentile values.
+
+This keeps percentile latency views updated independently of per-request counters.
+
+### Resulting data products
+
+At steady state, each API check contributes to:
+
+1. Raw monitoring history in ApiResponse
+2. Daily reliability counters in DailyStats
+3. Long-lived counters and latency aggregates in ApiMetrics
+4. Incident timeline in Incident
+
+This split enables both high-fidelity debugging (raw events) and fast dashboard queries (aggregates).
 
 ## Queue Architecture (BullMQ + Redis)
 
