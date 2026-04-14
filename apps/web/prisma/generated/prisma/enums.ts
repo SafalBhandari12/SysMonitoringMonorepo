@@ -9,7 +9,58 @@
 * 🟢 You can import this file directly.
 */
 
+export const DomainVerificationStatus = {
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  FAILED: 'FAILED'
+} as const
+
+export type DomainVerificationStatus = (typeof DomainVerificationStatus)[keyof typeof DomainVerificationStatus]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const methodEnum = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+  PATCH: 'PATCH'
+} as const
+
+export type methodEnum = (typeof methodEnum)[keyof typeof methodEnum]
+
+
+export const apiStatusEnum = {
+  UP: 'UP',
+  DOWN: 'DOWN',
+  TIMEOUT: 'TIMEOUT'
+} as const
+
+export type apiStatusEnum = (typeof apiStatusEnum)[keyof typeof apiStatusEnum]
+
+
+export const incidentStatusEnum = {
+  ONGOING: 'ONGOING',
+  RESOLVED: 'RESOLVED'
+} as const
+
+export type incidentStatusEnum = (typeof incidentStatusEnum)[keyof typeof incidentStatusEnum]
+
+
+export const plans = {
+  FREE: 'FREE',
+  PROFESSIONAL: 'PROFESSIONAL',
+  ENTERPRISE: 'ENTERPRISE'
+} as const
+
+export type plans = (typeof plans)[keyof typeof plans]
+
+
+export const regions = {
+  SA: 'SA',
+  SG: 'SG',
+  EU: 'EU',
+  US: 'US',
+  IN: 'IN'
+} as const
+
+export type regions = (typeof regions)[keyof typeof regions]

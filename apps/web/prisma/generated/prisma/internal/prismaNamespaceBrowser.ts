@@ -55,7 +55,14 @@ export const ModelName = {
   Account: 'Account',
   Session: 'Session',
   VerificationToken: 'VerificationToken',
-  Authenticator: 'Authenticator'
+  Authenticator: 'Authenticator',
+  Domain: 'Domain',
+  ApiGroup: 'ApiGroup',
+  Api: 'Api',
+  ApiMetrics: 'ApiMetrics',
+  ApiResponse: 'ApiResponse',
+  DailyStats: 'DailyStats',
+  Incident: 'Incident'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -141,12 +148,124 @@ export const AuthenticatorScalarFieldEnum = {
 export type AuthenticatorScalarFieldEnum = (typeof AuthenticatorScalarFieldEnum)[keyof typeof AuthenticatorScalarFieldEnum]
 
 
+export const DomainScalarFieldEnum = {
+  id: 'id',
+  domain: 'domain',
+  verificationStatus: 'verificationStatus',
+  verificationCode: 'verificationCode',
+  lastVerificationAttempt: 'lastVerificationAttempt',
+  verificationAttempts: 'verificationAttempts',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type DomainScalarFieldEnum = (typeof DomainScalarFieldEnum)[keyof typeof DomainScalarFieldEnum]
+
+
+export const ApiGroupScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type ApiGroupScalarFieldEnum = (typeof ApiGroupScalarFieldEnum)[keyof typeof ApiGroupScalarFieldEnum]
+
+
+export const ApiScalarFieldEnum = {
+  id: 'id',
+  domainId: 'domainId',
+  apiGroupId: 'apiGroupId',
+  path: 'path',
+  name: 'name',
+  method: 'method',
+  headers: 'headers',
+  body: 'body',
+  pathParams: 'pathParams',
+  queryParams: 'queryParams',
+  processingStatus: 'processingStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApiScalarFieldEnum = (typeof ApiScalarFieldEnum)[keyof typeof ApiScalarFieldEnum]
+
+
+export const ApiMetricsScalarFieldEnum = {
+  id: 'id',
+  apiId: 'apiId',
+  region: 'region',
+  averageResponseTime: 'averageResponseTime',
+  p90ResponseTime: 'p90ResponseTime',
+  p99ResponseTime: 'p99ResponseTime',
+  upCount: 'upCount',
+  totalCount: 'totalCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApiMetricsScalarFieldEnum = (typeof ApiMetricsScalarFieldEnum)[keyof typeof ApiMetricsScalarFieldEnum]
+
+
+export const ApiResponseScalarFieldEnum = {
+  id: 'id',
+  apiId: 'apiId',
+  responseTime: 'responseTime',
+  statusCode: 'statusCode',
+  status: 'status',
+  region: 'region',
+  createdAt: 'createdAt'
+} as const
+
+export type ApiResponseScalarFieldEnum = (typeof ApiResponseScalarFieldEnum)[keyof typeof ApiResponseScalarFieldEnum]
+
+
+export const DailyStatsScalarFieldEnum = {
+  id: 'id',
+  apiId: 'apiId',
+  date: 'date',
+  region: 'region',
+  upCount: 'upCount',
+  totalCount: 'totalCount'
+} as const
+
+export type DailyStatsScalarFieldEnum = (typeof DailyStatsScalarFieldEnum)[keyof typeof DailyStatsScalarFieldEnum]
+
+
+export const IncidentScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  regions: 'regions',
+  apiId: 'apiId',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IncidentScalarFieldEnum = (typeof IncidentScalarFieldEnum)[keyof typeof IncidentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -163,4 +282,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

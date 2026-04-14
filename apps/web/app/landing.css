@@ -1,16 +1,8 @@
 /* NAVIGATION */
 nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--landing-bg);
-  border-bottom: 1px solid var(--landing-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2.5rem;
-  height: 60px;
-  font-size: 14px;
 }
 
 .nav-logo {

@@ -42,3 +42,38 @@ export type VerificationToken = Prisma.VerificationTokenModel
  * 
  */
 export type Authenticator = Prisma.AuthenticatorModel
+/**
+ * Model Domain
+ * 
+ */
+export type Domain = Prisma.DomainModel
+/**
+ * Model ApiGroup
+ * 
+ */
+export type ApiGroup = Prisma.ApiGroupModel
+/**
+ * Model Api
+ * 
+ */
+export type Api = Prisma.ApiModel
+/**
+ * Model ApiMetrics
+ * 
+ */
+export type ApiMetrics = Prisma.ApiMetricsModel
+/**
+ * Model ApiResponse
+ * 
+ */
+export type ApiResponse = Prisma.ApiResponseModel
+/**
+ * Model DailyStats
+ * 
+ */
+export type DailyStats = Prisma.DailyStatsModel
+/**
+ * Model Incident
+ * 
+ */
+export type Incident = Prisma.IncidentModel

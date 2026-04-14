@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/login", "/signup"];
 
 export const proxy = auth((req) => {
   const { pathname } = req.nextUrl;
@@ -11,19 +10,17 @@ export const proxy = auth((req) => {
     `Proxy middleware: pathname=${pathname}, isLoggedIn=${isLoggedIn}`,
   );
 
-  const isPublic = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith(route + "/"),
-  );
-
-  if (isPublic) return NextResponse.next();
-
   if (!isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
+  }
+
+  if(req.auth?.user?.onboarded===false && !pathname.startsWith("/onboarding")){
+    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
   }
 
   return NextResponse.next();
 });
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|sw.js).*)"],
+  matcher: ["/dashboard/:path*", "/api/private/:path*", "/onboarding/:path*"],
 };

@@ -19,33 +19,6 @@ import {
 export default function Home() {
   return (
     <>
-      {/* Navigation */}
-      <nav>
-        <Link href="/" className="nav-logo">
-          <span className="nav-logo-mark"></span>
-          Watchlayer
-        </Link>
-        <ul className="nav-links">
-          <li>
-            <Link href="#features">Features</Link>
-          </li>
-          <li>
-            <Link href="#how">How it works</Link>
-          </li>
-          <li>
-            <Link href="#incidents">Incidents</Link>
-          </li>
-          <li>
-            <Link href="#regions">Regions</Link>
-          </li>
-        </ul>
-        <div className="nav-right">
-          <Link href="/login" className="btn btn-outline">
-            Sign in
-          </Link>
-        </div>
-      </nav>
-
       {/* HERO */}
       <div className="hero">
         <h1>
