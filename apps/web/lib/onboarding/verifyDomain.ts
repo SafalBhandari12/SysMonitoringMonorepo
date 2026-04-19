@@ -92,8 +92,9 @@ const verifyDomainWithDNS = async (
 
     const txtRecords = await resolver.resolveTxt(domain);
     console.log(`TXT records for ${domain}:`, txtRecords);
-    const expectedToken = `sysMonitoring-Verification=${verificationCode}`;
+    const expectedToken = `sysmonitoring-verification=${verificationCode}`;
     for (const record of txtRecords) {
+      console.log(record.join(""), expectedToken);
       if (record.join("") === expectedToken) {
         return true;
       }

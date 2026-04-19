@@ -1,6 +1,6 @@
 "use client";
 
-import verifyDomainAction from "@/actions/verifyDomain";
+import verifyDomainAction from "@/actions/domain/verifyDomain";
 import { useFormStatus } from "react-dom";
 
 function SubmitButton() {

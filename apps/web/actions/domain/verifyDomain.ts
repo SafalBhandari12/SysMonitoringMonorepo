@@ -1,13 +1,13 @@
 "use server";
 
-import { auth, signOut } from "@/auth";
+import { signOut } from "@/auth";
+import { getUserId } from "@/lib/auth-utils";
 import verifyDomain from "@/lib/onboarding/verifyDomain";
 import { prisma } from "@/prisma";
 import { redirect } from "next/navigation";
 
 export default async function verifyDomainAction(formData: FormData) {
-  const domain = await auth();
-  const userId = domain?.user?.id!;
+  const userId = await getUserId();
   const domainRecord = await prisma.domain.findFirst({
     where: {
       userId,

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { loraFont, ibmPlexMono, ibmPlexSans } from "./fonts";
-import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -32,7 +31,6 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col bg-accent">
         <Providers>
-          <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
         </Providers>
       </body>

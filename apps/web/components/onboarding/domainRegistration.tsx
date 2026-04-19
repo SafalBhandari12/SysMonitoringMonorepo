@@ -9,7 +9,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import registerDomain from "@/actions/registerrDomain";
+import registerDomain from "@/actions/domain/registerrDomain";
 import { useRouter } from "next/navigation";
 
 export default function DomainRegistration() {
