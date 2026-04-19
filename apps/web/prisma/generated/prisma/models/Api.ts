@@ -182,7 +182,7 @@ export type ApiGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type ApiGroupByOutputType = {
   id: string
   domainId: string
-  apiGroupId: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -219,7 +219,7 @@ export type ApiWhereInput = {
   NOT?: Prisma.ApiWhereInput | Prisma.ApiWhereInput[]
   id?: Prisma.StringFilter<"Api"> | string
   domainId?: Prisma.StringFilter<"Api"> | string
-  apiGroupId?: Prisma.StringNullableFilter<"Api"> | string | null
+  apiGroupId?: Prisma.StringFilter<"Api"> | string
   path?: Prisma.StringFilter<"Api"> | string
   name?: Prisma.StringFilter<"Api"> | string
   method?: Prisma.EnummethodEnumFilter<"Api"> | $Enums.methodEnum
@@ -241,7 +241,7 @@ export type ApiWhereInput = {
 export type ApiOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   domainId?: Prisma.SortOrder
-  apiGroupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiGroupId?: Prisma.SortOrder
   path?: Prisma.SortOrder
   name?: Prisma.SortOrder
   method?: Prisma.SortOrder
@@ -267,7 +267,7 @@ export type ApiWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ApiWhereInput[]
   NOT?: Prisma.ApiWhereInput | Prisma.ApiWhereInput[]
   domainId?: Prisma.StringFilter<"Api"> | string
-  apiGroupId?: Prisma.StringNullableFilter<"Api"> | string | null
+  apiGroupId?: Prisma.StringFilter<"Api"> | string
   path?: Prisma.StringFilter<"Api"> | string
   name?: Prisma.StringFilter<"Api"> | string
   method?: Prisma.EnummethodEnumFilter<"Api"> | $Enums.methodEnum
@@ -289,7 +289,7 @@ export type ApiWhereUniqueInput = Prisma.AtLeast<{
 export type ApiOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   domainId?: Prisma.SortOrder
-  apiGroupId?: Prisma.SortOrderInput | Prisma.SortOrder
+  apiGroupId?: Prisma.SortOrder
   path?: Prisma.SortOrder
   name?: Prisma.SortOrder
   method?: Prisma.SortOrder
@@ -311,7 +311,7 @@ export type ApiScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ApiScalarWhereWithAggregatesInput | Prisma.ApiScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Api"> | string
   domainId?: Prisma.StringWithAggregatesFilter<"Api"> | string
-  apiGroupId?: Prisma.StringNullableWithAggregatesFilter<"Api"> | string | null
+  apiGroupId?: Prisma.StringWithAggregatesFilter<"Api"> | string
   path?: Prisma.StringWithAggregatesFilter<"Api"> | string
   name?: Prisma.StringWithAggregatesFilter<"Api"> | string
   method?: Prisma.EnummethodEnumWithAggregatesFilter<"Api"> | $Enums.methodEnum
@@ -347,7 +347,7 @@ export type ApiCreateInput = {
 export type ApiUncheckedCreateInput = {
   id?: string
   domainId: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -387,7 +387,7 @@ export type ApiUpdateInput = {
 export type ApiUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   domainId?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -407,7 +407,7 @@ export type ApiUncheckedUpdateInput = {
 export type ApiCreateManyInput = {
   id?: string
   domainId: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -437,7 +437,7 @@ export type ApiUpdateManyMutationInput = {
 export type ApiUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   domainId?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -675,7 +675,7 @@ export type ApiCreateWithoutDomainInput = {
 
 export type ApiUncheckedCreateWithoutDomainInput = {
   id?: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -724,7 +724,7 @@ export type ApiScalarWhereInput = {
   NOT?: Prisma.ApiScalarWhereInput | Prisma.ApiScalarWhereInput[]
   id?: Prisma.StringFilter<"Api"> | string
   domainId?: Prisma.StringFilter<"Api"> | string
-  apiGroupId?: Prisma.StringNullableFilter<"Api"> | string | null
+  apiGroupId?: Prisma.StringFilter<"Api"> | string
   path?: Prisma.StringFilter<"Api"> | string
   name?: Prisma.StringFilter<"Api"> | string
   method?: Prisma.EnummethodEnumFilter<"Api"> | $Enums.methodEnum
@@ -823,7 +823,7 @@ export type ApiCreateWithoutMetricsInput = {
 export type ApiUncheckedCreateWithoutMetricsInput = {
   id?: string
   domainId: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -877,7 +877,7 @@ export type ApiUpdateWithoutMetricsInput = {
 export type ApiUncheckedUpdateWithoutMetricsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   domainId?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -915,7 +915,7 @@ export type ApiCreateWithoutResponseInput = {
 export type ApiUncheckedCreateWithoutResponseInput = {
   id?: string
   domainId: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -969,7 +969,7 @@ export type ApiUpdateWithoutResponseInput = {
 export type ApiUncheckedUpdateWithoutResponseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   domainId?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -1007,7 +1007,7 @@ export type ApiCreateWithoutDailyStatsInput = {
 export type ApiUncheckedCreateWithoutDailyStatsInput = {
   id?: string
   domainId: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -1061,7 +1061,7 @@ export type ApiUpdateWithoutDailyStatsInput = {
 export type ApiUncheckedUpdateWithoutDailyStatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   domainId?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -1099,7 +1099,7 @@ export type ApiCreateWithoutIncidentsInput = {
 export type ApiUncheckedCreateWithoutIncidentsInput = {
   id?: string
   domainId: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -1153,7 +1153,7 @@ export type ApiUpdateWithoutIncidentsInput = {
 export type ApiUncheckedUpdateWithoutIncidentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   domainId?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -1171,7 +1171,7 @@ export type ApiUncheckedUpdateWithoutIncidentsInput = {
 
 export type ApiCreateManyDomainInput = {
   id?: string
-  apiGroupId?: string | null
+  apiGroupId: string
   path: string
   name: string
   method: $Enums.methodEnum
@@ -1205,7 +1205,7 @@ export type ApiUpdateWithoutDomainInput = {
 
 export type ApiUncheckedUpdateWithoutDomainInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -1224,7 +1224,7 @@ export type ApiUncheckedUpdateWithoutDomainInput = {
 
 export type ApiUncheckedUpdateManyWithoutDomainInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  apiGroupId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   path?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnummethodEnumFieldUpdateOperationsInput | $Enums.methodEnum
@@ -1470,7 +1470,7 @@ export type $ApiPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     domainId: string
-    apiGroupId: string | null
+    apiGroupId: string
     path: string
     name: string
     method: $Enums.methodEnum

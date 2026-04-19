@@ -161,7 +161,7 @@ model Api {
   domainId String
   domain   Domain @relation(fields: [domainId], references: [id])
 
-  apiGroupId String?
+  apiGroupId String
   apiGroup   ApiGroup? @relation(fields: [apiGroupId], references: [id])
 
   path String
