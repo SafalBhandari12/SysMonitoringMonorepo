@@ -30,10 +30,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${loraFont.variable} ${ibmPlexMono.variable} ${ibmPlexSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-screen flex flex-col bg-accent">
         <Providers>
           <Navbar />
-          {children}
+          <main className="flex-1 flex flex-col">{children}</main>
         </Providers>
       </body>
     </html>

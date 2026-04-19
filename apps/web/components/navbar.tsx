@@ -7,7 +7,7 @@ export function Navbar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="flex items-center h-[60px] text-sm  px-10 gap-8">
+    <nav className="flex items-center h-15 text-sm  px-10 gap-8">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 no-underline">
         <span className="inline-flex items-center justify-center w-5 h-5 border-2 border-black rounded-full relative">

@@ -1,24 +1,32 @@
 import { auth } from "@/auth";
-import InputFieldgroup from "@/components/onboarding/domainRegistration";
+import DomainRegistration from "@/components/onboarding/domainRegistration";
+import DomainVerification from "@/components/onboarding/domainVerificationInstructions";
 import { prisma } from "@/prisma";
+import { redirect } from "next/navigation";
 
 export default async function Onboarding() {
   const userDetails = await auth();
-
   const userId = userDetails!.user?.id!;
 
-  const hasDomain = await prisma.domain.findFirst({
+  if (userDetails?.user?.onboarded) {
+    redirect("/dashboard");
+  }
+
+  const domain = await prisma.domain.findFirst({
     where: {
       userId,
     },
   });
-  if (!hasDomain) {
-    return <InputFieldgroup />;
+
+  if (!domain) {
+    return <DomainRegistration />;
+  }
+  if (
+    domain.verificationStatus === "VERIFIED" &&
+    !userDetails?.user?.onboarded
+  ) {
+    redirect("/login");
   }
 
-  return (
-    <div>
-      <p>Hello</p>
-    </div>
-  );
+  return <DomainVerification userId={userId} domain={domain} />;
 }
