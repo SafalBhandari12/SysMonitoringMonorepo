@@ -1,5 +1,6 @@
 import { app, InvocationContext, Timer } from "@azure/functions";
 import { getPool } from "../utils/pool";
+import pLimit from "p-limit";
 
 interface ApiData {
   id: string;
@@ -19,8 +20,6 @@ interface ResponseData {
   statusCode: number;
   responseTime: number;
 }
-
-const MAX_PARALLEL_REQUESTS = 20;
 
 async function getResponse(
   url: string,
@@ -115,36 +114,13 @@ async function processApi(
   }
 }
 
-async function executeWithConcurrency<T>(
-  tasks: (() => Promise<T>)[],
-  maxConcurrency: number,
-): Promise<void> {
-  const executing: Promise<void>[] = [];
-
-  for (const task of tasks) {
-    const promise = Promise.resolve()
-      .then(task)
-      .then(() => {
-        executing.splice(executing.indexOf(promise), 1);
-      });
-
-    executing.push(promise);
-
-    if (executing.length >= maxConcurrency) {
-      await Promise.race(executing);
-    }
-  }
-
-  await Promise.all(executing);
-}
-
 export async function hitAndStoreApi(
   myTimer: Timer,
   context: InvocationContext,
 ): Promise<void> {
   const pool = getPool();
   const client = await pool.connect();
-  const region = process.env.REGION || "unknown";
+  const region = process.env.REGION || "IN";
 
   try {
     // Fetch all APIs from database
@@ -156,11 +132,11 @@ export async function hitAndStoreApi(
     const apis: ApiData[] = result.rows;
     context.log(`Found ${apis.length} APIs to process`);
 
-    // Create tasks for parallel processing
-    const tasks = apis.map((api) => () => processApi(client, api, region));
+    const limit = pLimit(20); // max concurrency
 
-    // Execute with concurrency limit (max 20 parallel requests)
-    await executeWithConcurrency(tasks, MAX_PARALLEL_REQUESTS);
+    await Promise.all(
+      apis.map((api) => limit(() => processApi(client, api, region))),
+    );
 
     context.log(`Successfully processed ${apis.length} APIs`);
   } catch (err) {

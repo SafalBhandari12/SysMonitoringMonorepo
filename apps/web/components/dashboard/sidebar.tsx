@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ModeToggle } from "../ui/toggle-theme";
 
 export default function SideBar() {
   const pathName = usePathname();
@@ -30,6 +31,7 @@ export default function SideBar() {
             </Link>
           );
         })}
+        <ModeToggle />
       </nav>
     </aside>
   );

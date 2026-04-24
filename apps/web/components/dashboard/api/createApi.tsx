@@ -32,7 +32,7 @@ export default function CreateApi() {
       <div className="mb-4">
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-primary"
         >
           Name
         </label>
@@ -40,14 +40,14 @@ export default function CreateApi() {
           type="text"
           id="name"
           name="name"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          className="mt-1 block w-full border border-border rounded-md shadow-sm p-2"
           required
         />
       </div>
       <div className="mb-4">
         <label
           htmlFor="path"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-primary"
         >
           Path
         </label>
@@ -56,21 +56,21 @@ export default function CreateApi() {
           id="path"
           name="path"
           placeholder="/api/v1/users"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          className="mt-1 block w-full border border-border rounded-md shadow-sm p-2"
           required
         />
       </div>
       <div className="mb-4">
         <label
           htmlFor="method"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-primary"
         >
           Method
         </label>
         <select
           id="method"
           name="method"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          className="mt-1 block w-full border border-border rounded-md shadow-sm p-2 bg-background"
           required
         >
           <option value="GET">GET</option>
@@ -81,12 +81,12 @@ export default function CreateApi() {
         </select>
       </div>
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-primary">
           API Group
         </label>
         <SelectApiGroup setGroup={setSelectedApiGroup} />
         {!selectedApiGroup && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="text-destructive text-sm mt-1">
             Please select an API group
           </p>
         )}
@@ -128,7 +128,7 @@ function SubmitButton({ isDisabled }: { isDisabled: boolean }) {
     <button
       type="submit"
       disabled={pending || isDisabled}
-      className="px-4 py-2 bg-black text-white rounded-md cursor-pointer disabled:bg-gray-400"
+      className="px-4 py-2 bg-background text-primary rounded-md cursor-pointer disabled:bg-primary/50 disabled:cursor-not-allowed"
     >
       {pending ? "Creating..." : "Create API"}
     </button>
