@@ -4,8 +4,7 @@ import { prisma } from "@/prisma";
 import { createApiKeysSchema } from "@/schema/createApiKeys";
 import { getUserId } from "@/lib/auth-utils";
 import crypto from "crypto";
-import z, { success } from "zod";
-import { CreateAxiosDefaults } from "axios";
+import z from "zod";
 
 export default async function addApiKeyAction(
   data: z.infer<typeof createApiKeysSchema>,
