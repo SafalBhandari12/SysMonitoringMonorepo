@@ -211,6 +211,7 @@ export type UserWhereInput = {
   Authenticator?: Prisma.AuthenticatorListRelationFilter
   domains?: Prisma.XOR<Prisma.DomainNullableScalarRelationFilter, Prisma.DomainWhereInput> | null
   apiGroups?: Prisma.ApiGroupListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -227,6 +228,7 @@ export type UserOrderByWithRelationInput = {
   Authenticator?: Prisma.AuthenticatorOrderByRelationAggregateInput
   domains?: Prisma.DomainOrderByWithRelationInput
   apiGroups?: Prisma.ApiGroupOrderByRelationAggregateInput
+  apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -246,6 +248,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Authenticator?: Prisma.AuthenticatorListRelationFilter
   domains?: Prisma.XOR<Prisma.DomainNullableScalarRelationFilter, Prisma.DomainWhereInput> | null
   apiGroups?: Prisma.ApiGroupListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -290,6 +293,7 @@ export type UserCreateInput = {
   Authenticator?: Prisma.AuthenticatorCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -306,6 +310,7 @@ export type UserUncheckedCreateInput = {
   Authenticator?: Prisma.AuthenticatorUncheckedCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainUncheckedCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -322,6 +327,7 @@ export type UserUpdateInput = {
   Authenticator?: Prisma.AuthenticatorUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -338,6 +344,7 @@ export type UserUncheckedUpdateInput = {
   Authenticator?: Prisma.AuthenticatorUncheckedUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUncheckedUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -431,6 +438,20 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type UserCreateNestedOneWithoutApiKeysInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApiKeysInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutApiKeysNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApiKeysInput
+  upsert?: Prisma.UserUpsertWithoutApiKeysInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApiKeysInput, Prisma.UserUpdateWithoutApiKeysInput>, Prisma.UserUncheckedUpdateWithoutApiKeysInput>
+}
+
 export type UserCreateNestedOneWithoutAccountsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAccountsInput, Prisma.UserUncheckedCreateWithoutAccountsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAccountsInput
@@ -501,6 +522,86 @@ export type UserUpdateOneRequiredWithoutApiGroupsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApiGroupsInput, Prisma.UserUpdateWithoutApiGroupsInput>, Prisma.UserUncheckedUpdateWithoutApiGroupsInput>
 }
 
+export type UserCreateWithoutApiKeysInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  onboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  Authenticator?: Prisma.AuthenticatorCreateNestedManyWithoutUserInput
+  domains?: Prisma.DomainCreateNestedOneWithoutUserInput
+  apiGroups?: Prisma.ApiGroupCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutApiKeysInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  onboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  Authenticator?: Prisma.AuthenticatorUncheckedCreateNestedManyWithoutUserInput
+  domains?: Prisma.DomainUncheckedCreateNestedOneWithoutUserInput
+  apiGroups?: Prisma.ApiGroupUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutApiKeysInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+}
+
+export type UserUpsertWithoutApiKeysInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutApiKeysInput, Prisma.UserUncheckedUpdateWithoutApiKeysInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutApiKeysInput, Prisma.UserUncheckedCreateWithoutApiKeysInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutApiKeysInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutApiKeysInput, Prisma.UserUncheckedUpdateWithoutApiKeysInput>
+}
+
+export type UserUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  Authenticator?: Prisma.AuthenticatorUpdateManyWithoutUserNestedInput
+  domains?: Prisma.DomainUpdateOneWithoutUserNestedInput
+  apiGroups?: Prisma.ApiGroupUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutApiKeysInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  Authenticator?: Prisma.AuthenticatorUncheckedUpdateManyWithoutUserNestedInput
+  domains?: Prisma.DomainUncheckedUpdateOneWithoutUserNestedInput
+  apiGroups?: Prisma.ApiGroupUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutAccountsInput = {
   id?: string
   name?: string | null
@@ -514,6 +615,7 @@ export type UserCreateWithoutAccountsInput = {
   Authenticator?: Prisma.AuthenticatorCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -529,6 +631,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   Authenticator?: Prisma.AuthenticatorUncheckedCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainUncheckedCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -560,6 +663,7 @@ export type UserUpdateWithoutAccountsInput = {
   Authenticator?: Prisma.AuthenticatorUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -575,6 +679,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   Authenticator?: Prisma.AuthenticatorUncheckedUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUncheckedUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -590,6 +695,7 @@ export type UserCreateWithoutSessionsInput = {
   Authenticator?: Prisma.AuthenticatorCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -605,6 +711,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   Authenticator?: Prisma.AuthenticatorUncheckedCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainUncheckedCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -636,6 +743,7 @@ export type UserUpdateWithoutSessionsInput = {
   Authenticator?: Prisma.AuthenticatorUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -651,6 +759,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   Authenticator?: Prisma.AuthenticatorUncheckedUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUncheckedUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuthenticatorInput = {
@@ -666,6 +775,7 @@ export type UserCreateWithoutAuthenticatorInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuthenticatorInput = {
@@ -681,6 +791,7 @@ export type UserUncheckedCreateWithoutAuthenticatorInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainUncheckedCreateNestedOneWithoutUserInput
   apiGroups?: Prisma.ApiGroupUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuthenticatorInput = {
@@ -712,6 +823,7 @@ export type UserUpdateWithoutAuthenticatorInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthenticatorInput = {
@@ -727,6 +839,7 @@ export type UserUncheckedUpdateWithoutAuthenticatorInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUncheckedUpdateOneWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDomainsInput = {
@@ -742,6 +855,7 @@ export type UserCreateWithoutDomainsInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   Authenticator?: Prisma.AuthenticatorCreateNestedManyWithoutUserInput
   apiGroups?: Prisma.ApiGroupCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDomainsInput = {
@@ -757,6 +871,7 @@ export type UserUncheckedCreateWithoutDomainsInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   Authenticator?: Prisma.AuthenticatorUncheckedCreateNestedManyWithoutUserInput
   apiGroups?: Prisma.ApiGroupUncheckedCreateNestedManyWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDomainsInput = {
@@ -788,6 +903,7 @@ export type UserUpdateWithoutDomainsInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   Authenticator?: Prisma.AuthenticatorUpdateManyWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDomainsInput = {
@@ -803,6 +919,7 @@ export type UserUncheckedUpdateWithoutDomainsInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   Authenticator?: Prisma.AuthenticatorUncheckedUpdateManyWithoutUserNestedInput
   apiGroups?: Prisma.ApiGroupUncheckedUpdateManyWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutApiGroupsInput = {
@@ -818,6 +935,7 @@ export type UserCreateWithoutApiGroupsInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   Authenticator?: Prisma.AuthenticatorCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainCreateNestedOneWithoutUserInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutApiGroupsInput = {
@@ -833,6 +951,7 @@ export type UserUncheckedCreateWithoutApiGroupsInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   Authenticator?: Prisma.AuthenticatorUncheckedCreateNestedManyWithoutUserInput
   domains?: Prisma.DomainUncheckedCreateNestedOneWithoutUserInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutApiGroupsInput = {
@@ -864,6 +983,7 @@ export type UserUpdateWithoutApiGroupsInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   Authenticator?: Prisma.AuthenticatorUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUpdateOneWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApiGroupsInput = {
@@ -879,6 +999,7 @@ export type UserUncheckedUpdateWithoutApiGroupsInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   Authenticator?: Prisma.AuthenticatorUncheckedUpdateManyWithoutUserNestedInput
   domains?: Prisma.DomainUncheckedUpdateOneWithoutUserNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -891,6 +1012,7 @@ export type UserCountOutputType = {
   sessions: number
   Authenticator: number
   apiGroups: number
+  apiKeys: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -898,6 +1020,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   Authenticator?: boolean | UserCountOutputTypeCountAuthenticatorArgs
   apiGroups?: boolean | UserCountOutputTypeCountApiGroupsArgs
+  apiKeys?: boolean | UserCountOutputTypeCountApiKeysArgs
 }
 
 /**
@@ -938,6 +1061,13 @@ export type UserCountOutputTypeCountApiGroupsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.ApiGroupWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountApiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApiKeyWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -953,6 +1083,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Authenticator?: boolean | Prisma.User$AuthenticatorArgs<ExtArgs>
   domains?: boolean | Prisma.User$domainsArgs<ExtArgs>
   apiGroups?: boolean | Prisma.User$apiGroupsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -996,6 +1127,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Authenticator?: boolean | Prisma.User$AuthenticatorArgs<ExtArgs>
   domains?: boolean | Prisma.User$domainsArgs<ExtArgs>
   apiGroups?: boolean | Prisma.User$apiGroupsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.User$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1009,6 +1141,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Authenticator: Prisma.$AuthenticatorPayload<ExtArgs>[]
     domains: Prisma.$DomainPayload<ExtArgs> | null
     apiGroups: Prisma.$ApiGroupPayload<ExtArgs>[]
+    apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1418,6 +1551,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Authenticator<T extends Prisma.User$AuthenticatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AuthenticatorArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthenticatorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domains<T extends Prisma.User$domainsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$domainsArgs<ExtArgs>>): Prisma.Prisma__DomainClient<runtime.Types.Result.GetResult<Prisma.$DomainPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   apiGroups<T extends Prisma.User$apiGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$apiGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  apiKeys<T extends Prisma.User$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1960,6 +2094,30 @@ export type User$apiGroupsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.ApiGroupScalarFieldEnum | Prisma.ApiGroupScalarFieldEnum[]
+}
+
+/**
+ * User.apiKeys
+ */
+export type User$apiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApiKey
+   */
+  select?: Prisma.ApiKeySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApiKey
+   */
+  omit?: Prisma.ApiKeyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApiKeyInclude<ExtArgs> | null
+  where?: Prisma.ApiKeyWhereInput
+  orderBy?: Prisma.ApiKeyOrderByWithRelationInput | Prisma.ApiKeyOrderByWithRelationInput[]
+  cursor?: Prisma.ApiKeyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
 }
 
 /**

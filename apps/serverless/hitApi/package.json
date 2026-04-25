@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "hitapi-serverless",
   "version": "1.0.0",
   "description": "",
   "main": "dist/functions/*.js",
@@ -15,7 +15,8 @@
     "@azure/functions": "^4.0.0",
     "dotenv": "^17.4.1",
     "p-limit": "^7.3.0",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "redis": "^4.6.0"
   },
   "devDependencies": {
     "@types/node": "18.x",

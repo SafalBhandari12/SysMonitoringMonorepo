@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { loraFont, ibmPlexMono, ibmPlexSans } from "./fonts";
 import { Providers } from "@/components/providers";
 import "./globals.css";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import { AppToaster } from "@/components/app-toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +35,15 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col bg-accent">
         <Providers>
-          <main className="flex-1 flex flex-col"> {children}</main>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <main className="flex-1 flex flex-col"> {children}</main>
+            <AppToaster />
+          </ThemeProvider>
         </Providers>
       </body>
     </html>

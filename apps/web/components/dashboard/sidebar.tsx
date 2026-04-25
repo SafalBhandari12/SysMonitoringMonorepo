@@ -12,6 +12,7 @@ export default function SideBar() {
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Api", href: "/dashboard/api", icon: Home },
     { name: "Api Groups", href: "/dashboard/apigroups", icon: Home },
+    { name: "Api Keys", href: "/dashboard/apikeys", icon: Home },
   ];
   return (
     <aside className="w-64 h-screen border-r">
