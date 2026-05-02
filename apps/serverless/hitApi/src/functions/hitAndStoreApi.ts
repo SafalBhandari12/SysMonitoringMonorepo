@@ -1,5 +1,5 @@
 import { app, InvocationContext, Timer } from "@azure/functions";
-import { getPool } from "../utils/pool";
+import { getPool, closePool } from "../utils/pool";
 import pLimit from "p-limit";
 import redis, { ensureRedisConnection } from "../utils/redis";
 import {
@@ -94,19 +94,21 @@ async function processApi(
   api: ApiData,
   region: string,
 ): Promise<void> {
+  let responseData: ResponseData;
+
   try {
     const apiUrl =
       process.env.NODE_ENV === "development"
         ? `http://${api.domain.domain}${api.path}`
         : `https://${api.domain.domain}${api.path}`;
 
-    const responseData = await getResponse(
-      apiUrl,
-      api.method,
-      api.headers,
-      api.body,
-    );
+    responseData = await getResponse(apiUrl, api.method, api.headers, api.body);
+  } catch (fetchErr: any) {
+    console.error(`Error fetching API ${api.id}:`, fetchErr);
+    return;
+  }
 
+  try {
     const key = `api_failures:${api.id}:${region}`;
     const now = Date.now();
 
@@ -187,7 +189,7 @@ async function processApi(
           lastIncident.rows[0].status === "ONGOING"
         ) {
           await client.query(
-            `UPDATE "Incident" SET status = 'RESOLVED', "updatedAt" = NOW() 
+            `UPDATE "Incident" SET status = 'RESOLVED', "endTime" = NOW(), "updatedAt" = NOW() 
              WHERE id = $1`,
             [lastIncident.rows[0].id],
           );
@@ -196,8 +198,9 @@ async function processApi(
     }
 
     console.log(`Processed API ${api.id}: ${responseData.status}`);
-  } catch (err) {
-    console.error(`Error processing API ${api.id}:`, err);
+  } catch (dbErr: any) {
+    console.error(`Error recording incident for API ${api.id}:`, dbErr);
+    throw dbErr; // Propagate DB errors so they surface to main handler
   }
 }
 
@@ -232,6 +235,7 @@ export async function hitAndStoreApi(
     context.error("Error in hitAndStoreApi timer function:", err);
   } finally {
     client.release();
+    await closePool(); // Ensure pool is closed after each invocation
     context.log("Timer function completed.");
   }
 }
