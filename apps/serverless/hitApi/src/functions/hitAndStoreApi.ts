@@ -110,7 +110,6 @@ async function processApi(
     const key = `api_failures:${api.id}:${region}`;
     const now = Date.now();
 
-    // Store API response
     await client.query(
       `INSERT INTO "ApiResponse" (id, "apiId", status, "responseTime", "statusCode", region, "createdAt") 
        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW())`,
@@ -123,7 +122,6 @@ async function processApi(
       ],
     );
 
-    // Track failures and incidents
     if (responseData.status !== "UP") {
       // Record failure in Redis - using camelCase methods
       await redisClient.zAdd(key, {
@@ -140,7 +138,6 @@ async function processApi(
         typeof countResult === "number" ? countResult : Number(countResult);
 
       if (count >= FAILURE_THRESHOLD) {
-        // Check if there's an ongoing incident
         const isThereIncident = await client.query(
           `SELECT id, regions FROM "Incident" 
            WHERE "apiId" = $1 AND status = 'ONGOING'
@@ -149,18 +146,12 @@ async function processApi(
         );
 
         if (isThereIncident.rows.length === 0) {
-          // Create new incident
           await client.query(
             `INSERT INTO "Incident" (id, "apiId", title, status, regions, "createdAt", "updatedAt") 
              VALUES (gen_random_uuid(), $1, $2, 'ONGOING', $3, NOW(), NOW())`,
-            [
-              api.id,
-              `API Failure Detected - ${api.path}`,
-              JSON.stringify([region]),
-            ],
+            [api.id, `API Failure Detected - ${api.path}`, [region]],
           );
         } else {
-          // Update existing incident to include the new region
           const incident = isThereIncident.rows[0];
           const existingRegions = incident.regions || [];
           if (!existingRegions.includes(region)) {
@@ -168,13 +159,12 @@ async function processApi(
             await client.query(
               `UPDATE "Incident" SET regions = $1, "updatedAt" = NOW() 
                WHERE id = $2`,
-              [JSON.stringify(updatedRegions), incident.id],
+              [updatedRegions, incident.id],
             );
           }
         }
       }
     } else {
-      // Check if API has recovered
       const countResult = await redisClient.zCount(
         key,
         now - LOOKBACK_PERIOD,
@@ -184,7 +174,6 @@ async function processApi(
         typeof countResult === "number" ? countResult : Number(countResult);
 
       if (count < RECOVERY_THRESHOLD) {
-        // Get the last ongoing incident
         const lastIncident = await client.query(
           `SELECT id, status FROM "Incident" 
            WHERE "apiId" = $1 
@@ -197,7 +186,6 @@ async function processApi(
           lastIncident.rows.length > 0 &&
           lastIncident.rows[0].status === "ONGOING"
         ) {
-          // Mark incident as resolved
           await client.query(
             `UPDATE "Incident" SET status = 'RESOLVED', "updatedAt" = NOW() 
              WHERE id = $1`,
@@ -225,7 +213,6 @@ export async function hitAndStoreApi(
     // Ensure Redis is connected before processing
     await ensureRedisConnection();
 
-    // Fetch all APIs from database
     const result = await client.query(
       `SELECT a.id, a.method, a.body, a.headers, a.path, a."pathParams", a."queryParams", 
               d.domain FROM "Api" a JOIN "Domain" d ON a."domainId" = d.id`,
@@ -234,7 +221,7 @@ export async function hitAndStoreApi(
     const apis: ApiData[] = result.rows;
     context.log(`Found ${apis.length} APIs to process`);
 
-    const limit = pLimit(20); // max concurrency
+    const limit = pLimit(20);
 
     await Promise.all(
       apis.map((api) => limit(() => processApi(client, redis, api, region))),
