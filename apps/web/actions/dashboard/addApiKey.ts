@@ -3,8 +3,8 @@
 import { prisma } from "@/prisma";
 import { createApiKeysSchema } from "@/schema/createApiKeys";
 import { getUserId } from "@/lib/auth-utils";
-import crypto from "crypto";
 import z from "zod";
+import { generateApiKey, hashKey } from "@/app/utils/hash";
 
 export default async function addApiKeyAction(
   data: z.infer<typeof createApiKeysSchema>,
@@ -18,9 +18,9 @@ export default async function addApiKeyAction(
     }
     const { name } = parsedData.data;
     const userId = await getUserId();
-    const rawKey = crypto.randomBytes(32).toString("hex");
+    const rawKey = generateApiKey();
 
-    const hashedKey = crypto.createHash("sha256").update(rawKey).digest("hex");
+    const hashedKey = hashKey(rawKey);
 
     await prisma.apiKey.create({
       data: {

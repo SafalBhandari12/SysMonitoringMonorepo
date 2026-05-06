@@ -12,6 +12,23 @@ import type { PoolClient } from "pg";
 
 dotenv.config();
 
+function normalizeRegions(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((region) => String(region).trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .replace(/^\{/, "")
+      .replace(/\}$/, "")
+      .split(",")
+      .map((region) => region.replace(/^"|"$/g, "").trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
 interface ApiData {
   id: string;
   method: string;
@@ -150,16 +167,20 @@ async function processApi(
         if (isThereIncident.rows.length === 0) {
           await client.query(
             `INSERT INTO "Incident" (id, "apiId", title, status, regions, "createdAt", "updatedAt") 
-             VALUES (gen_random_uuid(), $1, $2, 'ONGOING', $3, NOW(), NOW())`,
+             VALUES (gen_random_uuid(), $1, $2, 'ONGOING', $3::"regions"[], NOW(), NOW())`,
             [api.id, `API Failure Detected - ${api.path}`, [region]],
           );
         } else {
           const incident = isThereIncident.rows[0];
-          const existingRegions = incident.regions || [];
+          const existingRegions = normalizeRegions(incident.regions);
+          console.log(
+            `Existing regions for incident ${incident.id}:`,
+            existingRegions,
+          );
           if (!existingRegions.includes(region)) {
             const updatedRegions = [...existingRegions, region];
             await client.query(
-              `UPDATE "Incident" SET regions = $1, "updatedAt" = NOW() 
+              `UPDATE "Incident" SET regions = $1::"regions"[], "updatedAt" = NOW() 
                WHERE id = $2`,
               [updatedRegions, incident.id],
             );

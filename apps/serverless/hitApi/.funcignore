@@ -1,4 +1,4 @@
-*.js.map
+    *.js.map
 *.ts
 .git*
 .vscode

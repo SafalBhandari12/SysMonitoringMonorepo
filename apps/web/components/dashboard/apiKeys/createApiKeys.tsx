@@ -22,9 +22,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { createApiKeysSchema } from "@/schema/createApiKeys";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import addApiKeyAction from "@/actions/dashboard/addApiKey";
-import { EyeOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function CreateApiKeys() {

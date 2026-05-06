@@ -116,6 +116,8 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
+
+
 // Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
@@ -189,6 +191,7 @@ model Api {
   dailyStats DailyStats[]
   metrics    ApiMetrics[]
   incidents  Incident[]
+  apiDigests  ApiDigest[]
 
   processingStatus Boolean @default(false)
 
@@ -196,6 +199,19 @@ model Api {
   updatedAt DateTime @updatedAt
 
   @@unique([domainId, path])
+}
+
+model ApiDigest{
+  id String @id @default(uuid())
+  
+  apiId String
+  api   Api    @relation(fields: [apiId], references: [id], onDelete: Cascade)
+
+  windowKey String
+  digest Json
+  createdAt DateTime @default(now())
+
+  @@unique([apiId, windowKey])
 }
 
 model ApiMetrics {
@@ -246,8 +262,13 @@ model DailyStats {
 
   upCount    Int @default(0)
   totalCount Int @default(0)
+  p90ResponseTime Float @default(0)
+  p99ResponseTime Float @default(0)
 
-  @@unique([date, region])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([apiId, date, region])
 }
 
 model Incident {

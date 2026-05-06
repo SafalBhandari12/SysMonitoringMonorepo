@@ -27,6 +27,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(apiGroups);
   } catch (error) {
     console.error("Error fetching API groups:", error);
+
+    if (error instanceof Error && error.message === "User not authenticated") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch API groups" },
       { status: 500 },

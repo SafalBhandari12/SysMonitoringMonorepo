@@ -7,18 +7,25 @@ let pool: Pool;
 
 export function getPool() {
   if (!pool) {
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL environment variable is not set");
+    }
+
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      max: 5, // Lower for serverless
-      idleTimeoutMillis: 10000, // Close idle connections faster
+      max: 5,
+      idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,
-      statement_timeout: 30000, // 30s query timeout
+      statement_timeout: 30000,
       query_timeout: 30000,
     });
 
-    // Handle connection errors
     pool.on("error", (err) => {
       console.error("Unexpected error on idle client", err);
+    });
+
+    pool.on("connect", () => {
+      console.log("New pool connection established");
     });
   }
   return pool;
