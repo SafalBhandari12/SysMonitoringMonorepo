@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { CardSmall } from "@/components/dashboard/card";
 import { TimeLine } from "@/components/dashboard/Timeline";
 import { prisma } from "@/prisma";
-import { incidentStatusEnum } from "@/prisma/generated/prisma/enums";
 import { TDigest } from "tdigest";
 
 export default async function Dashboard() {
