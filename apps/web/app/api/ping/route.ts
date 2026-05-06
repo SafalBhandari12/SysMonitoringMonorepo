@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Tdigest from "tdigest";
 import { prisma } from "@/prisma";
 import { TDigestSchema } from "@/schema/pingApi.schema";
 
