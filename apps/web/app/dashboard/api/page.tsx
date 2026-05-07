@@ -1,17 +1,17 @@
-import { getUserId } from "@/lib/auth-utils";
 import CreateApi from "@/components/dashboard/api/createApi";
-import { prisma } from "@/prisma";
+import { fetchServerApi } from "@/lib/server-api";
+import { methodEnum } from "@/prisma/generated/prisma/enums";
+
+type ApiListItem = {
+  id: string;
+  name: string;
+  method: methodEnum;
+  path: string;
+};
 
 export default async function Api() {
-  const userId = await getUserId();
-  const apis = await prisma.api.findMany({
-    where: {
-      domain: {
-        userId,
-      },
-    },
-  });
-  console.log("APIs for user:", apis);
+  const apis = await fetchServerApi<ApiListItem[]>("/api/dashboard/apis");
+
   return (
     <div className="flex flex-col gap-4 pl-6 py-5">
       <h1 className="text-4xl font-bold">API</h1>

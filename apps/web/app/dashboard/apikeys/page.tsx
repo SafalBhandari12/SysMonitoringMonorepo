@@ -1,14 +1,15 @@
 import { CreateApiKeys } from "@/components/dashboard/apiKeys/createApiKeys";
-import { getUserId } from "@/lib/auth-utils";
-import { prisma } from "@/prisma";
+import { fetchServerApi } from "@/lib/server-api";
+
+type ApiKeyListItem = {
+  id: string;
+  name: string;
+};
 
 export default async function ApiKeysPage() {
-  const userId = await getUserId();
-  const apis = await prisma.apiKey.findMany({
-    where: {
-      userId,
-    },
-  });
+  const apis = await fetchServerApi<ApiKeyListItem[]>(
+    "/api/dashboard/api-keys",
+  );
 
   return (
     <div className="p-4">

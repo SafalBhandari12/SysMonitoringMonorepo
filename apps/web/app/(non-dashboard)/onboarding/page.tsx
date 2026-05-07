@@ -1,23 +1,24 @@
-import { getUserId } from "@/lib/auth-utils";
 import DomainRegistration from "@/components/onboarding/domainRegistration";
 import DomainVerification from "@/components/onboarding/domainVerificationInstructions";
-import { prisma } from "@/prisma";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { fetchServerApi } from "@/lib/server-api";
+
+type OnboardingDomain = {
+  verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
+  verificationCode: string;
+} | null;
 
 export default async function Onboarding() {
   const userDetails = await auth();
-  const userId = await getUserId();
 
   if (userDetails?.user?.onboarded) {
     redirect("/dashboard");
   }
 
-  const domain = await prisma.domain.findFirst({
-    where: {
-      userId,
-    },
-  });
+  const domain = await fetchServerApi<OnboardingDomain>(
+    "/api/onboarding/domain",
+  );
 
   if (!domain) {
     return <DomainRegistration />;
@@ -29,5 +30,5 @@ export default async function Onboarding() {
     redirect("/login");
   }
 
-  return <DomainVerification userId={userId} domain={domain} />;
+  return <DomainVerification userId={userDetails?.user?.id ?? ""} domain={domain} />;
 }

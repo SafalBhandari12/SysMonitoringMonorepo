@@ -1,49 +1,35 @@
 import { getUserId } from "@/lib/auth-utils";
 import { prisma } from "@/prisma";
+import { createApiKeysSchema } from "@/schema/createApiKeys";
+import { generateApiKey, hashKey } from "@/app/utils/hash";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
-const createApiGroupSchema = z.object({
-  name: z.string().trim().min(1),
-  description: z.string().trim().optional(),
-});
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const userId = await getUserId();
-    const query = request.nextUrl.searchParams.get("q") || "";
-
-    const apiGroups = await prisma.apiGroup.findMany({
+    const apiKeys = await prisma.apiKey.findMany({
       where: {
         userId,
-        ...(query && {
-          name: {
-            contains: query,
-            mode: "insensitive",
-          },
-        }),
       },
       select: {
         id: true,
         name: true,
-        description: true,
       },
-      take: query ? 10 : undefined,
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return NextResponse.json(apiGroups);
+    return NextResponse.json(apiKeys);
   } catch (error) {
-    console.error("Error fetching API groups:", error);
+    console.error("Error fetching API keys:", error);
 
     if (error instanceof Error && error.message === "User not authenticated") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: "Failed to fetch API groups" },
+      { error: "Failed to fetch API keys" },
       { status: 500 },
     );
   }
@@ -52,26 +38,27 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const userId = await getUserId();
-    const body = createApiGroupSchema.parse(await request.json());
+    const { name } = createApiKeysSchema.parse(await request.json());
+    const rawKey = generateApiKey();
 
-    await prisma.apiGroup.create({
+    await prisma.apiKey.create({
       data: {
-        name: body.name,
-        description: body.description,
+        name,
         userId,
+        key: hashKey(rawKey),
       },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, rawKey });
   } catch (error) {
-    console.error("Error creating API group:", error);
+    console.error("Error creating API key:", error);
 
     if (error instanceof Error && error.message === "User not authenticated") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     return NextResponse.json(
-      { error: "Failed to create API group" },
+      { error: "Failed to create API key" },
       { status: 500 },
     );
   }

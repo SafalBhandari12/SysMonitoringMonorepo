@@ -1,11 +1,8 @@
 "use server";
 
-import { getUserId } from "@/lib/auth-utils";
-import { prisma } from "@/prisma";
+import { fetchServerApi } from "@/lib/server-api";
 
 export default async function addApiAction(formData: FormData) {
-  const userId = await getUserId();
-
   const name = formData.get("name") as string;
   const path = formData.get("path") as string;
   const method = formData.get("method") as string;
@@ -14,16 +11,6 @@ export default async function addApiAction(formData: FormData) {
   const body = formData.get("body") as string;
   const pathParams = formData.get("pathParams") as string;
   const queryParams = formData.get("queryParams") as string;
-
-  const domain = await prisma.domain.findFirst({
-    where: {
-      userId,
-    },
-  });
-
-  if (!domain) {
-    throw new Error("No domain found for user");
-  }
 
   // Helper function to parse JSON safely
   const parseJson = (jsonString: string | null) => {
@@ -36,17 +23,20 @@ export default async function addApiAction(formData: FormData) {
     }
   };
 
-  await prisma.api.create({
-    data: {
+  await fetchServerApi<{ success: boolean }>("/api/dashboard/apis", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
       name,
       path,
-      method: method as any,
-      domainId: domain.id,
+      method,
       apiGroupId,
       headers: parseJson(headers),
       body: parseJson(body),
       pathParams: parseJson(pathParams),
       queryParams: parseJson(queryParams),
-    },
+    }),
   });
 }

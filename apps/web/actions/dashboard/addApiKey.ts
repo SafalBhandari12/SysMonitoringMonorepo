@@ -1,10 +1,8 @@
 "use server";
 
-import { prisma } from "@/prisma";
 import { createApiKeysSchema } from "@/schema/createApiKeys";
-import { getUserId } from "@/lib/auth-utils";
+import { fetchServerApi } from "@/lib/server-api";
 import z from "zod";
-import { generateApiKey, hashKey } from "@/app/utils/hash";
 
 export default async function addApiKeyAction(
   data: z.infer<typeof createApiKeysSchema>,
@@ -17,20 +15,21 @@ export default async function addApiKeyAction(
       throw new Error("Invalid form data");
     }
     const { name } = parsedData.data;
-    const userId = await getUserId();
-    const rawKey = generateApiKey();
-
-    const hashedKey = hashKey(rawKey);
-
-    await prisma.apiKey.create({
-      data: {
-        name,
-        userId,
-        key: hashedKey,
+    const result = await fetchServerApi<{ success: true; rawKey: string }>(
+      "/api/dashboard/api-keys",
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+        }),
       },
-    });
-    return { success: true, rawKey };
-  } catch (error) {
+    );
+
+    return { success: true, rawKey: result.rawKey };
+  } catch {
     return { success: false };
   }
 }

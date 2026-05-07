@@ -1,11 +1,12 @@
-import { Domain } from "@/prisma/generated/prisma/browser";
 import DomainVerificationButton from "./domainVerificationButton";
 
 export default async function DomainVerification({
   domain,
 }: {
   userId: string;
-  domain: Domain;
+  domain: {
+    verificationCode: string;
+  };
 }) {
   const verificationCode = domain.verificationCode;
 

@@ -1,16 +1,17 @@
-import { getUserId } from "@/lib/auth-utils";
 import CreateApiGroup from "@/components/dashboard/apiGroups/createApiGroup";
-import { prisma } from "@/prisma";
+import { fetchServerApi } from "@/lib/server-api";
+
+type ApiGroupListItem = {
+  id: string;
+  name: string;
+  description: string | null;
+};
 
 export default async function ApiGroup() {
-  const userId = await getUserId();
+  const apiGroups = await fetchServerApi<ApiGroupListItem[]>(
+    "/api/dashboard/api-groups",
+  );
 
-  const apiGroups = await prisma.apiGroup.findMany({
-    where: {
-      userId,
-    },
-  });
-  console.log("API Groups:", apiGroups);
   return (
     <div className="flex h-screen  flex-col gap-4 pl-6 pt-5">
       <h1 className="text-4xl font-bold">API Group</h1>
