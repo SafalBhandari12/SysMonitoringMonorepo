@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "dailyworker",
+	"name": "sys-monitoring-corn-job",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-05-05",
 	"observability": {
@@ -42,7 +42,7 @@
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
 	"triggers": {
-		"crons": ["1 0 * * *"],
+		"crons": ["*/30 * * * *", "1 0 * * *"],
 	},
 	"hyperdrive": [
 		{

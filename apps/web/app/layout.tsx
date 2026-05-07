@@ -33,7 +33,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${loraFont.variable} ${ibmPlexMono.variable} ${ibmPlexSans.variable} h-full antialiased`}
     >
-      <body className="min-h-screen flex flex-col bg-accent">
+      <body className="min-h-screen flex flex-col bg-background text-foreground">
         <Providers>
           <ThemeProvider
             attribute="class"
