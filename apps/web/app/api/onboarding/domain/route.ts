@@ -1,4 +1,5 @@
 import { getUserId } from "@/lib/auth-utils";
+import { cacheKey, deleteCached, getCached, setCached } from "@/lib/cache";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -10,11 +11,20 @@ const registerDomainSchema = z.object({
 export async function GET() {
   try {
     const userId = await getUserId();
+    const key = cacheKey("onboarding", "domain", userId);
+    const cached = await getCached<{ domain: unknown | null }>(key);
+
+    if (cached !== null) {
+      return NextResponse.json(cached.domain);
+    }
+
     const domain = await prisma.domain.findFirst({
       where: {
         userId,
       },
     });
+
+    await setCached(key, { domain }, 300);
 
     return NextResponse.json(domain);
   } catch (error) {
@@ -42,6 +52,8 @@ export async function POST(request: NextRequest) {
         userId,
       },
     });
+
+    await deleteCached(cacheKey("onboarding", "domain", userId));
 
     return NextResponse.json({ success: true });
   } catch (error) {

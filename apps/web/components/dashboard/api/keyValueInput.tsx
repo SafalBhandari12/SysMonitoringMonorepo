@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { X, Plus } from "lucide-react";
+import { useState } from "react";
 
 interface KeyValuePair {
   id: string;
@@ -52,58 +55,59 @@ export default function KeyValueInput({
       : "";
 
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-primary mb-2">
-        {label}
-      </label>
+    <div className="space-y-2">
+      <FieldLabel>{label}</FieldLabel>
 
-      <div className="flex gap-2 mb-3">
-        <input
+      <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+        <Input
           type="text"
           placeholder="Key"
           value={keyInput}
           onChange={(e) => setKeyInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 border border-border rounded-md shadow-sm p-2"
         />
-        <input
+        <Input
           type="text"
           placeholder={placeholder}
           value={valueInput}
           onChange={(e) => setValueInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 border border-border rounded-md shadow-sm p-2"
         />
-        <button
+        <Button
           type="button"
           onClick={addPair}
-          className="px-3 py-2 bg-background border border-border text-primary rounded-md cursor-pointer flex items-center gap-1"
+          variant="outline"
+          className="sm:w-auto"
         >
-          <Plus size={16} /> Add
-        </button>
+          <Plus /> Add
+        </Button>
       </div>
 
       {pairs.length > 0 && (
-        <div className="space-y-2 mb-3">
+        <div className="space-y-2">
           {pairs.map((pair) => (
             <div
               key={pair.id}
-              className="flex items-center justify-between bg-primary p-2 rounded-md border border-border"
+              className="flex items-center justify-between rounded-lg border border-border bg-muted/40 p-2"
             >
-              <div className="flex gap-2 flex-1">
-                <span className="font-medium text-primary min-w-24">
+              <div className="flex flex-1 gap-2 text-sm">
+                <span className="min-w-20 font-medium text-foreground">
                   {pair.key}
                 </span>
-                <span className="text-primary">:</span>
-                <span className="text-primary break-all">{pair.value}</span>
+                <span className="text-muted-foreground">:</span>
+                <span className="break-all text-muted-foreground">
+                  {pair.value}
+                </span>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => removePair(pair.id)}
-                className="ml-2 p-1 text-destructive hover:bg-destructive/10 rounded"
+                variant="ghost"
+                size="icon-sm"
+                className="text-destructive"
               >
-                <X size={16} />
-              </button>
+                <X />
+              </Button>
             </div>
           ))}
         </div>

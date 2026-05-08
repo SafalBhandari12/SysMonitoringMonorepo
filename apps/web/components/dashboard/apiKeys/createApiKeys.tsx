@@ -7,12 +7,14 @@ import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Field,
   FieldDescription,
@@ -22,12 +24,14 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { createApiKeysSchema } from "@/schema/createApiKeys";
-import { useTransition } from "react";
+import { Plus } from "lucide-react";
+import { useState, useTransition } from "react";
 import addApiKeyAction from "@/actions/dashboard/addApiKey";
 import { useRouter } from "next/navigation";
 
 export function CreateApiKeys() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const form = useForm<z.infer<typeof createApiKeysSchema>>({
     resolver: zodResolver(createApiKeysSchema),
@@ -49,7 +53,7 @@ export function CreateApiKeys() {
               try {
                 await navigator.clipboard.writeText(res.rawKey!);
                 toast.success("Copied to clipboard");
-              } catch (err) {
+              } catch {
                 toast.error("Failed to copy");
               }
             },
@@ -58,6 +62,8 @@ export function CreateApiKeys() {
           duration: Infinity,
         });
 
+        setOpen(false);
+        form.reset();
         router.refresh();
       } else {
         toast.error("Failed to create api key", {
@@ -71,31 +77,47 @@ export function CreateApiKeys() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md">
-      <CardHeader>
-        <CardTitle>Create Api Keys</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form id="form-rhf-input" onSubmit={form.handleSubmit(onSubmit)}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          form.reset();
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button>
+          <Plus />
+          Create API Key
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create API Key</DialogTitle>
+          <DialogDescription>
+            The raw key is shown once after creation.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form id="create-api-key-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-input-username">
-                    Api Key name
-                  </FieldLabel>
+                  <FieldLabel htmlFor="api-key-name">API key name</FieldLabel>
                   <Input
                     {...field}
-                    id="form-rhf-input-username"
+                    id="api-key-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Api Key 1"
+                    placeholder="Production worker"
                     autoComplete="apiKeys"
                   />
                   <FieldDescription>
-                    Once api key is generated, you won't be able to see it
-                    again, so make sure to save it somewhere safe.
+                    Once an API key is generated, you won&apos;t be able to see
+                    it again, so make sure to save it somewhere safe.
                   </FieldDescription>
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -105,19 +127,21 @@ export function CreateApiKeys() {
             />
           </FieldGroup>
         </form>
-      </CardContent>
-      <CardFooter>
-        <Field orientation="horizontal">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isPending}
+          >
+            Cancel
           </Button>
-          <form>
-            <Button type="submit" form="form-rhf-input">
-              {isPending ? "Creating..." : "Create"}
-            </Button>
-          </form>
-        </Field>
-      </CardFooter>
-    </Card>
+          <Button type="submit" form="create-api-key-form" disabled={isPending}>
+            {isPending ? "Creating..." : "Create"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

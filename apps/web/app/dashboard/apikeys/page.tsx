@@ -1,4 +1,10 @@
 import { CreateApiKeys } from "@/components/dashboard/apiKeys/createApiKeys";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { fetchServerApi } from "@/lib/server-api";
 
 type ApiKeyListItem = {
@@ -12,22 +18,40 @@ export default async function ApiKeysPage() {
   );
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">API Keys</h1>
-      <p>Manage your API keys here.</p>
-      <CreateApiKeys />
-      {apis.length > 0 ? (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Your API Keys</h2>
-          <ul className="space-y-2">
-            {apis.map((api) => (
-              <li key={api.id} className="flex items-center justify-between">
-                <span>{api.name}</span>
-              </li>
-            ))}
-          </ul>
+    <div className="flex flex-col gap-6 px-6 py-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-normal">API Keys</h1>
+          <p className="text-sm text-muted-foreground">
+            Create and track the keys used to access monitored endpoints.
+          </p>
         </div>
-      ) : null}
+        <CreateApiKeys />
+      </div>
+      {apis.length > 0 ? (
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {apis.map((api) => (
+            <Card
+              key={api.id}
+              className="shadow-sm transition-colors hover:bg-muted/20"
+            >
+              <CardHeader>
+                <CardTitle>{api.name}</CardTitle>
+                <CardDescription>Active API key</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card className="border-dashed bg-muted/20">
+          <CardHeader>
+            <CardTitle>No API keys yet</CardTitle>
+            <CardDescription>
+              Generate a key to start authenticating API requests.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
     </div>
   );
 }

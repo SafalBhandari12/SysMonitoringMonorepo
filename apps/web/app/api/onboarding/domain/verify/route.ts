@@ -1,5 +1,6 @@
 import { signOut } from "@/auth";
 import { getUserId } from "@/lib/auth-utils";
+import { cacheKey, deleteCached, getCached, setCached } from "@/lib/cache";
 import verifyDomain from "@/lib/onboarding/verifyDomain";
 import { prisma } from "@/prisma";
 import { NextResponse } from "next/server";
@@ -7,11 +8,23 @@ import { NextResponse } from "next/server";
 export async function POST() {
   try {
     const userId = await getUserId();
-    const domainRecord = await prisma.domain.findFirst({
-      where: {
-        userId,
-      },
-    });
+    const domainCacheKey = cacheKey("onboarding", "domain", userId);
+    const cachedDomain =
+      await getCached<{ domain: Awaited<ReturnType<typeof prisma.domain.findFirst>> }>(
+        domainCacheKey,
+      );
+    const domainRecord =
+      cachedDomain !== null
+        ? cachedDomain.domain
+        : await prisma.domain.findFirst({
+            where: {
+              userId,
+            },
+          });
+
+    if (cachedDomain === null) {
+      await setCached(domainCacheKey, { domain: domainRecord }, 300);
+    }
 
     if (!domainRecord) {
       return NextResponse.json({ success: false, verified: false });
@@ -42,6 +55,7 @@ export async function POST() {
       },
     });
     await signOut({ redirect: false });
+    await deleteCached(domainCacheKey);
 
     return NextResponse.json({ success: true, verified: true });
   } catch (error) {

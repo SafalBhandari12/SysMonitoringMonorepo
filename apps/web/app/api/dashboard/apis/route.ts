@@ -1,4 +1,10 @@
 import { getUserId } from "@/lib/auth-utils";
+import {
+  cacheKey,
+  deleteCachedPattern,
+  getCached,
+  setCached,
+} from "@/lib/cache";
 import { prisma } from "@/prisma";
 import { Prisma } from "@/prisma/generated/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -26,6 +32,13 @@ function toNullableJson(value: Prisma.InputJsonValue | null) {
 export async function GET() {
   try {
     const userId = await getUserId();
+    const key = cacheKey("dashboard", "apis", userId);
+    const cached = await getCached(key);
+
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     const apis = await prisma.api.findMany({
       where: {
         domain: {
@@ -42,6 +55,8 @@ export async function GET() {
         createdAt: "desc",
       },
     });
+
+    await setCached(key, apis, 300);
 
     return NextResponse.json(apis);
   } catch (error) {
@@ -85,6 +100,11 @@ export async function POST(request: NextRequest) {
         queryParams: toNullableJson(payload.queryParams),
       },
     });
+
+    await Promise.all([
+      deleteCachedPattern(cacheKey("dashboard", "apis", userId)),
+      deleteCachedPattern(cacheKey("dashboard", "overview", userId, "*")),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

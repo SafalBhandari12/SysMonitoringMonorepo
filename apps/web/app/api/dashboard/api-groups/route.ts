@@ -1,4 +1,10 @@
 import { getUserId } from "@/lib/auth-utils";
+import {
+  cacheKey,
+  deleteCachedPattern,
+  getCached,
+  setCached,
+} from "@/lib/cache";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -12,6 +18,12 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await getUserId();
     const query = request.nextUrl.searchParams.get("q") || "";
+    const key = cacheKey("dashboard", "api-groups", userId, query || "all");
+    const cached = await getCached(key);
+
+    if (cached) {
+      return NextResponse.json(cached);
+    }
 
     const apiGroups = await prisma.apiGroup.findMany({
       where: {
@@ -33,6 +45,8 @@ export async function GET(request: NextRequest) {
         createdAt: "desc",
       },
     });
+
+    await setCached(key, apiGroups, query ? 30 : 300);
 
     return NextResponse.json(apiGroups);
   } catch (error) {
@@ -61,6 +75,11 @@ export async function POST(request: NextRequest) {
         userId,
       },
     });
+
+    await Promise.all([
+      deleteCachedPattern(cacheKey("dashboard", "api-groups", userId, "*")),
+      deleteCachedPattern(cacheKey("dashboard", "overview", userId, "*")),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  cacheKey,
+  deleteCachedPattern,
+  getCached,
+  setCached,
+} from "@/lib/cache";
 import { prisma } from "@/prisma";
 import { TDigestSchema } from "@/schema/pingApi.schema";
 
@@ -15,6 +21,29 @@ export async function POST(request: NextRequest) {
     }
 
     const { apiId, windowKey, centroids } = parsed.data;
+    const apiOwnerCacheKey = cacheKey("api", "owner", apiId);
+    let apiOwner = await getCached<{ userId: string }>(apiOwnerCacheKey);
+
+    if (!apiOwner) {
+      const api = await prisma.api.findUnique({
+        where: {
+          id: apiId,
+        },
+        select: {
+          apiGroup: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      });
+
+      apiOwner = api?.apiGroup?.userId ? { userId: api.apiGroup.userId } : null;
+
+      if (apiOwner) {
+        await setCached(apiOwnerCacheKey, apiOwner, 3600);
+      }
+    }
 
     await prisma.apiDigest.create({
       data: {
@@ -24,9 +53,20 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    if (apiOwner) {
+      await deleteCachedPattern(
+        cacheKey("dashboard", "overview", apiOwner.userId, "*"),
+      );
+    }
+
     return NextResponse.json({ message: "stored" });
-  } catch (err: any) {
-    if (err.code === "P2002") {
+  } catch (err) {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      err.code === "P2002"
+    ) {
       return NextResponse.json(
         { error: "Window already exists (duplicate submission)" },
         { status: 409 },

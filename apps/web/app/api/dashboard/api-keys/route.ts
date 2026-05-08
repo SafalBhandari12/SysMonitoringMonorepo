@@ -1,4 +1,10 @@
 import { getUserId } from "@/lib/auth-utils";
+import {
+  cacheKey,
+  deleteCachedPattern,
+  getCached,
+  setCached,
+} from "@/lib/cache";
 import { prisma } from "@/prisma";
 import { createApiKeysSchema } from "@/schema/createApiKeys";
 import { generateApiKey, hashKey } from "@/app/utils/hash";
@@ -7,6 +13,13 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET() {
   try {
     const userId = await getUserId();
+    const key = cacheKey("dashboard", "api-keys", userId);
+    const cached = await getCached(key);
+
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     const apiKeys = await prisma.apiKey.findMany({
       where: {
         userId,
@@ -19,6 +32,8 @@ export async function GET() {
         createdAt: "desc",
       },
     });
+
+    await setCached(key, apiKeys, 300);
 
     return NextResponse.json(apiKeys);
   } catch (error) {
@@ -48,6 +63,8 @@ export async function POST(request: NextRequest) {
         key: hashKey(rawKey),
       },
     });
+
+    await deleteCachedPattern(cacheKey("dashboard", "api-keys", userId));
 
     return NextResponse.json({ success: true, rawKey });
   } catch (error) {

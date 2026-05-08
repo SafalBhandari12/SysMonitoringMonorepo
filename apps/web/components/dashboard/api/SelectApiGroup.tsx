@@ -18,19 +18,20 @@ export default function SelectApiGroup({
 }: {
   setGroup: (group: ApiGroup | null) => void;
 }) {
+  const [apiGroups, setApiGroups] = useState<ApiGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    // Fetch API groups from the backend
-    setLoading(true);
     fetch("/api/dashboard/api-groups")
       .then((response) => response.json())
       .then((data) => {
         setApiGroups(data);
         setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
       });
   }, []);
-
-  const [apiGroups, setApiGroups] = useState<ApiGroup[]>([]);
-  const [loading, setLoading] = useState(true);
 
   return (
     <Combobox

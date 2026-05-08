@@ -1,11 +1,23 @@
 "use client";
 
 import addApiAction from "@/actions/dashboard/addApi";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import KeyValueInput from "./keyValueInput";
-import { useFormStatus } from "react-dom";
-import { startTransition, useState } from "react";
-import SelectApiGroup from "./SelectApiGroup";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import SelectApiGroup from "./SelectApiGroup";
 
 interface ApiGroup {
   id: string;
@@ -16,121 +28,138 @@ export default function CreateApi() {
   const [selectedApiGroup, setSelectedApiGroup] = useState<ApiGroup | null>(
     null,
   );
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   return (
-    <form
-      action={(formData) => {
-        startTransition(async () => {
-          await addApiAction(formData);
-          router.refresh();
-        });
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          setSelectedApiGroup(null);
+        }
       }}
-      className="w-3/6"
     >
-      <h1 className="text-2xl font-bold mb-4">Create API</h1>
-      <div className="mb-4">
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-primary"
+      <DialogTrigger asChild>
+        <Button>
+          <Plus />
+          New API
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Create API</DialogTitle>
+          <DialogDescription>
+            Add an endpoint to monitor and attach it to one of your API groups.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          id="create-api-form"
+          action={(formData) => {
+            startTransition(async () => {
+              await addApiAction(formData);
+              setOpen(false);
+              setSelectedApiGroup(null);
+              router.refresh();
+            });
+          }}
         >
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          className="mt-1 block w-full border border-border rounded-md shadow-sm p-2"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="path"
-          className="block text-sm font-medium text-primary"
-        >
-          Path
-        </label>
-        <input
-          type="text"
-          id="path"
-          name="path"
-          placeholder="/api/v1/users"
-          className="mt-1 block w-full border border-border rounded-md shadow-sm p-2"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="method"
-          className="block text-sm font-medium text-primary"
-        >
-          Method
-        </label>
-        <select
-          id="method"
-          name="method"
-          className="mt-1 block w-full border border-border rounded-md shadow-sm p-2 bg-background"
-          required
-        >
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-          <option value="PATCH">PATCH</option>
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-primary">
-          API Group
-        </label>
-        <SelectApiGroup setGroup={setSelectedApiGroup} />
-        {!selectedApiGroup && (
-          <p className="text-destructive text-sm mt-1">
-            Please select an API group
-          </p>
-        )}
-        <input
-          type="hidden"
-          name="apiGroupId"
-          value={selectedApiGroup?.id || ""}
-        />
-      </div>
-      <KeyValueInput
-        label="Headers (Optional)"
-        name="headers"
-        placeholder="header value"
-      />
-      <KeyValueInput
-        label="Path Params (Optional)"
-        name="pathParams"
-        placeholder="param value"
-      />
-      <KeyValueInput
-        label="Query Params (Optional)"
-        name="queryParams"
-        placeholder="query value"
-      />
-      <KeyValueInput
-        label="Body (Optional)"
-        name="body"
-        placeholder="field value"
-      />
-      <SubmitButton isDisabled={!selectedApiGroup} />
-    </form>
+          <FieldGroup>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="name">Name</FieldLabel>
+                <Input id="name" name="name" placeholder="List users" required />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="method">Method</FieldLabel>
+                <select
+                  id="method"
+                  name="method"
+                  className="h-8 w-full rounded-lg border border-input bg-background px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  required
+                >
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                  <option value="PATCH">PATCH</option>
+                </select>
+              </Field>
+            </div>
+            <Field>
+              <FieldLabel htmlFor="path">Path</FieldLabel>
+              <Input
+                id="path"
+                name="path"
+                placeholder="/api/v1/users"
+                required
+              />
+            </Field>
+            <Field>
+              <FieldLabel>API Group</FieldLabel>
+              <SelectApiGroup setGroup={setSelectedApiGroup} />
+              {!selectedApiGroup && (
+                <p className="text-sm text-destructive">
+                  Please select an API group.
+                </p>
+              )}
+              <input
+                type="hidden"
+                name="apiGroupId"
+                value={selectedApiGroup?.id || ""}
+              />
+            </Field>
+            <div className="grid gap-4">
+              <KeyValueInput
+                label="Headers (Optional)"
+                name="headers"
+                placeholder="header value"
+              />
+              <KeyValueInput
+                label="Path Params (Optional)"
+                name="pathParams"
+                placeholder="param value"
+              />
+              <KeyValueInput
+                label="Query Params (Optional)"
+                name="queryParams"
+                placeholder="query value"
+              />
+              <KeyValueInput
+                label="Body (Optional)"
+                name="body"
+                placeholder="field value"
+              />
+            </div>
+          </FieldGroup>
+        </form>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <SubmitButton isDisabled={!selectedApiGroup} isPending={isPending} />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-function SubmitButton({ isDisabled }: { isDisabled: boolean }) {
-  const { pending } = useFormStatus();
-
+function SubmitButton({
+  isDisabled,
+  isPending,
+}: {
+  isDisabled: boolean;
+  isPending: boolean;
+}) {
   return (
-    <button
+    <Button
       type="submit"
-      disabled={pending || isDisabled}
-      className="px-4 py-2 bg-background text-primary rounded-md cursor-pointer disabled:bg-primary/50 disabled:cursor-not-allowed"
+      form="create-api-form"
+      disabled={isPending || isDisabled}
     >
-      {pending ? "Creating..." : "Create API"}
-    </button>
+      {isPending ? "Creating..." : "Create API"}
+    </Button>
   );
 }

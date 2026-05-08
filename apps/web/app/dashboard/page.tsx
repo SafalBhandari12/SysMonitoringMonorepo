@@ -1,25 +1,12 @@
 import { auth } from "@/auth";
-import {
-  DailyStatsChart,
-  DashboardMetric,
-  DashboardRegion,
-} from "@/components/dashboard/DailyStatsChart";
 import { CardSmall } from "@/components/dashboard/card";
+import { ApiStatusTable } from "@/components/dashboard/ApiStatusTable";
 import { TimeLine } from "@/components/dashboard/Timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchServerApi } from "@/lib/server-api";
 import { incidentStatusEnum, regions } from "@/prisma/generated/prisma/enums";
 
-type DashboardSearchParams = Promise<{
-  region?: string | string[];
-  metric?: string | string[];
-}>;
-
 type DashboardOverview = {
-  filters: {
-    metric: DashboardMetric;
-    region: DashboardRegion;
-  };
   stats: {
     apiGroupsCount: number;
     apisCount: number;
@@ -34,36 +21,18 @@ type DashboardOverview = {
     endTime: string | null;
     status: incidentStatusEnum;
   }[];
-  dailyStatsChartData: {
-    label: string;
-    tick: string;
-    value: number;
-    fill: string;
+  apis: {
+    id: string;
+    name: string;
+    status: "UP" | "DOWN";
+    uptime: number | null;
+    p90: number | null;
+    p99: number | null;
   }[];
-  hasDailyStats: boolean;
 };
 
-function toQueryString(params: {
-  region?: string | string[];
-  metric?: string | string[];
-}) {
-  const query = new URLSearchParams();
-  const region = Array.isArray(params.region) ? params.region[0] : params.region;
-  const metric = Array.isArray(params.metric) ? params.metric[0] : params.metric;
-
-  if (region) query.set("region", region);
-  if (metric) query.set("metric", metric);
-
-  return query.toString();
-}
-
-export default async function Dashboard({
-  searchParams,
-}: {
-  searchParams?: DashboardSearchParams;
-}) {
+export default async function Dashboard({}: {}) {
   const session = await auth();
-  const params = searchParams ? await searchParams : {};
 
   if (!session) {
     return (
@@ -73,9 +42,8 @@ export default async function Dashboard({
     );
   }
 
-  const query = toQueryString(params);
   const overview = await fetchServerApi<DashboardOverview>(
-    `/api/dashboard/overview${query ? `?${query}` : ""}`,
+    `/api/dashboard/overview`,
   );
   const incidents = overview.incidents.map((incident) => ({
     ...incident,
@@ -118,13 +86,16 @@ export default async function Dashboard({
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <DailyStatsChart
-          data={overview.dailyStatsChartData}
-          hasStats={overview.hasDailyStats}
-          metric={overview.filters.metric}
-          region={overview.filters.region}
-        />
-
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-sm font-semibold uppercase tracking-normal">
+              Api status overview
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ApiStatusTable apis={overview.apis} />
+          </CardContent>
+        </Card>
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="text-sm font-semibold uppercase tracking-normal">

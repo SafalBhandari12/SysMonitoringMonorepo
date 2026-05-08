@@ -1,6 +1,7 @@
 import postgres from 'postgres';
 import { TDigest } from 'tdigest';
 
+const API_METRICS_CRON = '*/15 * * * *';
 const DAILY_STATS_CRON = '1 0 * * *';
 const DOMAIN_VERIFICATION_CRON = '*/30 * * * *';
 const DNS_TXT_PREFIXES = ['monitoring-verify=', 'sysmonitoring-verification='];
@@ -17,6 +18,13 @@ type PendingDomain = {
 	domain: string;
 	verificationCode: string;
 	verificationAttempts: number;
+};
+
+type ApiResponseRow = {
+	apiId: string;
+	region: string;
+	status: string;
+	responseTime: number;
 };
 
 type DnsJsonResponse = {
@@ -274,13 +282,143 @@ async function runDailyStatsAggregation(sql: Sql): Promise<void> {
 	console.log('Daily stats aggregation completed successfully');
 }
 
+async function runApiMetricsAggregation(sql: Sql): Promise<void> {
+	const now = new Date();
+	const windowStart = new Date(now);
+	windowStart.setUTCDate(windowStart.getUTCDate() - 90);
+
+	console.log(`Processing API metrics from ${windowStart.toISOString()} to ${now.toISOString()}`);
+
+	const responses = (await sql`
+		SELECT "apiId", region, status, "responseTime"
+		FROM "ApiResponse"
+		WHERE "createdAt" >= ${windowStart} AND "createdAt" < ${now}
+		ORDER BY "apiId", region, "createdAt"
+	`) as ApiResponseRow[];
+
+	if (responses.length === 0) {
+		console.log('No API responses found for the current 90 day window');
+		return;
+	}
+
+	// Load ApiDigest rows for the same 90-day window and merge into a TDigest per apiId
+	const digests = await sql`
+		SELECT "apiId", digest
+		FROM "ApiDigest"
+		WHERE "windowKey" >= ${windowStart.toISOString()} AND "windowKey" < ${now.toISOString()}
+		ORDER BY "apiId", "windowKey"
+	`;
+
+	const globalDigestMap = new Map<string, TDigest>();
+
+	for (const row of digests) {
+		const apiId = row.apiId;
+		let merged = globalDigestMap.get(apiId);
+		if (!merged) merged = new TDigest();
+
+		const digestData = row.digest as any;
+		if (digestData && Array.isArray(digestData.centroids)) {
+			for (const centroid of digestData.centroids) {
+				merged.push(centroid.mean, centroid.count);
+			}
+		}
+
+		globalDigestMap.set(apiId, merged);
+	}
+
+	const statsMap = new Map<
+		string,
+		{
+			apiId: string;
+			region: string;
+			upCount: number;
+			totalCount: number;
+			totalResponseTime: number;
+			digest: TDigest;
+		}
+	>();
+
+	for (const row of responses) {
+		const key = `${row.apiId}_${row.region}`;
+		let existing = statsMap.get(key);
+
+		if (!existing) {
+			existing = {
+				apiId: row.apiId,
+				region: row.region,
+				upCount: 0,
+				totalCount: 0,
+				totalResponseTime: 0,
+				digest: new TDigest(),
+			};
+			statsMap.set(key, existing);
+		}
+
+		existing.totalCount += 1;
+		existing.totalResponseTime += Number(row.responseTime);
+		if (row.status === 'UP') {
+			existing.upCount += 1;
+		}
+		existing.digest.push(Number(row.responseTime));
+	}
+
+	for (const stat of statsMap.values()) {
+		// Prefer global ApiDigest-based percentiles if available, otherwise fall back to per-region digest
+		const globalDigest = globalDigestMap.get(stat.apiId);
+		const p90 = globalDigest ? globalDigest.percentile(0.9) : stat.digest.percentile(0.9);
+		const p99 = globalDigest ? globalDigest.percentile(0.99) : stat.digest.percentile(0.99);
+		const averageResponseTime = stat.totalCount > 0 ? stat.totalResponseTime / stat.totalCount : 0;
+
+		await sql`
+			INSERT INTO "ApiMetrics" (
+				id,
+				"apiId",
+				region,
+				"averageResponseTime",
+				"p90ResponseTime",
+				"p99ResponseTime",
+				"upCount",
+				"totalCount",
+				"createdAt",
+				"updatedAt"
+			)
+			VALUES (
+				${crypto.randomUUID()},
+				${stat.apiId},
+				${stat.region},
+				${averageResponseTime},
+				${p90},
+				${p99},
+				${stat.upCount},
+				${stat.totalCount},
+				NOW(),
+				NOW()
+			)
+			ON CONFLICT ("apiId", region) DO UPDATE SET
+				"averageResponseTime" = ${averageResponseTime},
+				"p90ResponseTime" = ${p90},
+				"p99ResponseTime" = ${p99},
+				"upCount" = ${stat.upCount},
+				"totalCount" = ${stat.totalCount},
+				"updatedAt" = NOW()
+		`;
+
+		console.log(
+			`[API_METRICS] Upserted ${stat.apiId} / ${stat.region}: total=${stat.totalCount}, up=${stat.upCount}, p90=${p90}, p99=${p99}`,
+		);
+	}
+
+	console.log('API metrics aggregation completed successfully');
+}
+
 export default {
 	async fetch(req) {
 		const url = new URL(req.url);
 		url.pathname = '/__scheduled';
+		url.searchParams.append('cron', API_METRICS_CRON);
 		url.searchParams.append('cron', DOMAIN_VERIFICATION_CRON);
 		return new Response(
-			`To test the scheduled handler, ensure you have used the "--test-scheduled" then try running "curl ${url.href}". Supported crons: ${DOMAIN_VERIFICATION_CRON}, ${DAILY_STATS_CRON}.`,
+			`To test the scheduled handler, ensure you have used the "--test-scheduled" then try running "curl ${url.href}". Supported crons: ${API_METRICS_CRON}, ${DOMAIN_VERIFICATION_CRON}, ${DAILY_STATS_CRON}.`,
 		);
 	},
 
@@ -288,6 +426,11 @@ export default {
 		const sql = postgres(env.HYPERDRIVE.connectionString);
 
 		try {
+			if (event.cron === API_METRICS_CRON) {
+				await runApiMetricsAggregation(sql);
+				return;
+			}
+
 			if (event.cron === DOMAIN_VERIFICATION_CRON) {
 				await runDomainVerification(sql);
 				return;

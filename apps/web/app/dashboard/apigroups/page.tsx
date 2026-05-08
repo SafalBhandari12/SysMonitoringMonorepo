@@ -1,4 +1,10 @@
 import CreateApiGroup from "@/components/dashboard/apiGroups/createApiGroup";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { fetchServerApi } from "@/lib/server-api";
 
 type ApiGroupListItem = {
@@ -13,21 +19,42 @@ export default async function ApiGroup() {
   );
 
   return (
-    <div className="flex h-screen  flex-col gap-4 pl-6 pt-5">
-      <h1 className="text-4xl font-bold">API Group</h1>
+    <div className="flex flex-col gap-6 px-6 py-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-normal">API Groups</h1>
+          <p className="text-sm text-muted-foreground">
+            Organize related APIs into focused monitoring groups.
+          </p>
+        </div>
+        <CreateApiGroup />
+      </div>
       {apiGroups.length === 0 ? (
-        <p className="text-gray-500">No API groups found. Create one below.</p>
+        <Card className="border-dashed bg-muted/20">
+          <CardHeader>
+            <CardTitle>No API groups yet</CardTitle>
+            <CardDescription>
+              Create a group before adding endpoints to monitor.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       ) : (
-        <ul className="space-y-2">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {apiGroups.map((group) => (
-            <li key={group.id} className="border-b border-gray-300 pb-2">
-              <h2 className="text-xl font-semibold">{group.name}</h2>
-              <p className="text-gray-600">{group.description}</p>
-            </li>
+            <Card
+              key={group.id}
+              className="shadow-sm transition-colors hover:bg-muted/20"
+            >
+              <CardHeader>
+                <CardTitle>{group.name}</CardTitle>
+                <CardDescription>
+                  {group.description || "No description added."}
+                </CardDescription>
+              </CardHeader>
+            </Card>
           ))}
-        </ul>
+        </div>
       )}
-      <CreateApiGroup />
     </div>
   );
 }
