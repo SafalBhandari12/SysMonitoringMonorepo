@@ -1,12 +1,14 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+"use client";
+
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { SortingState } from "@tanstack/react-table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { DataTable } from "@/components/dashboard/api-table/data-table";
+import { columns } from "@/components/dashboard/api-table/columns";
+import { DeleteConfirmationDialog } from "@/components/dashboard/api-table/delete-dialog";
+import { deleteApiAction } from "@/actions/dashboard/deleteApi";
 
 type ApiData = {
   id: string;
@@ -20,105 +22,223 @@ type ApiData = {
 export function ApiStatusTableSkeleton() {
   return (
     <div className="overflow-hidden rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Status</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead className="text-right">Uptime</TableHead>
-            <TableHead className="text-right">P90</TableHead>
-            <TableHead className="text-right">P99</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <TableRow key={i} className="animate-pulse">
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-2.5 w-2.5 rounded-full" />
-                  <Skeleton className="h-4 w-10" />
-                </div>
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-40 max-w-full" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="ml-auto h-4 w-14" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="ml-auto h-4 w-14" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="ml-auto h-4 w-14" />
-              </TableCell>
-            </TableRow>
+      <table className="w-full">
+        <thead className="border-b bg-muted/50">
+          <tr>
+            <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+              <Skeleton className="h-4 w-12" />
+            </th>
+            <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+              <Skeleton className="h-4 w-20" />
+            </th>
+            <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+              <Skeleton className="h-4 w-12 mx-auto" />
+            </th>
+            <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+              <Skeleton className="h-4 w-12 mx-auto" />
+            </th>
+            <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+              <Skeleton className="h-4 w-12 mx-auto" />
+            </th>
+            <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+              <Skeleton className="h-4 w-8 mx-auto" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="border-b">
+              <td className="h-16 px-4 align-middle">
+                <Skeleton className="h-6 w-12" />
+              </td>
+              <td className="h-16 px-4 align-middle">
+                <Skeleton className="h-4 w-32" />
+              </td>
+              <td className="h-16 px-4 align-middle text-center">
+                <Skeleton className="h-4 w-16 mx-auto" />
+              </td>
+              <td className="h-16 px-4 align-middle text-center">
+                <Skeleton className="h-4 w-16 mx-auto" />
+              </td>
+              <td className="h-16 px-4 align-middle text-center">
+                <Skeleton className="h-4 w-16 mx-auto" />
+              </td>
+              <td className="h-16 px-4 align-middle text-center">
+                <Skeleton className="h-6 w-8 mx-auto" />
+              </td>
+            </tr>
           ))}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function ApiStatusTableContent({ apis }: { apis: ApiData[] }) {
-  const formatLatency = (value: number | null) =>
-    value === null ? "N/A" : `${Math.round(value)} ms`;
-  const formatUptime = (value: number | null) =>
-    value === null ? "N/A" : `${value.toFixed(2)}%`;
+interface ApiStatusTableProps {
+  initialApis: ApiData[];
+  onApiDeleted?: () => void;
+}
+
+export function ApiStatusTable({
+  initialApis,
+  onApiDeleted,
+}: ApiStatusTableProps) {
+  const [apis, setApis] = useState<ApiData[]>(initialApis);
+  const [search, setSearch] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [deleteState, setDeleteState] = useState<{
+    isOpen: boolean;
+    apiId: string | null;
+    apiName: string;
+    isLoading: boolean;
+  }>({
+    isOpen: false,
+    apiId: null,
+    apiName: "",
+    isLoading: false,
+  });
+
+  // Fetch APIs with search and sort filters
+  useEffect(() => {
+    const fetchApis = async () => {
+      setIsLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (search) {
+          params.append("search", search);
+        }
+        if (sorting.length > 0) {
+          params.append("sortBy", sorting[0].id);
+          params.append("sortDir", sorting[0].desc ? "desc" : "asc");
+        }
+
+        const response = await fetch(
+          `/api/dashboard/overview?${params.toString()}`,
+          { cache: "no-store" },
+        );
+        const data = await response.json();
+        setApis(data.apis || []);
+      } catch (error) {
+        console.error("Error fetching APIs:", error);
+        toast.error("Failed to fetch APIs");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(() => {
+      fetchApis();
+    }, 500); // Debounce search input with 500ms delay
+
+    return () => clearTimeout(debounceTimer);
+  }, [search, sorting]);
+
+  const handleDeleteClick = (apiId: string, apiName: string) => {
+    setDeleteState({
+      isOpen: true,
+      apiId,
+      apiName,
+      isLoading: false,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteState.apiId) return;
+
+    setDeleteState((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      await deleteApiAction(deleteState.apiId);
+      toast.success(`API "${deleteState.apiName}" has been deleted.`);
+      setDeleteState({
+        isOpen: false,
+        apiId: null,
+        apiName: "",
+        isLoading: false,
+      });
+
+      // Refetch APIs
+      const params = new URLSearchParams();
+      if (search) {
+        params.append("search", search);
+      }
+      if (sorting.length > 0) {
+        params.append("sortBy", sorting[0].id);
+        params.append("sortDir", sorting[0].desc ? "desc" : "asc");
+      }
+      const response = await fetch(
+        `/api/dashboard/overview?${params.toString()}`,
+        {
+          cache: "no-store",
+        },
+      );
+      const data = await response.json();
+      setApis(data.apis || []);
+
+      onApiDeleted?.();
+    } catch (error) {
+      toast.error("Failed to delete API. Please try again.");
+      setDeleteState((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteState({
+      isOpen: false,
+      apiId: null,
+      apiName: "",
+      isLoading: false,
+    });
+  };
+
+  const handleSortingChange = (
+    updater: SortingState | ((old: SortingState) => SortingState),
+  ) => {
+    const newSorting =
+      typeof updater === "function" ? updater(sorting) : updater;
+    setSorting(newSorting);
+  };
 
   return (
-    <div className="overflow-hidden rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Status</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead className="text-right">Uptime</TableHead>
-            <TableHead className="text-right">P90</TableHead>
-            <TableHead className="text-right">P99</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {apis.length > 0 ? (
-            apis.map((api) => (
-              <TableRow key={api.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase">
-                    <span
-                      className={`h-2 w-2 rounded-full ${
-                        api.status === "UP" ? "bg-emerald-500" : "bg-rose-500"
-                      }`}
-                    />
-                    {api.status === "UP" ? "Up" : "Down"}
-                  </div>
-                </TableCell>
-                <TableCell className="font-medium">{api.name}</TableCell>
-                <TableCell className="text-right">
-                  {formatUptime(api.uptime)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatLatency(api.p90)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatLatency(api.p99)}
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={5}
-                className="h-24 text-center text-sm text-muted-foreground"
-              >
-                No API metrics yet.
-              </TableCell>
-            </TableRow>
+    <>
+      <div className="space-y-4">
+        <div className="relative">
+          <Input
+            placeholder="Search by API name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-sm"
+          />
+          {isLoading && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <div className="h-4 w-4 border-2 border-muted-foreground border-t-foreground rounded-full animate-spin" />
+            </div>
           )}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
+        </div>
 
-export function ApiStatusTable({ apis }: { apis: ApiData[] }) {
-  return <ApiStatusTableContent apis={apis} />;
+        {apis.length === 0 && isLoading ? (
+          <ApiStatusTableSkeleton />
+        ) : (
+          <DataTable
+            columns={columns}
+            data={apis}
+            sorting={sorting}
+            onSortingChange={handleSortingChange}
+            meta={{
+              onDelete: handleDeleteClick,
+            }}
+          />
+        )}
+      </div>
+
+      <DeleteConfirmationDialog
+        isOpen={deleteState.isOpen}
+        apiName={deleteState.apiName}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isLoading={deleteState.isLoading}
+      />
+    </>
+  );
 }

@@ -40,7 +40,7 @@ export function ApiStatusOverview({ region, apis }: ApiStatusOverviewProps) {
         {isPending ? (
           <ApiStatusTableSkeleton />
         ) : (
-          <ApiStatusTable apis={apis} />
+          <ApiStatusTable initialApis={apis} />
         )}
       </CardContent>
     </Card>

@@ -8,6 +8,9 @@ import { z } from "zod";
 const dashboardSearchParamsSchema = z.object({
   page: z.number().min(1).optional(),
   limit: z.number().min(1).max(100).optional(),
+  search: z.string().optional(),
+  sortBy: z.enum(["uptime", "p90", "p99"]).optional(),
+  sortDir: z.enum(["asc", "desc"]).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -15,12 +18,28 @@ export async function GET(request: NextRequest) {
     const userId = await getUserId();
     const pageParam = request.nextUrl.searchParams.get("page");
     const limitParam = request.nextUrl.searchParams.get("limit");
-    const { page, limit } = dashboardSearchParamsSchema.parse({
-      page: pageParam ? Number(pageParam) : undefined,
-      limit: limitParam ? Number(limitParam) : undefined,
-    });
+    const searchParam = request.nextUrl.searchParams.get("search");
+    const sortByParam = request.nextUrl.searchParams.get("sortBy");
+    const sortDirParam = request.nextUrl.searchParams.get("sortDir");
+    const { page, limit, search, sortBy, sortDir } =
+      dashboardSearchParamsSchema.parse({
+        page: pageParam ? Number(pageParam) : undefined,
+        limit: limitParam ? Number(limitParam) : undefined,
+        search: searchParam || undefined,
+        sortBy: sortByParam || undefined,
+        sortDir: sortDirParam || undefined,
+      });
 
-    const key = cacheKey("dashboard", "overview", userId, page, limit, "all");
+    const key = cacheKey(
+      "dashboard",
+      "overview",
+      userId,
+      page,
+      limit,
+      search || "all",
+      sortBy || "default",
+      sortDir || "asc",
+    );
     const cached = await getCached(key);
 
     if (cached) {
@@ -76,7 +95,10 @@ export async function GET(request: NextRequest) {
           },
         }),
         prisma.api.findMany({
-          where: { apiGroup: { userId } },
+          where: {
+            apiGroup: { userId },
+            ...(search && { name: { contains: search, mode: "insensitive" } }),
+          },
           select: {
             id: true,
             name: true,
@@ -147,6 +169,34 @@ export async function GET(request: NextRequest) {
         p99: p99Value,
       };
     });
+
+    // Apply sorting if specified
+    if (sortBy) {
+      apiStatusRows.sort((a, b) => {
+        let aValue: number | null = null;
+        let bValue: number | null = null;
+
+        if (sortBy === "uptime") {
+          aValue = a.uptime;
+          bValue = b.uptime;
+        } else if (sortBy === "p90") {
+          aValue = a.p90;
+          bValue = b.p90;
+        } else if (sortBy === "p99") {
+          aValue = a.p99;
+          bValue = b.p99;
+        }
+
+        // Handle null values
+        if (aValue === null && bValue === null) return 0;
+        if (aValue === null) return sortDir === "asc" ? 1 : -1;
+        if (bValue === null) return sortDir === "asc" ? -1 : 1;
+
+        // Compare values
+        const comparison = aValue - bValue;
+        return sortDir === "asc" ? comparison : -comparison;
+      });
+    }
 
     const response = {
       stats: {

@@ -85,7 +85,7 @@ export default async function Dashboard({}: {}) {
         />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
         <Card className="shadow-sm">
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="text-sm font-semibold uppercase tracking-normal">
@@ -93,7 +93,7 @@ export default async function Dashboard({}: {}) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ApiStatusTable apis={overview.apis} />
+            <ApiStatusTable initialApis={overview.apis} />
           </CardContent>
         </Card>
         <Card className="shadow-sm">
