@@ -24,7 +24,11 @@ export default function SideBar() {
               key={link.href}
               href={link.href}
               className={clsx("block px-3 py-2 rounded", {
-                "bg-slate-300 text-black": pathName === link.href,
+                "bg-slate-300 text-black":
+                  link.href === "/dashboard"
+                    ? pathName === "/dashboard"
+                    : pathName === link.href ||
+                      pathName.startsWith(`${link.href}/`),
               })}
             >
               <link.icon className="w-5 h-5" />

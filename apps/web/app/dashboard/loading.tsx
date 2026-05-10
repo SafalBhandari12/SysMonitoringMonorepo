@@ -6,7 +6,10 @@ export default function DashboardLoading() {
   return (
     <div className="min-h-screen bg-muted/30 p-4 sm:p-6">
       <div className="mb-6 flex flex-col gap-2">
-        <Skeleton className="h-9 w-72 max-w-full" />
+        <div className="flex justify-between items-start">
+          <Skeleton className="h-9 w-72 max-w-full" />
+          <Skeleton className="h-10 w-32" />
+        </div>
         <Skeleton className="h-4 w-130 max-w-full" />
       </div>
 

@@ -20,18 +20,52 @@ export default function SelectApiGroup({
 }) {
   const [apiGroups, setApiGroups] = useState<ApiGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchValue, setSearchValue] = useState("");
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
 
   useEffect(() => {
-    fetch("/api/dashboard/api-groups")
+    const timeout = window.setTimeout(() => {
+      setDebouncedSearchValue(searchValue);
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [searchValue]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    setLoading(true);
+
+    fetch(
+      `/api/dashboard/api-groups${
+        debouncedSearchValue
+          ? `?q=${encodeURIComponent(debouncedSearchValue)}`
+          : ""
+      }`,
+    )
       .then((response) => response.json())
       .then((data) => {
+        if (!isActive) {
+          return;
+        }
+        console.log("Fetched API groups:", data);
         setApiGroups(data);
         setLoading(false);
       })
       .catch(() => {
+        if (!isActive) {
+          return;
+        }
+
         setLoading(false);
       });
-  }, []);
+
+    return () => {
+      isActive = false;
+    };
+  }, [debouncedSearchValue]);
 
   return (
     <Combobox
@@ -41,9 +75,18 @@ export default function SelectApiGroup({
         setGroup(group || null);
       }}
     >
-      <ComboboxInput placeholder="Select an API group" />
+      <ComboboxInput
+        placeholder="Select an API group"
+        onChange={(event) => {
+          setSearchValue(event.currentTarget.value);
+        }}
+      />
       <ComboboxContent>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        {apiGroups.length === 0 && !loading && (
+          <ComboboxEmpty className="py-2 px-4 text-sm text-muted-foreground justify-start">
+            No API groups found.
+          </ComboboxEmpty>
+        )}
         <ComboboxList>
           {loading ? (
             <div className="py-2 px-4 text-sm text-muted-foreground">
@@ -51,7 +94,11 @@ export default function SelectApiGroup({
             </div>
           ) : (
             apiGroups.map((item) => (
-              <ComboboxItem key={item.id} value={item.name}>
+              <ComboboxItem
+                key={item.id}
+                value={item.name}
+                className={"hover:cursor-pointer"}
+              >
                 {item.name}
               </ComboboxItem>
             ))

@@ -2,69 +2,42 @@
 
 import addApiAction from "@/actions/dashboard/addApi";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import KeyValueInput from "./keyValueInput";
-import { Plus } from "lucide-react";
+import KeyValueInput from "@/components/dashboard/api/keyValueInput";
+import SelectApiGroup from "@/components/dashboard/api/SelectApiGroup";
+import SelectMethod from "@/components/dashboard/api/SelectMethod";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import SelectApiGroup from "./SelectApiGroup";
-import SelectMethod from "./SelectMethod";
 
-interface ApiGroup {
-  id: string;
-  name: string;
-}
-
-export default function CreateApi() {
-  const [selectedApiGroup, setSelectedApiGroup] = useState<ApiGroup | null>(
-    null,
-  );
+export default function CreateApiPage() {
+  const [selectedApiGroup, setSelectedApiGroup] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [selectedMethod, setSelectedMethod] = useState("");
-  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        setOpen(nextOpen);
-        if (!nextOpen) {
-          setSelectedApiGroup(null);
-          setSelectedMethod("");
-        }
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button className="hover:opacity-95">
-          <Plus />
-          New API
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Create API</DialogTitle>
-          <DialogDescription>
+    <div className="flex flex-col gap-6 px-6 py-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-normal">Create API</h1>
+          <p className="text-sm text-muted-foreground">
             Add an endpoint to monitor and attach it to one of your API groups.
-          </DialogDescription>
-        </DialogHeader>
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-2xl">
         <form
           id="create-api-form"
           action={(formData) => {
             startTransition(async () => {
               await addApiAction(formData);
-              setOpen(false);
               setSelectedApiGroup(null);
+              router.push("/dashboard/api");
               router.refresh();
             });
           }}
@@ -94,15 +67,20 @@ export default function CreateApi() {
                 required
               />
             </Field>
-            {/* <Field>
+            <Field>
               <FieldLabel>API Group</FieldLabel>
               <SelectApiGroup setGroup={setSelectedApiGroup} />
+              {!selectedApiGroup && (
+                <p className="text-sm text-destructive">
+                  Please select an API group.
+                </p>
+              )}
               <input
                 type="hidden"
                 name="apiGroupId"
                 value={selectedApiGroup?.id || ""}
               />
-            </Field> */}
+            </Field>
             <div className="grid gap-4">
               <KeyValueInput
                 label="Headers (Optional)"
@@ -127,35 +105,17 @@ export default function CreateApi() {
             </div>
           </FieldGroup>
         </form>
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setOpen(false)}
-          >
-            Cancel
-          </Button>
-          <SubmitButton isDisabled={!selectedApiGroup} isPending={isPending} />
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
-function SubmitButton({
-  isDisabled,
-  isPending,
-}: {
-  isDisabled: boolean;
-  isPending: boolean;
-}) {
-  return (
-    <Button
-      type="submit"
-      form="create-api-form"
-      disabled={isPending || isDisabled}
-    >
-      {isPending ? "Creating..." : "Create API"}
-    </Button>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button
+            type="submit"
+            form="create-api-form"
+            disabled={isPending || !selectedApiGroup}
+          >
+            {isPending ? "Creating..." : "Create API"}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

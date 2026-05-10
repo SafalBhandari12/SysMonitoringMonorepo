@@ -16,7 +16,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDownIcon,
+} from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -80,13 +86,9 @@ export function DataTable<TData extends { name: string }, TValue>({
                               header.getContext(),
                             )}
                             {isSortable && (
-                              <span className="text-xs">
-                                {header.column.getIsSorted() === "asc"
-                                  ? "↑"
-                                  : header.column.getIsSorted() === "desc"
-                                    ? "↓"
-                                    : ""}
-                              </span>
+                              <>
+                                <ArrowUpDownIcon className="h-4 w-4" />
+                              </>
                             )}
                           </div>
                         </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { SortingState } from "@tanstack/react-table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -98,6 +98,8 @@ export function ApiStatusTable({
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isLoading, setIsLoading] = useState(false);
+  // Track whether this is the very first fetch for the component
+  const initialLoadRef = useRef(true);
   const [deleteState, setDeleteState] = useState<{
     isOpen: boolean;
     apiId: string | null;
@@ -138,6 +140,10 @@ export function ApiStatusTable({
         toast.error("Failed to fetch APIs");
       } finally {
         setIsLoading(false);
+        // After the first fetch finishes, mark initial load complete
+        if (initialLoadRef.current) {
+          initialLoadRef.current = false;
+        }
       }
     };
 
@@ -255,21 +261,22 @@ export function ApiStatusTable({
           </Select>
         </div>
 
-        {apis.length === 0 && isLoading ? (
+        {isLoading && initialLoadRef.current ? (
           <ApiStatusTableSkeleton />
         ) : (
-          <DataTable
-            columns={columns}
-            data={apis}
-            sorting={sorting}
-            onSortingChange={handleSortingChange}
-            meta={{
-              onDelete: handleDeleteClick,
-            }}
-          />
+          <div className={isLoading ? "opacity-70 pointer-events-none" : ""}>
+            <DataTable
+              columns={columns}
+              data={apis}
+              sorting={sorting}
+              onSortingChange={handleSortingChange}
+              meta={{
+                onDelete: handleDeleteClick,
+              }}
+            />
+          </div>
         )}
       </div>
-
       <DeleteConfirmationDialog
         isOpen={deleteState.isOpen}
         apiName={deleteState.apiName}

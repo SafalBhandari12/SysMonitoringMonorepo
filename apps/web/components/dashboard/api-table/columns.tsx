@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { ArrowUpDownIcon, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,7 @@ const formatUptime = (value: number | null) =>
 export const columns: ColumnDef<ApiRow>[] = [
   {
     accessorKey: "status",
+    enableSorting: false,
     header: ({ column }) => <div className="text-center">Status</div>,
     cell: ({ row }) => {
       const status = row.getValue("status") as "UP" | "DOWN";
@@ -46,6 +47,7 @@ export const columns: ColumnDef<ApiRow>[] = [
   },
   {
     accessorKey: "name",
+    enableSorting: false,
     header: ({ column }) => <div className="text-center">Name</div>,
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
@@ -54,6 +56,7 @@ export const columns: ColumnDef<ApiRow>[] = [
   },
   {
     accessorKey: "apiGroupName",
+    enableSorting: false,
     header: ({ column }) => <div className="text-center">API Group</div>,
     cell: ({ row }) => {
       const apiGroupName = row.getValue("apiGroupName") as string;
@@ -62,7 +65,7 @@ export const columns: ColumnDef<ApiRow>[] = [
   },
   {
     accessorKey: "uptime",
-    header: ({ column }) => <div className="text-center">Uptime</div>,
+    header: () => <div>Uptime</div>,
     cell: ({ row }) => {
       const uptime = row.getValue("uptime") as number | null;
       return (
@@ -72,7 +75,7 @@ export const columns: ColumnDef<ApiRow>[] = [
   },
   {
     accessorKey: "p90",
-    header: ({ column }) => <div className="text-center">P90</div>,
+    header: () => <div>P90</div>,
     cell: ({ row }) => {
       const p90 = row.getValue("p90") as number | null;
       return <div className="text-left font-medium">{formatLatency(p90)}</div>;
@@ -80,7 +83,7 @@ export const columns: ColumnDef<ApiRow>[] = [
   },
   {
     accessorKey: "p99",
-    header: ({ column }) => <div className="text-center">P99</div>,
+    header: () => <div>P99</div>,
     cell: ({ row }) => {
       const p99 = row.getValue("p99") as number | null;
       return <div className="text-left font-medium">{formatLatency(p99)}</div>;
@@ -88,6 +91,7 @@ export const columns: ColumnDef<ApiRow>[] = [
   },
   {
     id: "actions",
+    enableSorting: false,
     header: () => <div />,
     cell: ({ row, table }) => {
       const api = row.original;

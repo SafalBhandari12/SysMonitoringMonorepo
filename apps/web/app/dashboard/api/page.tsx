@@ -1,4 +1,3 @@
-import CreateApi from "@/components/dashboard/api/createApi";
 import {
   Card,
   CardContent,
@@ -28,7 +27,6 @@ export default async function Api() {
             Monitor endpoint paths, methods, and group assignments.
           </p>
         </div>
-        <CreateApi />
       </div>
       {apis.length === 0 ? (
         <Card className="border-dashed bg-muted/20">
@@ -42,7 +40,10 @@ export default async function Api() {
       ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {apis.map((api) => (
-            <Card key={api.id} className="shadow-sm transition-colors hover:bg-muted/20">
+            <Card
+              key={api.id}
+              className="shadow-sm transition-colors hover:bg-muted/20"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between gap-3">
                   <CardTitle className="truncate">{api.name}</CardTitle>

@@ -5,6 +5,10 @@ import { TimeLine } from "@/components/dashboard/Timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchServerApi } from "@/lib/server-api";
 import { incidentStatusEnum, regions } from "@/prisma/generated/prisma/enums";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type DashboardOverview = {
   stats: {
@@ -59,9 +63,19 @@ export default async function Dashboard({}: {}) {
   return (
     <div className="min-h-screen bg-muted/30 p-4 sm:p-6">
       <div className="mb-6 flex flex-col gap-1">
-        <h1 className="text-3xl font-semibold tracking-normal">
-          Global Fleet Overview
-        </h1>
+        <div className="flex justify-between">
+          <h1 className="text-3xl font-semibold tracking-normal">
+            Global Fleet Overview
+          </h1>
+          <Button>
+            <Link
+              href="/dashboard/api/create"
+              className="flex items-center justify-center"
+            >
+              <Plus /> Create API
+            </Link>
+          </Button>
+        </div>
         <p className="text-sm text-muted-foreground">
           {session.user?.name
             ? `Welcome, ${session.user.name}.`
