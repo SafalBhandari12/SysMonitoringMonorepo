@@ -25,14 +25,63 @@ export default function DashboardLoading() {
         ))}
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
         <Card className="shadow-sm">
           <CardHeader className="gap-2">
             <Skeleton className="h-5 w-44" />
             <Skeleton className="h-4 w-64 max-w-full" />
           </CardHeader>
           <CardContent>
-            <ApiStatusTableSkeleton />
+            <div className="overflow-hidden rounded-lg border">
+              <table className="w-full">
+                <thead className="border-b bg-muted/50">
+                  <tr>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                      <Skeleton className="h-4 w-12" />
+                    </th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                      <Skeleton className="h-4 w-20" />
+                    </th>
+                    <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+                      <Skeleton className="h-4 w-20 mx-auto" />
+                    </th>
+                    <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+                      <Skeleton className="h-4 w-12 mx-auto" />
+                    </th>
+                    <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+                      <Skeleton className="h-4 w-12 mx-auto" />
+                    </th>
+                    <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+                      <Skeleton className="h-4 w-8 mx-auto" />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <tr key={i} className="border-b">
+                      <td className="h-16 px-4 align-middle">
+                        <Skeleton className="h-6 w-12" />
+                      </td>
+                      <td className="h-16 px-4 align-middle">
+                        <Skeleton className="h-4 w-32" />
+                      </td>
+                      <td className="h-16 px-4 align-middle text-center">
+                        <Skeleton className="h-4 w-20 mx-auto" />
+                      </td>
+                      <td className="h-16 px-4 align-middle text-center">
+                        <Skeleton className="h-4 w-16 mx-auto" />
+                      </td>
+                      <td className="h-16 px-4 align-middle text-center">
+                        <Skeleton className="h-4 w-16 mx-auto" />
+                      </td>
+                      <td className="h-16 px-4 align-middle text-center">
+                        <Skeleton className="h-6 w-8 mx-auto" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
 

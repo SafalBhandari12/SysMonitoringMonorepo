@@ -11,6 +11,7 @@ const dashboardSearchParamsSchema = z.object({
   search: z.string().optional(),
   sortBy: z.enum(["uptime", "p90", "p99"]).optional(),
   sortDir: z.enum(["asc", "desc"]).optional(),
+  groupId: z.string().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -21,13 +22,15 @@ export async function GET(request: NextRequest) {
     const searchParam = request.nextUrl.searchParams.get("search");
     const sortByParam = request.nextUrl.searchParams.get("sortBy");
     const sortDirParam = request.nextUrl.searchParams.get("sortDir");
-    const { page, limit, search, sortBy, sortDir } =
+    const groupIdParam = request.nextUrl.searchParams.get("groupId");
+    const { page, limit, search, sortBy, sortDir, groupId } =
       dashboardSearchParamsSchema.parse({
         page: pageParam ? Number(pageParam) : undefined,
         limit: limitParam ? Number(limitParam) : undefined,
         search: searchParam || undefined,
         sortBy: sortByParam || undefined,
         sortDir: sortDirParam || undefined,
+        groupId: groupIdParam || undefined,
       });
 
     const key = cacheKey(
@@ -39,6 +42,7 @@ export async function GET(request: NextRequest) {
       search || "all",
       sortBy || "default",
       sortDir || "asc",
+      groupId || "all",
     );
     const cached = await getCached(key);
 
@@ -49,7 +53,7 @@ export async function GET(request: NextRequest) {
     const since = new Date();
     since.setDate(since.getDate() - 90);
 
-    const [apiGroupsCount, apisCount, incident, apiDigests, apis] =
+    const [apiGroupsCount, apisCount, incident, apiDigests, apis, apiGroups] =
       await Promise.all([
         prisma.apiGroup.count({
           where: {
@@ -98,10 +102,17 @@ export async function GET(request: NextRequest) {
           where: {
             apiGroup: { userId },
             ...(search && { name: { contains: search, mode: "insensitive" } }),
+            ...(groupId && { apiGroupId: groupId }),
           },
           select: {
             id: true,
             name: true,
+            apiGroup: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             metrics: {
               select: {
                 region: true,
@@ -113,6 +124,11 @@ export async function GET(request: NextRequest) {
             },
           },
           ...(page && limit && { skip: (page - 1) * limit, take: limit }),
+        }),
+        prisma.apiGroup.findMany({
+          where: { userId },
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
         }),
       ]);
 
@@ -163,6 +179,7 @@ export async function GET(request: NextRequest) {
       return {
         id: api.id,
         name: api.name,
+        apiGroupName: api.apiGroup?.name || "Unknown",
         status: uptime !== null && uptime >= 99 ? "UP" : "DOWN",
         uptime,
         p90: p90Value,
@@ -187,12 +204,10 @@ export async function GET(request: NextRequest) {
           bValue = b.p99;
         }
 
-        // Handle null values
         if (aValue === null && bValue === null) return 0;
         if (aValue === null) return sortDir === "asc" ? 1 : -1;
         if (bValue === null) return sortDir === "asc" ? -1 : 1;
 
-        // Compare values
         const comparison = aValue - bValue;
         return sortDir === "asc" ? comparison : -comparison;
       });
@@ -208,6 +223,7 @@ export async function GET(request: NextRequest) {
       },
       incidents: incident,
       apis: apiStatusRows,
+      availableGroups: apiGroups,
     };
 
     await setCached(key, response, 60);

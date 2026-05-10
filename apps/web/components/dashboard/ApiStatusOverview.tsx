@@ -14,14 +14,23 @@ type ApiStatusOverviewProps = {
   apis: {
     id: string;
     name: string;
+    apiGroupName: string;
     status: "UP" | "DOWN";
     uptime: number | null;
     p90: number | null;
     p99: number | null;
   }[];
+  availableGroups?: {
+    id: string;
+    name: string;
+  }[];
 };
 
-export function ApiStatusOverview({ region, apis }: ApiStatusOverviewProps) {
+export function ApiStatusOverview({
+  region,
+  apis,
+  availableGroups = [],
+}: ApiStatusOverviewProps) {
   const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
@@ -40,7 +49,10 @@ export function ApiStatusOverview({ region, apis }: ApiStatusOverviewProps) {
         {isPending ? (
           <ApiStatusTableSkeleton />
         ) : (
-          <ApiStatusTable initialApis={apis} />
+          <ApiStatusTable
+            initialApis={apis}
+            availableGroups={availableGroups}
+          />
         )}
       </CardContent>
     </Card>

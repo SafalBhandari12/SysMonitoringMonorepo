@@ -5,11 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const userId = await getUserId();
-    const apiId = params.id;
+    const { id: apiId } = await params;
 
     // Verify the API belongs to the user
     const api = await prisma.api.findUnique({

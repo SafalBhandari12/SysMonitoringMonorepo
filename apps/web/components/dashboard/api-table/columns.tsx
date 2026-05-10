@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 export type ApiRow = {
   id: string;
   name: string;
+  apiGroupName: string;
   status: "UP" | "DOWN";
   uptime: number | null;
   p90: number | null;
@@ -52,6 +53,14 @@ export const columns: ColumnDef<ApiRow>[] = [
     },
   },
   {
+    accessorKey: "apiGroupName",
+    header: ({ column }) => <div className="text-center">API Group</div>,
+    cell: ({ row }) => {
+      const apiGroupName = row.getValue("apiGroupName") as string;
+      return <div className="text-left font-medium">{apiGroupName}</div>;
+    },
+  },
+  {
     accessorKey: "uptime",
     header: ({ column }) => <div className="text-center">Uptime</div>,
     cell: ({ row }) => {
@@ -79,7 +88,7 @@ export const columns: ColumnDef<ApiRow>[] = [
   },
   {
     id: "actions",
-    header: ({ column }) => <div className="text-center">Actions</div>,
+    header: () => <div />,
     cell: ({ row, table }) => {
       const api = row.original;
       const meta = table.options.meta as

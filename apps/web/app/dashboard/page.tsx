@@ -24,10 +24,15 @@ type DashboardOverview = {
   apis: {
     id: string;
     name: string;
+    apiGroupName: string;
     status: "UP" | "DOWN";
     uptime: number | null;
     p90: number | null;
     p99: number | null;
+  }[];
+  availableGroups: {
+    id: string;
+    name: string;
   }[];
 };
 
@@ -93,7 +98,10 @@ export default async function Dashboard({}: {}) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ApiStatusTable initialApis={overview.apis} />
+            <ApiStatusTable
+              initialApis={overview.apis}
+              availableGroups={overview.availableGroups}
+            />
           </CardContent>
         </Card>
         <Card className="shadow-sm">

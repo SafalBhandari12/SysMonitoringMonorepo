@@ -5,6 +5,13 @@ import { toast } from "sonner";
 import { SortingState } from "@tanstack/react-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DataTable } from "@/components/dashboard/api-table/data-table";
 import { columns } from "@/components/dashboard/api-table/columns";
 import { DeleteConfirmationDialog } from "@/components/dashboard/api-table/delete-dialog";
@@ -13,6 +20,7 @@ import { deleteApiAction } from "@/actions/dashboard/deleteApi";
 type ApiData = {
   id: string;
   name: string;
+  apiGroupName: string;
   status: "UP" | "DOWN";
   uptime: number | null;
   p90: number | null;
@@ -32,7 +40,7 @@ export function ApiStatusTableSkeleton() {
               <Skeleton className="h-4 w-20" />
             </th>
             <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
-              <Skeleton className="h-4 w-12 mx-auto" />
+              <Skeleton className="h-4 w-20 mx-auto" />
             </th>
             <th className="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
               <Skeleton className="h-4 w-12 mx-auto" />
@@ -55,7 +63,7 @@ export function ApiStatusTableSkeleton() {
                 <Skeleton className="h-4 w-32" />
               </td>
               <td className="h-16 px-4 align-middle text-center">
-                <Skeleton className="h-4 w-16 mx-auto" />
+                <Skeleton className="h-4 w-20 mx-auto" />
               </td>
               <td className="h-16 px-4 align-middle text-center">
                 <Skeleton className="h-4 w-16 mx-auto" />
@@ -76,15 +84,18 @@ export function ApiStatusTableSkeleton() {
 
 interface ApiStatusTableProps {
   initialApis: ApiData[];
+  availableGroups: { id: string; name: string }[];
   onApiDeleted?: () => void;
 }
 
 export function ApiStatusTable({
   initialApis,
+  availableGroups,
   onApiDeleted,
 }: ApiStatusTableProps) {
   const [apis, setApis] = useState<ApiData[]>(initialApis);
   const [search, setSearch] = useState("");
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [deleteState, setDeleteState] = useState<{
@@ -107,6 +118,9 @@ export function ApiStatusTable({
         const params = new URLSearchParams();
         if (search) {
           params.append("search", search);
+        }
+        if (selectedGroupId) {
+          params.append("groupId", selectedGroupId);
         }
         if (sorting.length > 0) {
           params.append("sortBy", sorting[0].id);
@@ -132,7 +146,7 @@ export function ApiStatusTable({
     }, 500); // Debounce search input with 500ms delay
 
     return () => clearTimeout(debounceTimer);
-  }, [search, sorting]);
+  }, [search, selectedGroupId, sorting]);
 
   const handleDeleteClick = (apiId: string, apiName: string) => {
     setDeleteState({
@@ -162,6 +176,9 @@ export function ApiStatusTable({
       const params = new URLSearchParams();
       if (search) {
         params.append("search", search);
+      }
+      if (selectedGroupId) {
+        params.append("groupId", selectedGroupId);
       }
       if (sorting.length > 0) {
         params.append("sortBy", sorting[0].id);
@@ -203,18 +220,39 @@ export function ApiStatusTable({
   return (
     <>
       <div className="space-y-4">
-        <div className="relative">
-          <Input
-            placeholder="Search by API name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-sm"
-          />
-          {isLoading && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <div className="h-4 w-4 border-2 border-muted-foreground border-t-foreground rounded-full animate-spin" />
-            </div>
-          )}
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="relative w-full max-w-sm">
+            <Input
+              placeholder="Search by API name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pr-10"
+            />
+            {isLoading && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-foreground" />
+              </div>
+            )}
+          </div>
+
+          <Select
+            value={selectedGroupId ?? "all"}
+            onValueChange={(value) =>
+              setSelectedGroupId(value === "all" ? null : value)
+            }
+          >
+            <SelectTrigger className="w-full md:w-55">
+              <SelectValue placeholder="All Groups" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Groups</SelectItem>
+              {availableGroups.map((group) => (
+                <SelectItem key={group.id} value={group.id}>
+                  {group.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {apis.length === 0 && isLoading ? (
