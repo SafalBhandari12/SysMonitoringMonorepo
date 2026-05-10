@@ -114,6 +114,21 @@ export function ApiStatusTable({
 
   // Fetch APIs with search and sort filters
   useEffect(() => {
+    // If we already received `initialApis` from the server render and
+    // there are no active filters/sorting, skip the client fetch on first mount
+    // to avoid a duplicate request (server + client).
+    if (
+      initialLoadRef.current &&
+      initialApis &&
+      initialApis.length > 0 &&
+      !search &&
+      !selectedGroupId &&
+      sorting.length === 0
+    ) {
+      initialLoadRef.current = false;
+      return;
+    }
+
     const fetchApis = async () => {
       setIsLoading(true);
       try {
@@ -152,7 +167,7 @@ export function ApiStatusTable({
     }, 500); // Debounce search input with 500ms delay
 
     return () => clearTimeout(debounceTimer);
-  }, [search, selectedGroupId, sorting]);
+  }, [search, selectedGroupId, sorting, initialApis]);
 
   const handleDeleteClick = (apiId: string, apiName: string) => {
     setDeleteState({
