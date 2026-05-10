@@ -7,12 +7,15 @@ import {
 } from "@/components/ui/card";
 import { fetchServerApi } from "@/lib/server-api";
 import { methodEnum } from "@/prisma/generated/prisma/enums";
+// UptimeBars is a client component; import directly so Next handles it correctly
+import UptimeBars from "../../../components/dashboard/UptimeBars";
 
 type ApiListItem = {
   id: string;
   name: string;
   method: methodEnum;
   path: string;
+  uptime?: { date: string; up: boolean; upCount: number; totalCount: number }[];
 };
 
 export default async function Api() {
@@ -38,24 +41,30 @@ export default async function Api() {
           </CardHeader>
         </Card>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="flex flex-col gap-2">
           {apis.map((api) => (
             <Card
               key={api.id}
-              className="shadow-sm transition-colors hover:bg-muted/20"
+              className="shadow-sm rounded-none transition-colors hover:bg-muted/20 w-full flex flex-row items-center justify-between"
             >
               <CardHeader>
-                <div className="flex items-start justify-between gap-3">
-                  <CardTitle className="truncate">{api.name}</CardTitle>
-                  <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-xs font-medium">
-                    {api.method}
-                  </span>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <CardTitle className="truncate flex gap-1 align-middle items-center">
+                      {api.name}
+                    </CardTitle>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <code className="break-all rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground">
-                  {api.path}
-                </code>
+                <div className="max-w-full">
+                  <UptimeBars
+                    method={api.method}
+                    path={api.path}
+                    days={90}
+                    initialData={api.uptime}
+                  />
+                </div>
               </CardContent>
             </Card>
           ))}

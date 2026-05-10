@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CreateButton from "@/components/reui/createButton";
 
 type DashboardOverview = {
   stats: {
@@ -67,14 +68,7 @@ export default async function Dashboard({}: {}) {
           <h1 className="text-3xl font-semibold tracking-normal">
             Global Fleet Overview
           </h1>
-          <Button>
-            <Link
-              href="/dashboard/api/create"
-              className="flex items-center justify-center"
-            >
-              <Plus /> Create API
-            </Link>
-          </Button>
+          <CreateButton href="/dashboard/api/create" text="Create API" />
         </div>
         <p className="text-sm text-muted-foreground">
           {session.user?.name
