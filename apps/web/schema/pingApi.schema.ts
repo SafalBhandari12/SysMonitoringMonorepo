@@ -11,7 +11,7 @@ function isValid5MinBucket(dateStr: string) {
 }
 
 export const TDigestSchema = z.object({
-  apiId: z.string(),
+  requestUrl: z.url(),
   windowKey: z
     .string()
     .refine((val) => !isNaN(new Date(val).getTime()), {

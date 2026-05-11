@@ -8,6 +8,14 @@ import {
 import { prisma } from "@/prisma";
 import { TDigestSchema } from "@/schema/pingApi.schema";
 
+function domainCandidate(url: URL): string {
+  return url.hostname.toLowerCase();
+}
+
+function apiPathCandidate(pathname: string): string {
+  return pathname || "/";
+}
+
 export async function POST(request: NextRequest) {
   try {
     const json = await request.json();
@@ -20,16 +28,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { apiId, windowKey, centroids } = parsed.data;
-    const apiOwnerCacheKey = cacheKey("api", "owner", apiId);
-    let apiOwner = await getCached<{ userId: string }>(apiOwnerCacheKey);
+    const { requestUrl, windowKey, centroids } = parsed.data;
+    const url = new URL(requestUrl);
+    const domain = domainCandidate(url);
+    const path = apiPathCandidate(url.pathname);
+    const apiCacheKey = cacheKey("api", "by-url", domain, path);
+    let api = await getCached<{ id: string; userId: string }>(apiCacheKey);
 
-    if (!apiOwner) {
-      const api = await prisma.api.findUnique({
+    if (!api) {
+      const apiRecord = await prisma.api.findFirst({
         where: {
-          id: apiId,
+          domain: {
+            domain,
+          },
+          path,
         },
         select: {
+          id: true,
           apiGroup: {
             select: {
               userId: true,
@@ -38,26 +53,33 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      apiOwner = api?.apiGroup?.userId ? { userId: api.apiGroup.userId } : null;
+      api = apiRecord?.apiGroup?.userId
+        ? { id: apiRecord.id, userId: apiRecord.apiGroup.userId }
+        : null;
 
-      if (apiOwner) {
-        await setCached(apiOwnerCacheKey, apiOwner, 3600);
+      if (api) {
+        await setCached(apiCacheKey, api, 3600);
       }
+    }
+
+    if (!api) {
+      return NextResponse.json(
+        { error: "API not found for request URL" },
+        { status: 404 },
+      );
     }
 
     await prisma.apiDigest.create({
       data: {
-        apiId,
+        apiId: api.id,
         windowKey,
         digest: { centroids, n: parsed.data.n || 0 },
       },
     });
 
-    if (apiOwner) {
-      await deleteCachedPattern(
-        cacheKey("dashboard", "overview", apiOwner.userId, "*"),
-      );
-    }
+    await deleteCachedPattern(
+      cacheKey("dashboard", "overview", api.userId, "*"),
+    );
 
     return NextResponse.json({ message: "stored" });
   } catch (err) {
