@@ -46,6 +46,30 @@ export async function POST(request: NextRequest) {
     const userId = await getUserId();
     const { domain } = registerDomainSchema.parse(await request.json());
 
+    const existingDomainForUser = await prisma.domain.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (existingDomainForUser) {
+      return NextResponse.json(
+        { error: "You have already registered a domain." },
+        { status: 409 },
+      );
+    }
+
+    const existingDomain = await prisma.domain.findUnique({
+      where: { domain },
+      select: { id: true },
+    });
+
+    if (existingDomain) {
+      return NextResponse.json(
+        { error: "That domain is already registered." },
+        { status: 409 },
+      );
+    }
+
     await prisma.domain.create({
       data: {
         domain,
@@ -63,9 +87,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json(
-      { error: "Failed to register domain" },
-      { status: 500 },
-    );
+    const message =
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+        ? "You have already registered a domain."
+        : "Failed to register domain";
+
+    return NextResponse.json({ error: message }, { status: 409 });
   }
 }

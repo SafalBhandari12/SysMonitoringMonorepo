@@ -15,7 +15,15 @@ export default async function registerDomain(formData: FormData) {
         domain,
       }),
     });
+
+    return { success: true as const };
   } catch (error) {
     console.error("Error registering domain:", error);
+
+    return {
+      success: false as const,
+      error:
+        error instanceof Error ? error.message : "Failed to register domain.",
+    };
   }
 }

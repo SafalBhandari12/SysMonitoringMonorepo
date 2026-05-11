@@ -42,13 +42,18 @@ export default function DomainRegistration() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setDomain(value);
+    if (error) {
+      setError("");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    setPending(true);
     e.preventDefault();
+    setPending(true);
+    setError("");
 
     if (!domain) {
+      setError("Enter a domain to continue.");
       setPending(false);
       return;
     }
@@ -60,8 +65,21 @@ export default function DomainRegistration() {
 
     const formData = new FormData();
     formData.append("domain", domain);
-    await registerDomain(formData);
-    router.push("/onboarding"); // Redirect to success page after successful registration
+
+    try {
+      const result = await registerDomain(formData);
+
+      if (!result?.success) {
+        setError(result?.error ?? "Failed to register domain.");
+        return;
+      }
+
+      router.push("/onboarding"); // Redirect to success page after successful registration
+    } catch {
+      setError("Failed to register domain.");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (

@@ -1,25 +1,69 @@
 "use client";
 
-import verifyDomainAction from "@/actions/domain/verifyDomain";
-import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Loader2, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button type="submit" disabled={pending}>
-      {pending ? "Verifying..." : "Verify Domain"}
-    </button>
-  );
-}
+import { Button } from "@/components/ui/button";
 
 export default function DomainVerificationButton() {
+  const router = useRouter();
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const handleVerify = async () => {
+    setIsVerifying(true);
+
+    try {
+      const response = await fetch("/api/onboarding/domain/verify", {
+        method: "POST",
+      });
+
+      const payload = (await response.json()) as {
+        success?: boolean;
+        verified?: boolean;
+        error?: string;
+      };
+
+      if (response.ok && payload.verified) {
+        toast.success("Domain verified", {
+          description: "Your session is being refreshed.",
+        });
+        router.replace("/login");
+        return;
+      }
+
+      toast.error("Verification failed", {
+        description:
+          payload.error ??
+          "The DNS record or meta tag is not live yet. Try again after propagation.",
+      });
+    } catch {
+      toast.error("Verification failed", {
+        description: "Unable to reach the verification endpoint.",
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   return (
-    <form action={verifyDomainAction}>
-      <p>
-        Click the button below to verify your domain ownership. This will check
-        both the DNS record and the meta tag for the verification code.
-      </p>
-      <SubmitButton />
-    </form>
+    <Button
+      onClick={handleVerify}
+      disabled={isVerifying}
+      className="w-full sm:w-auto"
+    >
+      {isVerifying ? (
+        <>
+          <Loader2 className="size-4 animate-spin" />
+          Verifying...
+        </>
+      ) : (
+        <>
+          <ShieldCheck className="size-4" />
+          Verify domain
+        </>
+      )}
+    </Button>
   );
 }

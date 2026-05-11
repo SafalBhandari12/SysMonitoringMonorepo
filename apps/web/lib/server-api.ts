@@ -25,7 +25,19 @@ export async function fetchServerApi<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`Request to ${path} failed with ${response.status}`);
+    let message = `Request to ${path} failed with ${response.status}`;
+
+    try {
+      const body = (await response.json()) as {
+        error?: string;
+        message?: string;
+      };
+      message = body.error ?? body.message ?? message;
+    } catch {
+      // Keep the fallback status-based message when the response is not JSON.
+    }
+
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;

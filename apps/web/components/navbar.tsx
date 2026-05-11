@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import Logo from "./ui/Logo";
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -10,9 +11,7 @@ export function Navbar() {
     <nav className="flex items-center h-15 text-sm  px-10 gap-8">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 no-underline">
-        <span className="inline-flex items-center justify-center w-5 h-5 border-2 border-foreground rounded-full relative">
-          <span className="w-1.5 h-1.5 bg-foreground rounded-full absolute"></span>
-        </span>
+        <Logo />
         <span className="font-medium text-base text-foreground">
           Watchlayer
         </span>
