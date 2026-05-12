@@ -36,6 +36,14 @@ export async function POST(request: NextRequest) {
     const apiCacheKey = cacheKey("api", "by-url", domain, path);
     let api = await getCached<{ id: string; userId: string }>(apiCacheKey);
 
+    const userId = request.headers.get("x-authenticated-user-id");
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Missing authenticated user ID" },
+        { status: 401 },
+      );
+    }
+
     console.log(url, domain, path);
 
     if (!api) {
@@ -43,33 +51,24 @@ export async function POST(request: NextRequest) {
         where: {
           domain: {
             domain,
+            userId,
           },
           path,
         },
         select: {
           id: true,
-          apiGroup: {
-            select: {
-              userId: true,
-            },
-          },
         },
       });
-
-      api = apiRecord?.apiGroup?.userId
-        ? { id: apiRecord.id, userId: apiRecord.apiGroup.userId }
-        : null;
-
-      if (api) {
-        await setCached(apiCacheKey, api, 3600);
+      if (!apiRecord) {
+        return NextResponse.json(
+          { error: "API not found for request URL" },
+          { status: 404 },
+        );
       }
-    }
 
-    if (!api) {
-      return NextResponse.json(
-        { error: "API not found for request URL" },
-        { status: 404 },
-      );
+      api = { id: apiRecord?.id, userId: userId };
+
+      await setCached(apiCacheKey, api, 3600);
     }
 
     await prisma.apiDigest.create({

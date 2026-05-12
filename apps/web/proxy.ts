@@ -22,6 +22,10 @@ export const proxy = auth(async (req) => {
       where: {
         key: hashedKey,
       },
+      select: {
+        id: true,
+        userId: true,
+      },
     });
     console.log("API key record found:", apiKeyRecord);
     if (!apiKeyRecord) {
@@ -30,7 +34,14 @@ export const proxy = auth(async (req) => {
         { status: 401 },
       );
     }
-    return NextResponse.next();
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-authenticated-user-id", apiKeyRecord?.userId);
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   }
 
   if (!isLoggedIn) {
