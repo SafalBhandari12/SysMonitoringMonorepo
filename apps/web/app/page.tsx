@@ -455,7 +455,7 @@ export default function Home() {
                   }}
                 >
                   The setup matches the app flow: authenticate, onboard a
-                  domain, add APIs, then let scheduled jobs collect data.
+                  domain, add APIs then let scheduled jobs collect data.
                 </div>
                 <div style={{ marginTop: "8px" }}>
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
