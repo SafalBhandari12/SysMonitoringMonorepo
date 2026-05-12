@@ -2,14 +2,25 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { prisma } from "./prisma";
 import { hashKey } from "./app/utils/hash";
+import { ipAddress } from "@vercel/functions";
+import { createRateLimit, enforceRateLimit } from "./app/utils/rate-limit";
+
+const rateLimitPing = createRateLimit("rl:ping", 1, "5m");
+const normalRateLimit = createRateLimit("rl:normal", 100, "1h");
 
 export const proxy = auth(async (req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
   console.log("Proxy middleware invoked for path:", pathname);
+  const ip = ipAddress(req) ?? "127.0.0.1";
 
   if (pathname.startsWith("/api/ping")) {
     const apiKey = req.headers.get("x-api-key");
+    const rateLimitResult = await enforceRateLimit(rateLimitPing, ip);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+
     if (!apiKey) {
       return NextResponse.json(
         { success: false, message: "API key missing" },
@@ -42,6 +53,11 @@ export const proxy = auth(async (req) => {
         headers: requestHeaders,
       },
     });
+  }
+
+  const rateLimitResult = await enforceRateLimit(normalRateLimit, ip);
+  if (rateLimitResult) {
+    return rateLimitResult;
   }
 
   if (!isLoggedIn) {
