@@ -18,7 +18,7 @@ export const proxy = auth(async (req) => {
     }
     console.log("Received API key:", apiKey);
     const hashedKey = hashKey(apiKey);
-    const apiKeyRecord = await prisma.apiKey.findFirst({
+    const apiKeyRecord = await prisma.apiKey.findUnique({
       where: {
         key: hashedKey,
       },
