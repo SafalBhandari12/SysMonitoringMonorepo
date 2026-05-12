@@ -29,25 +29,25 @@ export default function Home() {
           <em>before your users do</em>
         </h1>
         <p className="hero-sub">
-          Fast, regional API and domain monitoring. Checks run every 10 seconds
-          from multiple locations worldwide. Incidents open automatically. You
-          get alerted before anyone notices.
+          Domain-first API monitoring with a published Express package for
+          wiring monitored services into your setup. Verify ownership, add
+          endpoints, and track health from the same dashboard.
         </p>
         <div className="hero-actions">
           <Link href="/signup" className="btn-hero btn-hero-dark">
-            Start monitoring free{" "}
+            Start with Google{" "}
             <ArrowRight
               size={18}
               style={{ display: "inline", marginLeft: "6px" }}
             />
           </Link>
-          <Link href="/docs" className="btn-hero btn-hero-light">
-            Read the docs
+          <Link href="/dashboard" className="btn-hero btn-hero-light">
+            View the dashboard
           </Link>
         </div>
         <p className="hero-note">
-          Or, <Link href="/open-source">run it yourself</Link> with the
-          open-source version.
+          Install the Express package, sign in, verify your domain, then create
+          API groups, endpoints, and API keys.
         </p>
 
         {/* Terminal */}
@@ -57,41 +57,41 @@ export default function Home() {
             <div className="t-dot" style={{ background: "#ffbd2e" }}></div>
             <div className="t-dot" style={{ background: "#27c93f" }}></div>
             <span className="t-bar-label">
-              watchlayer / worker / api-monitoring-us-east
+              watchlayer / timed-function / region-IN
             </span>
           </div>
           <div className="terminal-body">
             <pre>
               <span className="c-dim">
-                {"# consuming api-monitoring-us-east queue\n\n"}
+                {"# running scheduled API probes\n\n"}
               </span>
-              <span className="c-green">✓</span>{" "}
+              <span className="c-green">OK</span>{" "}
               <span className="c-blue">GET</span> /api/v1/users{" "}
-              <span className="c-green">142ms</span> UP us-east
+              <span className="c-green">142ms</span> UP IN
               {"\n"}
-              <span className="c-green">✓</span>{" "}
+              <span className="c-green">OK</span>{" "}
               <span className="c-blue">GET</span> /api/v1/products{" "}
-              <span className="c-green">89ms</span> UP us-east
+              <span className="c-green">89ms</span> UP IN
               {"\n"}
-              <span className="c-red">✗</span>{" "}
+              <span className="c-red">ERR</span>{" "}
               <span className="c-blue">POST</span> /api/v1/payments{" "}
-              <span className="c-red">TIMEOUT</span> DOWN us-east
+              <span className="c-red">TIMEOUT</span> DOWN IN
               {"\n"}
-              <span className="c-red">✗</span>{" "}
+              <span className="c-red">ERR</span>{" "}
               <span className="c-blue">POST</span> /api/v1/payments{" "}
-              <span className="c-red">503</span> DOWN us-east
+              <span className="c-red">503</span> DOWN IN
               {"\n"}
-              <span className="c-orange">!</span> threshold crossed (3/60s) —
+              <span className="c-orange">!</span> failure window crossed -
               opening INC-0042
               {"\n"}
               <span className="c-dim">
-                {"api: /api/v1/payments | region: us-east\n\n"}
+                {"api: /api/v1/payments | region: IN\n\n"}
               </span>
-              <span className="c-green">✓</span>{" "}
+              <span className="c-green">OK</span>{" "}
               <span className="c-blue">POST</span> /api/v1/payments{" "}
-              <span className="c-green">201ms</span> UP us-east
+              <span className="c-green">201ms</span> UP IN
               {"\n"}
-              <span className="c-green">✓</span> recovery confirmed — resolving
+              <span className="c-green">OK</span> recovery confirmed - resolving
               INC-0042
             </pre>
           </div>
@@ -101,15 +101,15 @@ export default function Home() {
       {/* LOGOS */}
       <div className="logos-section">
         <div className="logos-label">
-          Trusted by teams monitoring production APIs
+          Built around the workflow this app already supports
         </div>
         <div className="logos-row">
-          <span className="logo-item">Acme Corp</span>
-          <span className="logo-item">DevStack</span>
-          <span className="logo-item">Northforge</span>
-          <span className="logo-item">Meridian</span>
-          <span className="logo-item">Openloop</span>
-          <span className="logo-item">Axiom Labs</span>
+          <span className="logo-item">Google Auth</span>
+          <span className="logo-item">Prisma</span>
+          <span className="logo-item">PostgreSQL</span>
+          <span className="logo-item">Redis</span>
+          <span className="logo-item">sysmonitoringexpress</span>
+          <span className="logo-item">Cloudflare Cron</span>
         </div>
       </div>
 
@@ -118,19 +118,19 @@ export default function Home() {
         <div className="section-tag">
           <Sparkles size={18} className="inline-icon" /> By the numbers
         </div>
-        <h2 className="section-h2">Built for reliability at any scale</h2>
+        <h2 className="section-h2">Built for the monitoring flow in this repo</h2>
         <p className="section-desc">
-          No moving parts to manage. Configure your endpoints and let Watchlayer
-          handle the rest — continuously, across every region, 24/7.
+          Current frontend, Prisma schema, scheduled workers, and dashboard
+          work together: verify domains, register APIs, and collect responses.
         </p>
 
         <div className="stats-row">
           <div className="stat-cell">
-            <div className="stat-num">10s</div>
-            <div className="stat-label">Check interval</div>
+            <div className="stat-num">5m</div>
+            <div className="stat-label">Probe interval</div>
           </div>
           <div className="stat-cell">
-            <div className="stat-num">p99</div>
+            <div className="stat-num">p90</div>
             <div className="stat-label">Latency tracked</div>
           </div>
           <div className="stat-cell">
@@ -155,7 +155,7 @@ export default function Home() {
                 color: "var(--text-3)",
               }}
             >
-              POST /api/v1/payments — last 30 days
+              POST /api/v1/payments - last 30 days
             </span>
             <span
               style={{
@@ -190,7 +190,7 @@ export default function Home() {
           <Zap size={18} className="inline-icon" /> Features
         </div>
         <h2 className="section-h2">
-          Everything you need to monitor with confidence
+          The pieces already wired into your product
         </h2>
 
         <div className="feat-table-wrap">
@@ -198,28 +198,28 @@ export default function Home() {
             <div className="feat-left">
               <CheckSquare2 size={20} className="feat-sym-icon" />
               <div>
-                <div className="feat-name">DNS Verification</div>
-                <div className="feat-sub">automated ownership proof</div>
+                <div className="feat-name">Domain Verification</div>
+                <div className="feat-sub">DNS or meta ownership proof</div>
               </div>
             </div>
             <div className="feat-right">
-              Prove domain ownership via a DNS TXT record before monitoring
-              begins. The system resolves nameservers and validates the token
-              automatically — no manual review, no delays.
+              Users prove domain ownership with a generated token before
+              monitoring begins. DNS TXT and meta-tag verification are both
+              supported by the current setup.
             </div>
           </div>
           <div className="feat-row">
             <div className="feat-left">
               <Globe size={20} className="feat-sym-icon" />
               <div>
-                <div className="feat-name">Regional Monitoring</div>
-                <div className="feat-sub">parallel checks worldwide</div>
+                <div className="feat-name">Scheduled Monitoring</div>
+                <div className="feat-sub">timer-based API probes</div>
               </div>
             </div>
             <div className="feat-right">
-              Same API checked from different regions simultaneously. Compare
-              latency, catch geo-specific issues, and get a complete global
-              picture without extra configuration.
+              The serverless API checker reads registered endpoints, sends
+              HTTP probes, stores response data, and tags results with the
+              configured region.
             </div>
           </div>
           <div className="feat-row">
@@ -227,12 +227,13 @@ export default function Home() {
               <TrendingUp size={20} className="feat-sym-icon" />
               <div>
                 <div className="feat-name">Latency Percentiles</div>
-                <div className="feat-sub">p50, p90, p99 tracked</div>
+                <div className="feat-sub">p90 and p99 tracked</div>
               </div>
             </div>
             <div className="feat-right">
-              Raw events are aggregated into daily stats and rolling percentile
-              buckets. Fast queries, deep insights, no bloat.
+              Raw response rows, daily stats, API metrics, and digest data feed
+              the dashboard cards and table views without recalculating every
+              request.
             </div>
           </div>
           <div className="feat-row">
@@ -244,36 +245,36 @@ export default function Home() {
               </div>
             </div>
             <div className="feat-right">
-              Failures above your threshold automatically open incidents. No
-              manual triage, no missing issues. Recovery confirmed before
-              auto-close.
+              Redis-backed failure windows open ongoing incidents and mark them
+              resolved when healthy checks recover below the configured
+              threshold.
             </div>
           </div>
           <div className="feat-row">
             <div className="feat-left">
               <Archive size={20} className="feat-sym-icon" />
               <div>
-                <div className="feat-name">90-Day History</div>
-                <div className="feat-sub">complete audit trail</div>
+                <div className="feat-name">90-Day Metrics</div>
+                <div className="feat-sub">dashboard-friendly history</div>
               </div>
             </div>
             <div className="feat-right">
-              Every check, every incident, every recovery. Backed up to
-              PostgreSQL. Query by date range, region, status code—run reports
-              with confidence.
+              Uptime, response history, incidents, and daily aggregates are
+              stored in PostgreSQL so the dashboard can query them through
+              Prisma with confidence.
             </div>
           </div>
           <div className="feat-row">
             <div className="feat-left">
               <Code size={20} className="feat-sym-icon" />
               <div>
-                <div className="feat-name">Open Source</div>
-                <div className="feat-sub">run locally or cloud</div>
+                <div className="feat-name">API Keys</div>
+                <div className="feat-sub">dashboard-managed access</div>
               </div>
             </div>
             <div className="feat-right">
-              Full source on GitHub. Deploy to your own infrastructure, or use
-              Watchlayer Cloud for managed monitoring without DevOps overhead.
+              Users can create and manage API keys from the dashboard alongside
+              API groups and monitored endpoints.
             </div>
           </div>
         </div>
@@ -288,9 +289,8 @@ export default function Home() {
         </div>
         <h2 className="section-h2">From setup to insight in minutes</h2>
         <p className="section-desc">
-          A three-phase lifecycle — domain verification, API registration,
-          continuous monitoring — gets you running fast and keeps results
-          accurate.
+          A practical lifecycle connects onboarding, endpoint setup, scheduled
+          checks, and dashboard reporting without changing screens or systems.
         </p>
 
         <div className="two-col">
@@ -300,8 +300,8 @@ export default function Home() {
               <div>
                 <div className="step-title">Register a domain</div>
                 <div className="step-desc">
-                  Create a domain in Watchlayer and add a DNS TXT record. We'll
-                  automatically verify ownership and mark it VERIFIED.
+                  Register a domain without a protocol prefix, then verify it
+                  with either the DNS TXT token or the supported meta tag.
                 </div>
               </div>
             </div>
@@ -310,9 +310,8 @@ export default function Home() {
               <div>
                 <div className="step-title">Add APIs to monitor</div>
                 <div className="step-desc">
-                  For each API, specify method (GET/POST/etc), path, and
-                  expected status. Watchlayer queues a regional monitoring job
-                  for each one.
+                  Create API groups, then add endpoints with method, path,
+                  headers, params, query values, and optional body data.
                 </div>
               </div>
             </div>
@@ -321,9 +320,8 @@ export default function Home() {
               <div>
                 <div className="step-title">Monitor continuously</div>
                 <div className="step-desc">
-                  Every 10 seconds, remote workers execute HTTP probes across
-                  your chosen regions. Results are stored, incidents are
-                  tracked, data is aggregated.
+                  The Azure timer function checks saved APIs, writes response
+                  rows, and updates Redis-backed incident state.
                 </div>
               </div>
             </div>
@@ -332,9 +330,8 @@ export default function Home() {
               <div>
                 <div className="step-title">View results</div>
                 <div className="step-desc">
-                  See raw events, daily stats, and percentile breakdowns. Drill
-                  into incidents, compare regions, export historical data for
-                  analysis.
+                  Review uptime bars, p90 and p99 latency, API status rows,
+                  and the most recent incidents from the dashboard.
                 </div>
               </div>
             </div>
@@ -384,7 +381,7 @@ export default function Home() {
                     Phase 1: Domain
                   </div>
                   <div style={{ fontSize: "10px", color: "#555" }}>
-                    PENDING → VERIFIED
+                    PENDING {"->"} VERIFIED
                   </div>
                 </div>
                 <div
@@ -395,7 +392,7 @@ export default function Home() {
                     fontSize: "10px",
                   }}
                 >
-                  ↓ Enqueue Job
+                  Verification check
                 </div>
                 <div
                   style={{
@@ -414,7 +411,7 @@ export default function Home() {
                     Phase 2: API
                   </div>
                   <div style={{ fontSize: "10px", color: "#555" }}>
-                    CREATE → READY
+                    CREATE {"->"} READY
                   </div>
                 </div>
                 <div
@@ -425,7 +422,7 @@ export default function Home() {
                     fontSize: "10px",
                   }}
                 >
-                  ↓ Enqueue Job
+                  Scheduled probe
                 </div>
                 <div style={{ border: "1px solid #333", padding: "8px" }}>
                   <div
@@ -438,7 +435,7 @@ export default function Home() {
                     Phase 3: Monitor
                   </div>
                   <div style={{ fontSize: "10px", color: "#555" }}>
-                    RUN → CONTINUOUS
+                    RUN {"->"} CONTINUOUS
                   </div>
                 </div>
               </div>
@@ -457,21 +454,21 @@ export default function Home() {
                     color: "#333",
                   }}
                 >
-                  Three-phase automated setup gets you monitoring in minutes
-                  with zero manual overhead.
+                  The setup matches the app flow: authenticate, onboard a
+                  domain, add APIs, then let scheduled jobs collect data.
                 </div>
                 <div style={{ marginTop: "8px" }}>
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
-                    ✓ Verify DNS ownership automatically
+                    OK Verify DNS or meta ownership
                   </div>
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
-                    ✓ Enqueue regional monitoring jobs
+                    OK Create API groups and endpoints
                   </div>
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
-                    ✓ Run HTTP probes every 10s
+                    OK Run timed HTTP probes
                   </div>
                   <div style={{ fontSize: "10px" }}>
-                    ✓ Detect and resolve incidents
+                    OK Detect and resolve incidents
                   </div>
                 </div>
               </div>
@@ -569,7 +566,7 @@ export default function Home() {
                     Raw Events
                   </div>
                   <div style={{ fontSize: "10px", color: "#555" }}>
-                    Per request basis
+                    Per probe basis
                   </div>
                 </div>
                 <div
@@ -580,7 +577,7 @@ export default function Home() {
                     fontSize: "10px",
                   }}
                 >
-                  ↓ Aggregation
+                  Aggregation
                 </div>
                 <div
                   style={{
@@ -610,7 +607,7 @@ export default function Home() {
                     fontSize: "10px",
                   }}
                 >
-                  ↓PostgreSQL
+                  PostgreSQL
                 </div>
                 <div style={{ border: "1px solid #333", padding: "8px" }}>
                   <div
@@ -623,7 +620,7 @@ export default function Home() {
                     API Metrics
                   </div>
                   <div style={{ fontSize: "10px", color: "#555" }}>
-                    p50, p90, p99
+                    p90 and p99
                   </div>
                 </div>
               </div>
@@ -642,20 +639,20 @@ export default function Home() {
                     color: "#333",
                   }}
                 >
-                  Separate storage strategies for different query patterns
-                  optimize both speed and cost.
+                  Prisma queries, Redis caching, daily stats, and TDigest
+                  summaries keep overview screens responsive.
                 </div>
                 <div style={{ marginTop: "8px" }}>
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
-                    ✓ 14ms - Last 24h incidents
+                    OK 14ms - Last 24h incidents
                   </div>
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
-                    ✓ 8ms - 30d p99 latency
+                    OK 8ms - 30d p99 latency
                   </div>
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
-                    ✓ 32ms - Daily uptime %
+                    OK 32ms - Daily uptime %
                   </div>
-                  <div style={{ fontSize: "10px" }}>✓ 21ms - 1h raw events</div>
+                  <div style={{ fontSize: "10px" }}>OK 21ms - 1h raw events</div>
                 </div>
               </div>
             </div>
@@ -676,8 +673,8 @@ export default function Home() {
         </h2>
         <p className="section-desc">
           No manual triage. Threshold-based failure windows open incidents.
-          Recovery windows close them. Region-aware throughout — no separate
-          daemon needed.
+          Successful probe windows can resolve them. Recent activity appears
+          directly in the dashboard.
         </p>
 
         <div className="two-col">
@@ -685,7 +682,7 @@ export default function Home() {
             <div className="oss-cell">
               <div className="oss-label">ONGOING</div>
               <div className="oss-desc">
-                Multiple failures within threshold → incident opens
+                Multiple failures within threshold open an incident
                 automatically. Alerts are triggered. No manual intervention
                 required.
               </div>
@@ -693,22 +690,22 @@ export default function Home() {
             <div className="oss-cell">
               <div className="oss-label">SUMMARY</div>
               <div className="oss-desc">
-                Region, API, threshold, start time, and recovery time. Query by
-                date range or status.
+                Each incident stores the API, affected regions, status, start
+                time, and optional end time for the dashboard timeline.
               </div>
             </div>
             <div className="oss-cell">
               <div className="oss-label">RECOVERY</div>
               <div className="oss-desc">
-                Consecutive successful checks → incident auto-resolves.
+                Consecutive successful checks can auto-resolve incidents.
                 All-clear signal is logged.
               </div>
             </div>
             <div className="oss-cell">
               <div className="oss-label">AUDIT</div>
               <div className="oss-desc">
-                90 days of incident history. Correlate with deploy logs, analyze
-                patterns, run postmortems.
+                Incident rows stay linked to monitored APIs so reliability
+                patterns can be reviewed alongside uptime and latency.
               </div>
             </div>
           </div>
@@ -719,25 +716,25 @@ export default function Home() {
                 <span>INC-0042</span>
                 <span className="inc-pill pill-resolved">RESOLVED</span>
               </div>
-              <span className="inc-id">POST /api/v1/payments · us-east</span>
+              <span className="inc-id">POST /api/v1/payments - IN</span>
             </div>
             <div className="inc-row">
               <span className="inc-time">13:45:22</span>
               <span className="inc-msg">
-                <strong>ONGOING</strong> · 3 failures in 60s window
+                <strong>ONGOING</strong> - 3 failures in the lookback window
               </span>
             </div>
             <div className="inc-row">
               <span className="inc-time">13:46:01</span>
               <span className="inc-msg">
-                <strong>Updated</strong> · threshold crossed again, duration
+                <strong>Updated</strong> - threshold crossed again, duration
                 extended
               </span>
             </div>
             <div className="inc-row">
               <span className="inc-time">13:47:15</span>
               <span className="inc-msg good">
-                <strong>RESOLVED</strong> · recovery confirmed (5 consecutive
+                <strong>RESOLVED</strong> - recovery confirmed (5 consecutive
                 UP)
               </span>
             </div>
@@ -754,32 +751,32 @@ export default function Home() {
         </div>
         <h2 className="section-h2">Monitor from where your users are</h2>
         <p className="section-desc">
-          Regional monitoring reveals the real user experience. A timeout in
-          Singapore looks very different from a timeout in Frankfurt.
+          Region values are part of the schema and probe results. Use them to
+          separate India, US, EU, Singapore, and South America performance.
         </p>
 
         <div className="regions-grid">
           <div className="region-cell">
-            <div className="region-name">US East</div>
-            <div className="region-code">us-east-1</div>
+            <div className="region-name">India</div>
+            <div className="region-code">IN</div>
             <div className="region-stat">87ms</div>
             <div className="region-unit">p99 latency</div>
           </div>
           <div className="region-cell">
-            <div className="region-name">EU Frankfurt</div>
-            <div className="region-code">eu-west-1</div>
+            <div className="region-name">United States</div>
+            <div className="region-code">US</div>
             <div className="region-stat">142ms</div>
             <div className="region-unit">p99 latency</div>
           </div>
           <div className="region-cell">
-            <div className="region-name">Asia Singapore</div>
-            <div className="region-code">ap-southeast-1</div>
+            <div className="region-name">Singapore</div>
+            <div className="region-code">SG</div>
             <div className="region-stat">156ms</div>
             <div className="region-unit">p99 latency</div>
           </div>
           <div className="region-cell" style={{ background: "var(--bg-off)" }}>
-            <div className="region-name">+ 1 more</div>
-            <div className="region-code">australia</div>
+            <div className="region-name">Europe</div>
+            <div className="region-code">EU</div>
             <div className="region-stat">189ms</div>
             <div className="region-unit">p99 latency</div>
           </div>
@@ -791,20 +788,20 @@ export default function Home() {
       {/* OPEN SOURCE */}
       <div className="section">
         <div className="section-tag">
-          <Code size={18} className="inline-icon" /> Open source
+          <Code size={18} className="inline-icon" /> Current stack
         </div>
-        <h2 className="section-h2">Built in the open</h2>
+        <h2 className="section-h2">Built from the pieces in this monorepo</h2>
         <p className="section-desc">
-          The full monitoring stack — workers, schema, queue architecture — is
-          open source. Run it yourself or use Watchlayer Cloud.
+          The monitoring stack in this workspace uses web routes, Prisma,
+          scheduled functions, Redis, PostgreSQL, and shared packages.
         </p>
 
         <div className="oss-grid">
           <div className="oss-cell">
-            <div className="oss-label">Backend API</div>
+            <div className="oss-label">Next.js Web App</div>
             <div className="oss-desc">
-              Express.js server with Prisma ORM. Handle domain registration, API
-              setup, and queue jobs.
+              App Router frontend with NextAuth, onboarding routes, dashboard
+              APIs, Prisma access, and reusable UI components.
             </div>
             <Link
               href="https://github.com/watchlayer/backend"
@@ -812,7 +809,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              github.com/watchlayer/backend{" "}
+              apps/web{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
@@ -820,10 +817,10 @@ export default function Home() {
             </Link>
           </div>
           <div className="oss-cell">
-            <div className="oss-label">Worker Queue</div>
+            <div className="oss-label">Azure Timer</div>
             <div className="oss-desc">
-              BullMQ-powered workers for DNS verification and HTTP monitoring.
-              Deploy to any Node.js container.
+              Scheduled function that reads saved APIs, performs HTTP checks,
+              stores responses, and manages incident transitions.
             </div>
             <Link
               href="https://github.com/watchlayer/workers"
@@ -831,7 +828,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              github.com/watchlayer/workers{" "}
+              apps/serverless/hitApi{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
@@ -839,10 +836,10 @@ export default function Home() {
             </Link>
           </div>
           <div className="oss-cell">
-            <div className="oss-label">Schema & Types</div>
+            <div className="oss-label">Cloudflare Cron</div>
             <div className="oss-desc">
-              Prisma schema, TypeScript types, and shared utilities. Unified
-              across all apps in the monorepo.
+              Scheduled worker for domain verification, API metrics, and daily
+              stat aggregation through Hyperdrive/PostgreSQL.
             </div>
             <Link
               href="https://github.com/watchlayer/packages"
@@ -850,7 +847,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              github.com/watchlayer/packages{" "}
+              apps/serverless/dailyworker{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
@@ -858,10 +855,10 @@ export default function Home() {
             </Link>
           </div>
           <div className="oss-cell">
-            <div className="oss-label">Web Dashboard</div>
+            <div className="oss-label">Express Package</div>
             <div className="oss-desc">
-              Next.js frontend for viewing incidents, metrics, and historical
-              data. Self-hosted or Watchlayer Cloud.
+              Published npm package for Express projects that want to connect
+              monitored services to the platform.
             </div>
             <Link
               href="https://github.com/watchlayer/web"
@@ -869,7 +866,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              github.com/watchlayer/web{" "}
+              npm i sysmonitoringexpress{" "}
               <ArrowRight
                 size={14}
                 style={{ display: "inline", marginLeft: "4px" }}
@@ -886,55 +883,55 @@ export default function Home() {
         <div className="section-tag">
           <List size={18} className="inline-icon" /> Updates
         </div>
-        <h2 className="section-h2">Recent changes</h2>
+        <h2 className="section-h2">What the product supports now</h2>
 
         <div className="updates-list">
           <div className="update-row">
-            <span className="update-date">2025-04-10</span>
-            <span className="update-title">Regional latency heatmaps</span>
+            <span className="update-date">Now</span>
+            <span className="update-title">Google sign-in</span>
             <span className="update-desc">
-              Visualize p99 latency across all regions for any API. Spot
-              geographic hotspots instantly.
+              Authentication is wired through NextAuth with the Prisma adapter
+              and Google as the active provider.
             </span>
           </div>
           <div className="update-row">
-            <span className="update-date">2025-04-05</span>
-            <span className="update-title">Incident API endpoints</span>
+            <span className="update-date">Now</span>
+            <span className="update-title">Domain onboarding</span>
             <span className="update-desc">
-              Query incidents programmatically. Integrate with incident
-              management platforms like PagerDuty and Slack.
+              Users register one domain, receive a verification token, and
+              complete ownership verification before moving to the dashboard.
             </span>
           </div>
           <div className="update-row">
-            <span className="update-date">2025-03-28</span>
-            <span className="update-title">Custom thresholds</span>
+            <span className="update-date">Now</span>
+            <span className="update-title">API groups and endpoints</span>
             <span className="update-desc">
-              Define failure thresholds per API. Set stricter rules for critical
-              endpoints, looser for non-critical.
+              Dashboard forms support grouped APIs with method, path, headers,
+              params, query values, and optional request bodies.
             </span>
           </div>
           <div className="update-row">
-            <span className="update-date">2025-03-15</span>
-            <span className="update-title">Export to CSV</span>
+            <span className="update-date">Now</span>
+            <span className="update-title">Scheduled checks</span>
             <span className="update-desc">
-              Download raw events, daily stats, and incident summaries. Build
-              custom reports in Google Sheets or Excel.
+              The serverless checker stores response status, response time,
+              status code, and region for every monitored endpoint.
             </span>
           </div>
           <div className="update-row">
-            <span className="update-date">2025-03-01</span>
-            <span className="update-title">API docs updated</span>
+            <span className="update-date">Now</span>
+            <span className="update-title">Dashboard metrics</span>
             <span className="update-desc">
-              Added TypeScript examples, webhook payload samples, and
-              authentication best practices.
+              Overview cards show API groups, APIs, incidents, and aggregated
+              p90 and p99 response times.
             </span>
           </div>
           <div className="update-row">
-            <span className="update-date">2025-02-20</span>
-            <span className="update-title">Open source launch</span>
+            <span className="update-date">Now</span>
+            <span className="update-title">Published Express package</span>
             <span className="update-desc">
-              Full monitoring stack now available on GitHub. Deploy to your own
-              infrastructure.
+              The `sysmonitoringexpress` package is available on npm for
+              Express app integrations.
             </span>
           </div>
         </div>
@@ -943,31 +940,31 @@ export default function Home() {
       {/* QUICKSTART */}
       <div className="quickstart">
         <div className="quickstart-inner">
-          <h2>Get up and running in 30 seconds</h2>
+          <h2>Install the package, then connect the dashboard</h2>
           <p>
-            No credit card needed. Start with the open-source version or connect
-            to Watchlayer Cloud.
+            Add the Express package to your service, then use Google sign-in to
+            verify a domain, create API groups, and manage endpoints.
           </p>
 
           <div className="install-block">
-            <span className="install-cmd">npm install @watchlayer/cli</span>
+            <span className="install-cmd">npm i sysmonitoringexpress</span>
             <span className="install-lang">npm</span>
           </div>
           <div className="install-block">
-            <span className="install-cmd">pip install watchlayer-sdk</span>
-            <span className="install-lang">python</span>
+            <span className="install-cmd">Add domain, API group, and endpoint</span>
+            <span className="install-lang">dashboard</span>
           </div>
 
           <div className="quickstart-actions">
             <Link href="/signup" className="btn-hero btn-hero-dark">
-              Start monitoring free{" "}
+              Start with Google{" "}
               <ArrowRight
                 size={18}
                 style={{ display: "inline", marginLeft: "6px" }}
               />
             </Link>
-            <Link href="/docs" className="btn-hero btn-hero-light">
-              View documentation
+            <Link href="/dashboard" className="btn-hero btn-hero-light">
+              View dashboard
             </Link>
           </div>
         </div>
@@ -987,9 +984,9 @@ export default function Home() {
               fontWeight: "300",
             }}
           >
-            API and domain monitoring.
+            Domain and API monitoring.
             <br />
-            Open source. Built for reliability.
+            Built around the package and dashboard flow.
           </p>
           <p
             style={{
@@ -999,7 +996,7 @@ export default function Home() {
               marginTop: "12px",
             }}
           >
-            © 2025
+            Copyright 2026
           </p>
         </div>
 
