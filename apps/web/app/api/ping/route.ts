@@ -18,6 +18,7 @@ function apiPathCandidate(pathname: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Received ping request");
     const json = await request.json();
     const parsed = TDigestSchema.safeParse(json);
     if (!parsed.success) {
@@ -34,6 +35,8 @@ export async function POST(request: NextRequest) {
     const path = apiPathCandidate(url.pathname);
     const apiCacheKey = cacheKey("api", "by-url", domain, path);
     let api = await getCached<{ id: string; userId: string }>(apiCacheKey);
+
+    console.log(url, domain, path);
 
     if (!api) {
       const apiRecord = await prisma.api.findFirst({

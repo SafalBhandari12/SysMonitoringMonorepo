@@ -5,89 +5,146 @@ declare const process: {
   env: Record<string, string | undefined>;
 };
 
-type Config = {
-  endpoint: string;
+type MonitorOptions = {
   apiKey: string;
-  flushInterval: number;
+  endpoint?: string;
 };
 
-type Centroid = {
-  mean: number;
-  count: number;
-};
-
-type DigestBucket = {
-  requestUrl: string;
-  windowKey: string;
-  digest: TDigest;
-};
-
-type FetchLike = (
-  input: string,
-  init: {
-    method: string;
-    headers: Record<string, string>;
-    body: string;
-  },
-) => Promise<{ ok?: boolean; status?: number } | unknown>;
-
-let cachedConfig: Config | null = null;
 let initialized = false;
 let started = false;
-const digests = new Map<string, DigestBucket>();
+const digests = new Map<
+  string,
+  { requestUrl: string; windowKey: string; digest: TDigest }
+>();
+let config: { endpoint: string; apiKey: string; flushInterval: number } | null =
+  null;
 
-function getConfig(): Config {
-  if (cachedConfig) return cachedConfig;
+function ensureConfig(options?: MonitorOptions) {
+  if (config) return config;
 
-  const endpoint = process.env.SYS_MONITOR_ENDPOINT;
-  const apiKey = process.env.SYS_MONITOR_API_KEY;
+  const endpoint = options?.endpoint ?? process.env.SYS_MONITOR_ENDPOINT;
+  const apiKey = options?.apiKey ?? process.env.SYS_MONITOR_API_KEY;
 
   if (!endpoint || !apiKey) {
-    throw new Error("SYS_MONITOR_ENDPOINT and SYS_MONITOR_API_KEY must be set");
+    throw new Error(
+      "SYS_MONITOR_ENDPOINT and apiKey or SYS_MONITOR_API_KEY must be set",
+    );
   }
 
-  cachedConfig = {
-    endpoint,
-    apiKey,
-    flushInterval: 5 * 60 * 1000, // 5 minutes
-  };
+  try {
+    new URL(endpoint);
+  } catch {
+    throw new Error(
+      "SYS_MONITOR_ENDPOINT must be a valid absolute URL, for example http://localhost:3000/api/ping",
+    );
+  }
 
-  return cachedConfig;
+  config = { endpoint, apiKey, flushInterval: 5 * 60 * 1000 };
+  return config;
 }
 
-function getWindowKey(timestamp: number): string {
-  const fiveMinutes = 5 * 60 * 1000;
-  return new Date(Math.floor(timestamp / fiveMinutes) * fiveMinutes)
-    .toISOString()
-    .replace(".000Z", "Z");
-}
+export function initializeSysMonitoring(options?: MonitorOptions) {
+  if (initialized) return;
 
-function getDigestKey(requestUrl: string, windowKey: string): string {
-  return `${requestUrl}\n${windowKey}`;
-}
+  const cfg = ensureConfig(options);
+  if (started) {
+    initialized = true;
+    return;
+  }
 
-function pushDuration(
-  duration: number,
-  requestUrl: string,
-  timestamp = Date.now(),
-) {
-  const windowKey = getWindowKey(timestamp);
-  const digestKey = getDigestKey(requestUrl, windowKey);
-  let bucket = digests.get(digestKey);
+  started = true;
 
-  if (!bucket) {
-    bucket = {
-      requestUrl,
-      windowKey,
-      digest: new TDigest(),
+  const interval = setInterval(() => {
+    if (digests.size === 0) return;
+
+    const fiveWindow = (ts: number) => {
+      const d = new Date(ts);
+      d.setUTCMinutes(Math.floor(d.getUTCMinutes() / 5) * 5, 0, 0);
+      return d.toISOString().replace(".000Z", "Z");
     };
-    digests.set(digestKey, bucket);
-  }
+    const currentWindowKey = fiveWindow(Date.now());
+    const flushable = Array.from(digests.values()).filter(
+      (b) => b.windowKey < currentWindowKey,
+    );
+    if (flushable.length === 0) return;
 
-  bucket.digest.push(duration);
+    const fetchFn = (globalThis as any).fetch as typeof fetch | undefined;
+    if (!fetchFn) return;
+
+    for (const bucket of flushable) {
+      // remove from map; we'll re-add if needed
+      const key = `${bucket.requestUrl}\n${bucket.windowKey}`;
+      digests.delete(key);
+
+      bucket.digest.compress();
+      const arr = bucket.digest.toArray();
+      const centroids = arr.map((c) => ({ mean: c.mean, count: c.n }));
+      const n = centroids.reduce((t, c) => t + c.count, 0);
+      if (centroids.length === 0) continue;
+
+      void fetchFn(cfg.endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": cfg.apiKey,
+        },
+        body: JSON.stringify({
+          requestUrl: bucket.requestUrl,
+          windowKey: bucket.windowKey,
+          centroids,
+          n,
+        }),
+      })
+        .then((response) => {
+          const data = async () => {
+            const data = await response.json();
+            console.log("Response from monitoring endpoint:", data);
+          };
+          data();
+          const ok =
+            response && typeof response === "object"
+              ? (response as any).ok
+              : undefined;
+          const status =
+            response && typeof response === "object"
+              ? (response as any).status
+              : undefined;
+          if (ok === false && status !== 409) {
+            console.error(
+              `Failed to flush digest for ${bucket.requestUrl} (${bucket.windowKey}): backend returned ${status ?? "non-ok response"}`,
+            );
+            digests.set(key, bucket);
+            return;
+          }
+        })
+        .catch((err) => {
+          console.error(
+            `Failed to flush digest for ${bucket.requestUrl} (${bucket.windowKey}):`,
+            err,
+          );
+          digests.set(key, bucket);
+        });
+    }
+  }, cfg.flushInterval);
+
+  interval.unref?.();
+  initialized = true;
 }
 
-function getRequestUrl(req: Request): string {
+export function createMonitorMiddleware(options: MonitorOptions) {
+  initializeSysMonitoring(options);
+  return monitorMiddleware;
+}
+
+export function monitorMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  initializeSysMonitoring();
+
+  const start = Date.now();
+
   const forwardedProtocol = req.get("x-forwarded-proto")?.split(",")[0]?.trim();
   const forwardedHost = req.get("x-forwarded-host")?.split(",")[0]?.trim();
   const protocol = forwardedProtocol || req.protocol || "http";
@@ -98,120 +155,23 @@ function getRequestUrl(req: Request): string {
     throw new Error("Unable to determine request host for monitoring payload");
   }
 
-  return `${protocol}://${host}${path}`;
-}
-
-function serializeDigest(digest: TDigest) {
-  digest.compress();
-
-  const centroids: Centroid[] = digest.toArray().map((centroid) => ({
-    mean: centroid.mean,
-    count: centroid.n,
-  }));
-  const n = centroids.reduce((total, centroid) => total + centroid.count, 0);
-
-  return { centroids, n };
-}
-
-function hasData(): boolean {
-  return digests.size > 0;
-}
-
-function getFlushableEntries(timestamp = Date.now()): DigestBucket[] {
-  const currentWindowKey = getWindowKey(timestamp);
-  return Array.from(digests.values()).filter(
-    (bucket) => bucket.windowKey < currentWindowKey,
-  );
-}
-
-function isResponseLike(
-  value: unknown,
-): value is { ok?: boolean; status?: number } {
-  return typeof value === "object" && value !== null;
-}
-
-function restoreDigest(bucket: DigestBucket) {
-  const digestKey = getDigestKey(bucket.requestUrl, bucket.windowKey);
-  const existing = digests.get(digestKey);
-
-  if (!existing) {
-    digests.set(digestKey, bucket);
-    return;
-  }
-
-  for (const centroid of bucket.digest.toArray()) {
-    existing.digest.push(centroid.mean, centroid.n);
-  }
-}
-
-function startFlusher() {
-  if (started) return;
-  started = true;
-
-  const config = getConfig();
-  const interval = setInterval(() => {
-    if (!hasData()) return;
-
-    const fetchFn = (globalThis as { fetch?: FetchLike }).fetch;
-    if (!fetchFn) return;
-
-    for (const bucket of getFlushableEntries()) {
-      digests.delete(getDigestKey(bucket.requestUrl, bucket.windowKey));
-
-      const { centroids, n } = serializeDigest(bucket.digest);
-      if (centroids.length === 0) continue;
-
-      void fetchFn(config.endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": config.apiKey,
-        },
-        body: JSON.stringify({
-          requestUrl: bucket.requestUrl,
-          windowKey: bucket.windowKey,
-          centroids,
-          n,
-        }),
-      })
-        .then((response) => {
-          if (
-            isResponseLike(response) &&
-            response.ok === false &&
-            response.status !== 409
-          ) {
-            restoreDigest(bucket);
-          }
-        })
-        .catch(() => {
-          restoreDigest(bucket);
-        });
-    }
-  }, config.flushInterval);
-
-  interval.unref?.();
-}
-
-function initialize() {
-  if (initialized) return;
-
-  getConfig();
-  startFlusher();
-  initialized = true;
-}
-
-export function monitorMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  initialize();
-
-  const start = Date.now();
-  const requestUrl = getRequestUrl(req);
+  const requestUrl = `${protocol}://${host}${path}`;
 
   res.once("finish", () => {
-    pushDuration(Date.now() - start, requestUrl);
+    const duration = Date.now() - start;
+
+    const timestamp = Date.now();
+    const d = new Date(timestamp);
+    d.setUTCMinutes(Math.floor(d.getUTCMinutes() / 5) * 5, 0, 0);
+    const windowKey = d.toISOString().replace(".000Z", "Z");
+    const digestKey = `${requestUrl}\n${windowKey}`;
+    let bucket = digests.get(digestKey);
+    if (!bucket) {
+      bucket = { requestUrl, windowKey, digest: new TDigest() };
+      digests.set(digestKey, bucket);
+    }
+
+    bucket.digest.push(duration);
   });
 
   next();
