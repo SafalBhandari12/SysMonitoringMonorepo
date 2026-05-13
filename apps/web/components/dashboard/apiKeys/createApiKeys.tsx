@@ -29,7 +29,7 @@ import { useState, useTransition } from "react";
 import addApiKeyAction from "@/actions/dashboard/addApiKey";
 import { useRouter } from "next/navigation";
 
-export function CreateApiKeys() {
+export function CreateApiKeys({ disabled = false }: { disabled?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -80,6 +80,9 @@ export function CreateApiKeys() {
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
+        if (disabled && nextOpen) {
+          return;
+        }
         setOpen(nextOpen);
         if (!nextOpen) {
           form.reset();
@@ -87,7 +90,7 @@ export function CreateApiKeys() {
       }}
     >
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <Plus />
           Create API Key
         </Button>
@@ -133,11 +136,15 @@ export function CreateApiKeys() {
             type="button"
             variant="outline"
             onClick={() => setOpen(false)}
-            disabled={isPending}
+            disabled={isPending || disabled}
           >
             Cancel
           </Button>
-          <Button type="submit" form="create-api-key-form" disabled={isPending}>
+          <Button
+            type="submit"
+            form="create-api-key-form"
+            disabled={isPending || disabled}
+          >
             {isPending ? "Creating..." : "Create"}
           </Button>
         </DialogFooter>

@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { CreateApiKeys } from "@/components/dashboard/apiKeys/createApiKeys";
 import {
   Card,
@@ -13,6 +14,8 @@ type ApiKeyListItem = {
 };
 
 export default async function ApiKeysPage() {
+  const session = await auth();
+  const canCreate = Boolean(session?.user?.onboarded);
   const apis = await fetchServerApi<ApiKeyListItem[]>(
     "/api/dashboard/api-keys",
   );
@@ -26,7 +29,7 @@ export default async function ApiKeysPage() {
             Create and track the keys used to access monitored endpoints.
           </p>
         </div>
-        <CreateApiKeys />
+        <CreateApiKeys disabled={!canCreate} />
       </div>
       {apis.length > 0 ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

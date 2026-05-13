@@ -18,15 +18,23 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-export default function CreateApiGroup() {
+export default function CreateApiGroup({ disabled = false }: { disabled?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (disabled && nextOpen) {
+          return;
+        }
+        setOpen(nextOpen);
+      }}
+    >
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={disabled}>
           <Plus />
           New API Group
         </Button>
@@ -65,19 +73,28 @@ export default function CreateApiGroup() {
           </FieldGroup>
         </form>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={isPending || disabled}
+          >
             Cancel
           </Button>
-          <SubmitButton isPending={isPending} />
+          <SubmitButton isPending={isPending} disabled={disabled} />
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-function SubmitButton({ isPending }: { isPending: boolean }) {
+function SubmitButton({ isPending, disabled }: { isPending: boolean; disabled: boolean }) {
   return (
-    <Button type="submit" form="create-api-group-form" disabled={isPending}>
+    <Button
+      type="submit"
+      form="create-api-group-form"
+      disabled={isPending || disabled}
+    >
       {isPending ? "Creating..." : "Create Group"}
     </Button>
   );

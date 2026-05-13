@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import CreateApiGroup from "@/components/dashboard/apiGroups/createApiGroup";
 import {
   Card,
@@ -14,6 +15,8 @@ type ApiGroupListItem = {
 };
 
 export default async function ApiGroup() {
+  const session = await auth();
+  const canCreate = Boolean(session?.user?.onboarded);
   const apiGroups = await fetchServerApi<ApiGroupListItem[]>(
     "/api/dashboard/api-groups",
   );
@@ -27,7 +30,7 @@ export default async function ApiGroup() {
             Organize related APIs into focused monitoring groups.
           </p>
         </div>
-        <CreateApiGroup />
+        <CreateApiGroup disabled={!canCreate} />
       </div>
       {apiGroups.length === 0 ? (
         <Card className="border-dashed bg-muted/20">
