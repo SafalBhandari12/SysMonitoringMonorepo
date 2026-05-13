@@ -22,7 +22,7 @@ export async function POST() {
           });
 
     if (cachedDomain === null) {
-      await setCached(domainCacheKey, { domain: domainRecord }, 300);
+      void setCached(domainCacheKey, { domain: domainRecord }, 300);
     }
 
     if (!domainRecord) {

@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    await setCached(key, apiGroups, query ? 30 : 300);
+    void setCached(key, apiGroups, query ? 30 : 300);
 
     return NextResponse.json(apiGroups);
   } catch (error) {

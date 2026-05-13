@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 
       api = { id: apiRecord?.id, userId: userId };
 
-      await setCached(apiCacheKey, api, 3600);
+      void setCached(apiCacheKey, api, 3600);
     }
 
     await prisma.apiDigest.create({

@@ -230,7 +230,7 @@ export async function GET(request: NextRequest) {
       availableGroups: apiGroups,
     };
 
-    await setCached(key, response, 60);
+    void setCached(key, response, 60);
 
     return NextResponse.json(response);
   } catch (error) {

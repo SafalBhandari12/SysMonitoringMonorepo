@@ -131,7 +131,7 @@ export async function GET() {
       return { ...a, uptime: result };
     });
 
-    await setCached(key, apisWithUptime, 300);
+    void setCached(key, apisWithUptime, 300);
 
     return NextResponse.json(apisWithUptime);
   } catch (error) {

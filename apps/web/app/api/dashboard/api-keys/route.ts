@@ -33,7 +33,8 @@ export async function GET() {
       },
     });
 
-    await setCached(key, apiKeys, 300);
+    // Avoid adding cache write latency to the API response path.
+    void setCached(key, apiKeys, 300);
 
     return NextResponse.json(apiKeys);
   } catch (error) {

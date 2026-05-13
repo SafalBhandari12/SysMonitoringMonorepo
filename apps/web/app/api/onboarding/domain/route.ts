@@ -37,7 +37,7 @@ export async function GET() {
       },
     });
 
-    await setCached(key, { domain }, 300);
+    void setCached(key, { domain }, 300);
 
     return NextResponse.json(domain);
   } catch (error) {
