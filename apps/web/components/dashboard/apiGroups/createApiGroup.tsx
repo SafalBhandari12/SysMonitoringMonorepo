@@ -18,7 +18,11 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
-export default function CreateApiGroup({ disabled = false }: { disabled?: boolean }) {
+export default function CreateApiGroup({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -88,7 +92,13 @@ export default function CreateApiGroup({ disabled = false }: { disabled?: boolea
   );
 }
 
-function SubmitButton({ isPending, disabled }: { isPending: boolean; disabled: boolean }) {
+function SubmitButton({
+  isPending,
+  disabled,
+}: {
+  isPending: boolean;
+  disabled: boolean;
+}) {
   return (
     <Button
       type="submit"
