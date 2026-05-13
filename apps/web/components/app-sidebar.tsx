@@ -68,13 +68,12 @@ export default function AppSidebar() {
   const fallbackShouldShowDomain = user?.onboarded === false;
 
   const displayName = user?.name || user?.email || "User";
-  const sidebarItems =
-    shouldShowDomain
-      ? [
-          ...navItems,
-          { name: "Domain", href: "/dashboard/domain", icon: ShieldCheck },
-        ]
-      : navItems;
+  const sidebarItems = shouldShowDomain
+    ? [
+        ...navItems,
+        { name: "Domain", href: "/dashboard/domain", icon: ShieldCheck },
+      ]
+    : navItems;
 
   React.useEffect(() => {
     if (!user) {
@@ -103,7 +102,7 @@ export default function AppSidebar() {
     return () => {
       isMounted = false;
     };
-  }, [pathname, user?.id, fallbackShouldShowDomain]);
+  }, [user?.id, fallbackShouldShowDomain]);
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -116,7 +115,7 @@ export default function AppSidebar() {
                 <span className="flex min-w-0 flex-col text-left group-data-[collapsible=icon]:hidden">
                   <span className="truncate text-sm font-semibold">
                     Watchlayer
-                  </span> 
+                  </span>
                   <span className="truncate text-xs text-muted-foreground">
                     API monitoring
                   </span>

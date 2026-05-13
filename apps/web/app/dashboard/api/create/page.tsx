@@ -10,7 +10,7 @@ import SelectMethod from "@/components/dashboard/api/SelectMethod";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 type DomainState = {
   verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
@@ -25,9 +25,15 @@ export default function CreateApiPage() {
   const [domain, setDomain] = useState<DomainState | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const hasFetchedDomain = useRef(false);
   const hasVerifiedDomain = domain?.verificationStatus === "VERIFIED";
 
   useEffect(() => {
+    if (hasFetchedDomain.current) {
+      return;
+    }
+    hasFetchedDomain.current = true;
+
     let isMounted = true;
 
     fetch("/api/onboarding/domain")
