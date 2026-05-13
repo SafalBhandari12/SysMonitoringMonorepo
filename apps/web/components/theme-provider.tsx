@@ -14,7 +14,7 @@ export function ThemeProvider({
   return (
     <NextThemesProvider
       {...props}
-      enableColorSchemeScript={false}
+      enableColorScheme={false}
       enableSystem
       forcedTheme={isLandingPage ? "light" : props.forcedTheme}
     >
