@@ -334,7 +334,6 @@ async function runApiMetricsAggregation(sql: Sql): Promise<void> {
 			upCount: number;
 			totalCount: number;
 			totalResponseTime: number;
-			digest: TDigest;
 		}
 	>();
 
@@ -349,7 +348,6 @@ async function runApiMetricsAggregation(sql: Sql): Promise<void> {
 				upCount: 0,
 				totalCount: 0,
 				totalResponseTime: 0,
-				digest: new TDigest(),
 			};
 			statsMap.set(key, existing);
 		}
@@ -359,14 +357,12 @@ async function runApiMetricsAggregation(sql: Sql): Promise<void> {
 		if (row.status === 'UP') {
 			existing.upCount += 1;
 		}
-		existing.digest.push(Number(row.responseTime));
 	}
 
 	for (const stat of statsMap.values()) {
-		// Prefer global ApiDigest-based percentiles if available, otherwise fall back to per-region digest
 		const globalDigest = globalDigestMap.get(stat.apiId);
-		const p90 = globalDigest ? globalDigest.percentile(0.9) : stat.digest.percentile(0.9);
-		const p99 = globalDigest ? globalDigest.percentile(0.99) : stat.digest.percentile(0.99);
+		const p90 = globalDigest ? globalDigest.percentile(0.9) : 0;
+		const p99 = globalDigest ? globalDigest.percentile(0.99) : 0;
 		const averageResponseTime = stat.totalCount > 0 ? stat.totalResponseTime / stat.totalCount : 0;
 
 		await sql`
