@@ -1,3 +1,4 @@
+import axios from "axios";
 import { headers } from "next/headers";
 
 export async function fetchServerApi<T>(
@@ -15,30 +16,39 @@ export async function fetchServerApi<T>(
   const protocol =
     requestHeaders.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");
-  const response = await fetch(`${protocol}://${host}${path}`, {
-    cache: "no-store",
-    ...init,
-    headers: {
-      cookie: requestHeaders.get("cookie") ?? "",
-      ...init?.headers,
-    },
+
+  const requestHeaderObject: Record<string, string> = {
+    cookie: requestHeaders.get("cookie") ?? "",
+  };
+
+  if (init?.headers) {
+    new Headers(init.headers).forEach((value, key) => {
+      requestHeaderObject[key] = value;
+    });
+  }
+
+  const response = await axios.request<T>({
+    url: `${protocol}://${host}${path}`,
+    method: init?.method as RequestInit["method"] | undefined,
+    headers: requestHeaderObject,
+    data: init?.body,
+    validateStatus: () => true,
   });
 
-  if (!response.ok) {
-    let message = `Request to ${path} failed with ${response.status}`;
-
-    try {
-      const body = (await response.json()) as {
-        error?: string;
-        message?: string;
-      };
-      message = body.error ?? body.message ?? message;
-    } catch {
-      // Keep the fallback status-based message when the response is not JSON.
-    }
+  if (response.status < 200 || response.status >= 300) {
+    const responseBody = response.data as
+      | { error?: string; message?: string }
+      | string
+      | undefined;
+    const message =
+      typeof responseBody === "string"
+        ? responseBody
+        : (responseBody?.error ??
+          responseBody?.message ??
+          `Request to ${path} failed with ${response.status}`);
 
     throw new Error(message);
   }
 
-  return response.json() as Promise<T>;
+  return response.data;
 }

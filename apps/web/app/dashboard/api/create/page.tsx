@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import addApiAction from "@/actions/dashboard/addApi";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -36,10 +37,10 @@ export default function CreateApiPage() {
 
     let isMounted = true;
 
-    fetch("/api/onboarding/domain")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: DomainState) => {
-        if (isMounted) setDomain(payload);
+    axios
+      .get<DomainState>("/api/onboarding/domain")
+      .then((response) => {
+        if (isMounted) setDomain(response.data);
       })
       .catch(() => {
         if (isMounted) setDomain(null);

@@ -1,12 +1,17 @@
-import { auth } from "@/auth";
+"use client";
+
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+
 import { CardSmall } from "@/components/dashboard/card";
 import { ApiStatusTable } from "@/components/dashboard/ApiStatusTable";
 import { TimeLine } from "@/components/dashboard/Timeline";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchServerApi } from "@/lib/server-api";
-import { incidentStatusEnum, regions } from "@/prisma/generated/prisma/enums";
-import CreateButton from "@/components/reui/createButton";
 import { DomainVerificationDialog } from "@/components/dashboard/DomainVerificationDialog";
+import CreateButton from "@/components/reui/createButton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { incidentStatusEnum, regions } from "@/prisma/generated/prisma/enums";
+import DashboardLoading from "./loading";
 
 type DashboardOverview = {
   stats: {
@@ -18,10 +23,10 @@ type DashboardOverview = {
   };
   incidents: {
     title: string;
-    regions: regions[];
+    regions: string[];
     startTime: string;
     endTime: string | null;
-    status: incidentStatusEnum;
+    status: string;
   }[];
   apis: {
     id: string;
@@ -42,10 +47,37 @@ type DashboardDomain = {
   verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
 } | null;
 
-export default async function Dashboard({}: {}) {
-  const session = await auth();
+type Incident = {
+  title: string;
+  regions: regions[];
+  startTime: Date;
+  endTime: Date | null;
+  status: incidentStatusEnum;
+};
 
-  if (!session) {
+export default function Dashboard() {
+  const { data: session, status } = useSession();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["dashboard", "bootstrap"],
+    queryFn: async () => {
+      const [overviewResponse, domainResponse] = await Promise.all([
+        axios.get<DashboardOverview>("/api/dashboard/overview"),
+        axios.get<DashboardDomain>("/api/onboarding/domain"),
+      ]);
+
+      return {
+        overview: overviewResponse.data,
+        domain: domainResponse.data,
+      };
+    },
+    enabled: status === "authenticated",
+  });
+
+  if (status === "loading" || isLoading) {
+    return <DashboardLoading />;
+  }
+
+  if (status !== "authenticated") {
     return (
       <div className="flex h-screen items-center justify-center">
         <h1 className="text-4xl font-bold">Unauthorized</h1>
@@ -53,16 +85,29 @@ export default async function Dashboard({}: {}) {
     );
   }
 
-  const [overview, domain] = await Promise.all([
-    fetchServerApi<DashboardOverview>(`/api/dashboard/overview`),
-    fetchServerApi<DashboardDomain>("/api/onboarding/domain"),
-  ]);
+  if (error || !data) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <h1 className="text-2xl font-semibold">
+          {error
+            ? "Failed to load dashboard data."
+            : "Unable to load dashboard."}
+        </h1>
+      </div>
+    );
+  }
+
+  const { overview, domain } = data;
   const shouldShowDomainDialog = domain?.verificationStatus !== "VERIFIED";
-  const incidents = overview.incidents.map((incident) => ({
-    ...incident,
-    startTime: new Date(incident.startTime),
-    endTime: incident.endTime ? new Date(incident.endTime) : null,
-  }));
+  const incidents = overview.incidents.map(
+    (incident): Incident => ({
+      title: incident.title,
+      regions: incident.regions as unknown as regions[],
+      status: incident.status as incidentStatusEnum,
+      startTime: new Date(incident.startTime),
+      endTime: incident.endTime ? new Date(incident.endTime) : null,
+    }),
+  );
 
   return (
     <div className="min-h-screen bg-muted/30 p-4 sm:p-6">
@@ -75,7 +120,7 @@ export default async function Dashboard({}: {}) {
           <CreateButton href="/dashboard/api/create" text="Create API" />
         </div>
         <p className="text-sm text-muted-foreground">
-          {session.user?.name
+          {session?.user?.name
             ? `Welcome, ${session.user.name}.`
             : "System overview."}{" "}
           Performance is aggregated from your monitored APIs.

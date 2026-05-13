@@ -1,4 +1,8 @@
-import { auth } from "@/auth";
+"use client";
+
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { CreateApiKeys } from "@/components/dashboard/apiKeys/createApiKeys";
 import {
   Card,
@@ -6,19 +10,77 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { fetchServerApi } from "@/lib/server-api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ApiKeyListItem = {
   id: string;
   name: string;
 };
 
-export default async function ApiKeysPage() {
-  const session = await auth();
-  const canCreate = Boolean(session?.user?.onboarded);
-  const apis = await fetchServerApi<ApiKeyListItem[]>(
-    "/api/dashboard/api-keys",
+function ApiKeysPageSkeleton() {
+  return (
+    <div className="flex flex-col gap-6 px-6 py-5">
+      <div className="space-y-2">
+        <Skeleton className="h-9 w-32" />
+        <Skeleton className="h-4 w-80 max-w-full" />
+      </div>
+      <div className="flex items-center justify-between gap-3">
+        <Skeleton className="h-9 w-36" />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Card key={index} className="shadow-sm">
+            <CardHeader className="gap-2">
+              <Skeleton className="h-5 w-36" />
+              <Skeleton className="h-4 w-24" />
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
+}
+
+export default function ApiKeysPage() {
+  const { data: session, status } = useSession();
+  const canCreate = Boolean(session?.user?.onboarded);
+  const {
+    data: apis,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["dashboard", "api-keys"],
+    queryFn: async () => {
+      const response = await axios.get<ApiKeyListItem[]>(
+        "/api/dashboard/api-keys",
+      );
+
+      return response.data;
+    },
+    enabled: status === "authenticated",
+  });
+
+  if (status === "loading" || isLoading) {
+    return <ApiKeysPageSkeleton />;
+  }
+
+  if (status !== "authenticated") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <h1 className="text-4xl font-bold">Unauthorized</h1>
+      </div>
+    );
+  }
+
+  if (error || !apis) {
+    return (
+      <div className="flex h-screen items-center justify-center px-6 text-center">
+        <h1 className="text-2xl font-semibold">
+          {error ? "Failed to load API keys." : "Unable to load API keys."}
+        </h1>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 px-6 py-5">
