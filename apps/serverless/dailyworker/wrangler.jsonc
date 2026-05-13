@@ -50,7 +50,6 @@
 			"id": "93ebf8a61b3f4479b29e00a619b1ff13",
 
 			// Optional. Can be used to connect to a local database for local development with `wrangler dev`
-			"localConnectionString": "postgres://b6347af03d2b662dc9a488845b60871cae14ca5c670b80ce74c65c58c606f20f:sk_gkQdeZJW1YID90h3SBWd_@db.prisma.io:5432/postgres?sslmode=require",
 		},
 	],
 }

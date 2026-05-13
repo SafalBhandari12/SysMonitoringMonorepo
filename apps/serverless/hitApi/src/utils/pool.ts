@@ -1,11 +1,14 @@
 import { Pool } from "pg";
 import dotenv from "dotenv";
+import dns from "node:dns";
 
 dotenv.config();
 
 let pool: Pool;
 
 export function getPool() {
+  dns.setDefaultResultOrder("ipv4first");
+
   if (!pool) {
     if (!process.env.DATABASE_URL) {
       throw new Error("DATABASE_URL environment variable is not set");

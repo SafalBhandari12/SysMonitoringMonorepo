@@ -65,6 +65,11 @@ export function CreateApiKeys({ disabled = false }: { disabled?: boolean }) {
         setOpen(false);
         form.reset();
         router.refresh();
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            window.location.reload();
+          }, 200);
+        }
       } else {
         toast.error("Failed to create api key", {
           action: {

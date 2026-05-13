@@ -78,7 +78,14 @@ export default function DomainVerification({
           description: "Your dashboard is ready for monitored APIs.",
         });
         router.replace(redirectTo);
-        router.refresh();
+        // Fallback: if client-side navigation doesn't change the URL, perform a hard redirect
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            if (window.location.pathname !== redirectTo) {
+              window.location.href = redirectTo;
+            }
+          }, 200);
+        }
         return;
       }
 
@@ -110,8 +117,8 @@ export default function DomainVerification({
         </CardTitle>
         <CardDescription className="max-w-2xl text-base leading-6">
           Add the verification code
-          {domain.domain ? ` for ${domain.domain}` : ""} to your DNS provider
-          or meta tag, then run a verification check. For the DNS record, use
+          {domain.domain ? ` for ${domain.domain}` : ""} to your DNS provider or
+          meta tag, then run a verification check. For the DNS record, use
           <span className="mx-1 font-semibold text-foreground">@</span> as the
           host/name.
         </CardDescription>

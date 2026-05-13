@@ -73,7 +73,14 @@ export default function CreateApiPage() {
               await addApiAction(formData);
               setSelectedApiGroup(null);
               router.push("/dashboard/api");
-              router.refresh();
+              // Fallback: if client-side navigation doesn't change the URL, perform a hard redirect
+              if (typeof window !== "undefined") {
+                setTimeout(() => {
+                  if (window.location.pathname !== "/dashboard/api") {
+                    window.location.href = "/dashboard/api";
+                  }
+                }, 200);
+              }
             });
           }}
         >

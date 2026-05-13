@@ -22,7 +22,7 @@ type DomainRegistrationProps = {
 
 export default function DomainRegistration({
   initialDomain = "",
-  redirectTo = "/onboarding",
+  redirectTo = "/domain",
   title = "Domain Details",
   submitLabel = "Submit",
   variant = "panel",
@@ -91,9 +91,18 @@ export default function DomainRegistration({
         setError(result?.error ?? "Failed to register domain.");
         return;
       }
+      console.log("Domain registered successfully");
 
       router.push(redirectTo);
-      router.refresh();
+      // Fallback: if client-side navigation doesn't change the URL, perform a hard redirect
+      if (typeof window !== "undefined") {
+        setTimeout(() => {
+          if (window.location.pathname !== redirectTo) {
+            window.location.href = redirectTo;
+          }
+        }, 200);
+      }
+      console.log("Redirecting to:", redirectTo);
     } catch {
       setError("Failed to register domain.");
     } finally {

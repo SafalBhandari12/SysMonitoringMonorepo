@@ -66,6 +66,11 @@ export default function CreateApi() {
               setOpen(false);
               setSelectedApiGroup(null);
               router.refresh();
+              if (typeof window !== "undefined") {
+                setTimeout(() => {
+                  window.location.reload();
+                }, 200);
+              }
             });
           }}
         >

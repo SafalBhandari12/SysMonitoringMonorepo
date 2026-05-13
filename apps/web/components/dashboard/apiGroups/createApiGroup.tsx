@@ -57,6 +57,11 @@ export default function CreateApiGroup({
               await addApiGroupAction(formData);
               setOpen(false);
               router.refresh();
+              if (typeof window !== "undefined") {
+                setTimeout(() => {
+                  window.location.reload();
+                }, 200);
+              }
             });
           }}
         >
