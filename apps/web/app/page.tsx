@@ -34,14 +34,20 @@ export default function Home() {
           endpoints, and track health from the same dashboard.
         </p>
         <div className="hero-actions">
-          <Link href="/signup" className="btn-hero btn-hero-dark">
+          <Link
+            href="https://sys-monitoring-monorepo-web.vercel.app/login"
+            className="btn-hero btn-hero-dark"
+          >
             Start with Google{" "}
             <ArrowRight
               size={18}
               style={{ display: "inline", marginLeft: "6px" }}
             />
           </Link>
-          <Link href="/dashboard" className="btn-hero btn-hero-light">
+          <Link
+            href="https://sys-monitoring-monorepo-web.vercel.app/login"
+            className="btn-hero btn-hero-light"
+          >
             View the dashboard
           </Link>
         </div>
@@ -118,10 +124,12 @@ export default function Home() {
         <div className="section-tag">
           <Sparkles size={18} className="inline-icon" /> By the numbers
         </div>
-        <h2 className="section-h2">Built for the monitoring flow in this repo</h2>
+        <h2 className="section-h2">
+          Built for the monitoring flow in this repo
+        </h2>
         <p className="section-desc">
-          Current frontend, Prisma schema, scheduled workers, and dashboard
-          work together: verify domains, register APIs, and collect responses.
+          Current frontend, Prisma schema, scheduled workers, and dashboard work
+          together: verify domains, register APIs, and collect responses.
         </p>
 
         <div className="stats-row">
@@ -217,9 +225,9 @@ export default function Home() {
               </div>
             </div>
             <div className="feat-right">
-              The serverless API checker reads registered endpoints, sends
-              HTTP probes, stores response data, and tags results with the
-              configured region.
+              The serverless API checker reads registered endpoints, sends HTTP
+              probes, stores response data, and tags results with the configured
+              region.
             </div>
           </div>
           <div className="feat-row">
@@ -330,8 +338,8 @@ export default function Home() {
               <div>
                 <div className="step-title">View results</div>
                 <div className="step-desc">
-                  Review uptime bars, p90 and p99 latency, API status rows,
-                  and the most recent incidents from the dashboard.
+                  Review uptime bars, p90 and p99 latency, API status rows, and
+                  the most recent incidents from the dashboard.
                 </div>
               </div>
             </div>
@@ -652,7 +660,9 @@ export default function Home() {
                   <div style={{ marginBottom: "6px", fontSize: "10px" }}>
                     OK 32ms - Daily uptime %
                   </div>
-                  <div style={{ fontSize: "10px" }}>OK 21ms - 1h raw events</div>
+                  <div style={{ fontSize: "10px" }}>
+                    OK 21ms - 1h raw events
+                  </div>
                 </div>
               </div>
             </div>
@@ -930,8 +940,8 @@ export default function Home() {
             <span className="update-date">Now</span>
             <span className="update-title">Published Express package</span>
             <span className="update-desc">
-              The `sysmonitoringexpress` package is available on npm for
-              Express app integrations.
+              The `sysmonitoringexpress` package is available on npm for Express
+              app integrations.
             </span>
           </div>
         </div>
@@ -951,19 +961,27 @@ export default function Home() {
             <span className="install-lang">npm</span>
           </div>
           <div className="install-block">
-            <span className="install-cmd">Add domain, API group, and endpoint</span>
+            <span className="install-cmd">
+              Add domain, API group, and endpoint
+            </span>
             <span className="install-lang">dashboard</span>
           </div>
 
           <div className="quickstart-actions">
-            <Link href="/signup" className="btn-hero btn-hero-dark">
+            <Link
+              href="https://sys-monitoring-monorepo-web.vercel.app/login"
+              className="btn-hero btn-hero-dark"
+            >
               Start with Google{" "}
               <ArrowRight
                 size={18}
                 style={{ display: "inline", marginLeft: "6px" }}
               />
             </Link>
-            <Link href="/dashboard" className="btn-hero btn-hero-light">
+            <Link
+              href="https://sys-monitoring-monorepo-web.vercel.app/login"
+              className="btn-hero btn-hero-light"
+            >
               View dashboard
             </Link>
           </div>

@@ -61,7 +61,7 @@ export const proxy = auth(async (req) => {
   }
 
   if (!isLoggedIn) {
-    return NextResponse.redirect(new URL("/signup", req.nextUrl.origin));
+    return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
   }
 
   if (
