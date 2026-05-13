@@ -156,12 +156,23 @@ export async function POST(request: NextRequest) {
       where: {
         userId,
       },
+      select: {
+        id: true,
+        verificationStatus: true,
+      },
     });
 
     if (!domain) {
       return NextResponse.json(
         { error: "No domain found for user" },
         { status: 404 },
+      );
+    }
+
+    if (domain.verificationStatus !== "VERIFIED") {
+      return NextResponse.json(
+        { error: "Verify your domain before creating monitored APIs." },
+        { status: 403 },
       );
     }
 

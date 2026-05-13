@@ -2,19 +2,15 @@
 
 import { LoginForm } from "@/components/authentication/login-form";
 import Loading from "@/components/loading";
-import { GalleryVerticalEndIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function LoginPage() {
-  const { status, data } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (data?.user?.onboarded === false) {
-      router.push("/onboarding");
-    }
     if (status === "authenticated") {
       router.push("/dashboard");
     }
@@ -22,9 +18,6 @@ export default function LoginPage() {
 
   if (status === "loading") {
     return <Loading />;
-  }
-  if (data?.user?.onboarded === false) {
-    redirect("/onboarding");
   }
   if (status === "authenticated") {
     redirect("/dashboard");

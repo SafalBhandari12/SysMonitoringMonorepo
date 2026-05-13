@@ -5,11 +5,8 @@ import { TimeLine } from "@/components/dashboard/Timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchServerApi } from "@/lib/server-api";
 import { incidentStatusEnum, regions } from "@/prisma/generated/prisma/enums";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import CreateButton from "@/components/reui/createButton";
+import { DomainVerificationDialog } from "@/components/dashboard/DomainVerificationDialog";
 
 type DashboardOverview = {
   stats: {
@@ -41,6 +38,10 @@ type DashboardOverview = {
   }[];
 };
 
+type DashboardDomain = {
+  verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
+} | null;
+
 export default async function Dashboard({}: {}) {
   const session = await auth();
 
@@ -52,9 +53,11 @@ export default async function Dashboard({}: {}) {
     );
   }
 
-  const overview = await fetchServerApi<DashboardOverview>(
-    `/api/dashboard/overview`,
-  );
+  const [overview, domain] = await Promise.all([
+    fetchServerApi<DashboardOverview>(`/api/dashboard/overview`),
+    fetchServerApi<DashboardDomain>("/api/onboarding/domain"),
+  ]);
+  const shouldShowDomainDialog = domain?.verificationStatus !== "VERIFIED";
   const incidents = overview.incidents.map((incident) => ({
     ...incident,
     startTime: new Date(incident.startTime),
@@ -63,6 +66,7 @@ export default async function Dashboard({}: {}) {
 
   return (
     <div className="min-h-screen bg-muted/30 p-4 sm:p-6">
+      <DomainVerificationDialog shouldShow={shouldShowDomainDialog} />
       <div className="mb-6 flex flex-col gap-1">
         <div className="flex justify-between">
           <h1 className="text-3xl font-semibold tracking-normal">

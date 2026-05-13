@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -12,12 +12,30 @@ import { Input } from "@/components/ui/input";
 import registerDomain from "@/actions/domain/registerrDomain";
 import { useRouter } from "next/navigation";
 
-export default function DomainRegistration() {
-  const [domain, setDomain] = useState("");
+type DomainRegistrationProps = {
+  initialDomain?: string;
+  redirectTo?: string;
+  title?: string;
+  submitLabel?: string;
+  variant?: "panel" | "inline";
+};
+
+export default function DomainRegistration({
+  initialDomain = "",
+  redirectTo = "/onboarding",
+  title = "Domain Details",
+  submitLabel = "Submit",
+  variant = "panel",
+}: DomainRegistrationProps) {
+  const [domain, setDomain] = useState(initialDomain);
   const [error, setError] = useState("");
   const router = useRouter();
 
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setDomain(initialDomain);
+  }, [initialDomain]);
 
   const validateDomain = (value: string) => {
     setError("");
@@ -74,7 +92,8 @@ export default function DomainRegistration() {
         return;
       }
 
-      router.push("/onboarding"); // Redirect to success page after successful registration
+      router.push(redirectTo);
+      router.refresh();
     } catch {
       setError("Failed to register domain.");
     } finally {
@@ -82,59 +101,69 @@ export default function DomainRegistration() {
     }
   };
 
+  const content = (
+    <>
+      <h2 className="text-xl font-semibold text-center">{title}</h2>
+
+      <div className="bg-accent dark:bg-accent-secondary border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-2">
+        <p className="text-sm font-semibold text-primary dark:text-blue-100">
+          Valid Domain Format:
+        </p>
+        <ul className="text-sm text-primary dark:text-blue-200 space-y-1 list-disc list-inside">
+          <li>
+            Do NOT include{" "}
+            <code className="bg-white/50 px-1 rounded">http://</code> or{" "}
+            <code className="bg-white/50 px-1 rounded">https://</code>
+          </li>
+          <li>Protocol prefixes are automatically blocked</li>
+          <li>Use only valid domain names with TLD</li>
+        </ul>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <FieldGroup className="space-y-2">
+          <Field>
+            <FieldLabel htmlFor="fieldgroup-name">Domain Name</FieldLabel>
+            <FieldDescription>
+              Enter your domain without any protocol prefix
+            </FieldDescription>
+            <Input
+              id="domain"
+              placeholder="eg: example.com"
+              value={domain}
+              onChange={handleInputChange}
+              className={error ? "border-red-500" : ""}
+            />
+            {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+          </Field>
+          <Field orientation="horizontal" className="justify-end gap-2">
+            <Button
+              type="reset"
+              variant="outline"
+              onClick={() => {
+                setDomain(initialDomain);
+                setError("");
+              }}
+            >
+              Reset
+            </Button>
+            <Button type="submit" disabled={!domain || pending}>
+              {pending ? "Submitting..." : submitLabel}
+            </Button>
+          </Field>
+        </FieldGroup>
+      </form>
+    </>
+  );
+
+  if (variant === "inline") {
+    return <div className="space-y-6">{content}</div>;
+  }
+
   return (
     <div className=" flex items-center flex-1 justify-center bg-muted/40 px-4">
       <div className="w-full max-w-md bg-background rounded-2xl shadow-sm p-6 space-y-6">
-        <h2 className="text-xl font-semibold text-center">Domain Details</h2>
-
-        <div className="bg-accent dark:bg-accent-secondary border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-2">
-          <p className="text-sm font-semibold text-primary dark:text-blue-100">
-            Valid Domain Format:
-          </p>
-          <ul className="text-sm text-primary dark:text-blue-200 space-y-1 list-disc list-inside">
-            <li>
-              Do NOT include{" "}
-              <code className="bg-white/50 px-1 rounded">http://</code> or{" "}
-              <code className="bg-white/50 px-1 rounded">https://</code>
-            </li>
-            <li>Protocol prefixes are automatically blocked</li>
-            <li>Use only valid domain names with TLD</li>
-          </ul>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <FieldGroup className="space-y-2">
-            <Field>
-              <FieldLabel htmlFor="fieldgroup-name">Domain Name</FieldLabel>
-              <FieldDescription>
-                Enter your domain without any protocol prefix
-              </FieldDescription>
-              <Input
-                id="domain"
-                placeholder="eg: example.com"
-                value={domain}
-                onChange={handleInputChange}
-                className={error ? "border-red-500" : ""}
-              />
-              {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
-            </Field>
-            <Field orientation="horizontal" className="justify-end gap-2">
-              <Button
-                type="reset"
-                variant="outline"
-                onClick={() => {
-                  setDomain("");
-                  setError("");
-                }}
-              >
-                Reset
-              </Button>
-              <Button type="submit" disabled={!domain || pending}>
-                {pending ? "Submitting..." : "Submit"}
-              </Button>
-            </Field>
-          </FieldGroup>
-        </form>
+        {content}
       </div>
     </div>
   );

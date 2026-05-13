@@ -62,44 +62,18 @@ export default function Home() {
             <div className="t-dot" style={{ background: "#ff5f56" }}></div>
             <div className="t-dot" style={{ background: "#ffbd2e" }}></div>
             <div className="t-dot" style={{ background: "#27c93f" }}></div>
-            <span className="t-bar-label">
-              watchlayer / timed-function / region-IN
-            </span>
+            <span className="t-bar-label">index.ts</span>
           </div>
           <div className="terminal-body">
-            <pre>
-              <span className="c-dim">
-                {"# running scheduled API probes\n\n"}
-              </span>
-              <span className="c-green">OK</span>{" "}
-              <span className="c-blue">GET</span> /api/v1/users{" "}
-              <span className="c-green">142ms</span> UP IN
-              {"\n"}
-              <span className="c-green">OK</span>{" "}
-              <span className="c-blue">GET</span> /api/v1/products{" "}
-              <span className="c-green">89ms</span> UP IN
-              {"\n"}
-              <span className="c-red">ERR</span>{" "}
-              <span className="c-blue">POST</span> /api/v1/payments{" "}
-              <span className="c-red">TIMEOUT</span> DOWN IN
-              {"\n"}
-              <span className="c-red">ERR</span>{" "}
-              <span className="c-blue">POST</span> /api/v1/payments{" "}
-              <span className="c-red">503</span> DOWN IN
-              {"\n"}
-              <span className="c-orange">!</span> failure window crossed -
-              opening INC-0042
-              {"\n"}
-              <span className="c-dim">
-                {"api: /api/v1/payments | region: IN\n\n"}
-              </span>
-              <span className="c-green">OK</span>{" "}
-              <span className="c-blue">POST</span> /api/v1/payments{" "}
-              <span className="c-green">201ms</span> UP IN
-              {"\n"}
-              <span className="c-green">OK</span> recovery confirmed - resolving
-              INC-0042
-            </pre>
+            <pre>{`import express from "express";
+import { createMonitorMiddleware } from "sysmonitoringexpress";
+
+const app = express();
+app.use(createMonitorMiddleware({ apiKey: process.env.SYS_MONITOR_API_KEY }));
+
+app.get("/api/hello", (req, res) => res.send("ok"));
+app.listen(3000);
+`}</pre>
           </div>
         </div>
       </div>
@@ -138,7 +112,7 @@ export default function Home() {
             <div className="stat-label">Probe interval</div>
           </div>
           <div className="stat-cell">
-            <div className="stat-num">p90</div>
+            <div className="stat-num">p90/99</div>
             <div className="stat-label">Latency tracked</div>
           </div>
           <div className="stat-cell">
@@ -1078,9 +1052,6 @@ export default function Home() {
         <div>
           <div className="footer-col-label">Company</div>
           <ul className="footer-links">
-            <li>
-              <Link href="/about">About</Link>
-            </li>
             <li>
               <Link href="/contact">Contact</Link>
             </li>

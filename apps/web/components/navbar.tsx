@@ -1,14 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import Logo from "./ui/Logo";
 
 export function Navbar() {
   const { data: session } = useSession();
+  const pathname = usePathname();
+  const isLandingNav =
+    !!pathname && (pathname.startsWith("/docs") || pathname === "/pricing" || pathname === "/about");
+
+  const navClass = `flex items-center h-15 text-sm  px-10 gap-8 ${isLandingNav ? "landing-scope" : ""}`;
 
   return (
-    <nav className="flex items-center h-15 text-sm  px-10 gap-8">
+    <nav className={navClass}>
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 no-underline">
         <Logo />
@@ -19,12 +25,6 @@ export function Navbar() {
 
       {/* Nav Links - Centered */}
       <div className="flex items-center gap-8 flex-1 justify-center">
-        <Link
-          href="/about"
-          className="text-base text-muted-foreground hover:text-foreground transition-colors no-underline"
-        >
-          About
-        </Link>
         <Link
           href="/docs"
           className="text-base text-muted-foreground hover:text-foreground transition-colors no-underline"

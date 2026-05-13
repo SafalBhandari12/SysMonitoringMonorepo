@@ -5,6 +5,42 @@ nav {
   justify-content: space-between;
 }
 
+/* Force landing scope to always use light (white) theme regardless of global theme */
+.landing-scope {
+  --landing-bg: #fafaf8;
+  --landing-bg-off: #f2f2ee;
+  --landing-bg-dark: #111110;
+  --landing-border: #e2e2dc;
+  --landing-border-dark: #2a2a28;
+  --landing-text: #111110;
+  --landing-text-2: #666660;
+  --landing-text-3: #999992;
+  --landing-accent: #e85d04;
+  --landing-accent2: #2563eb;
+  --landing-green: #16a34a;
+  --landing-red: #dc2626;
+  background: var(--landing-bg);
+  color: var(--landing-text);
+  
+  /* Override Tailwind CSS variables to use light theme */
+  --background: #fafaf8;
+  --foreground: #111110;
+  --card: #fafaf8;
+  --card-foreground: #111110;
+  --popover: #fafaf8;
+  --popover-foreground: #111110;
+  --muted: #f2f2ee;
+  --muted-foreground: #666660;
+  --accent: #e85d04;
+  --accent-foreground: #fafaf8;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafaf8;
+  --border: #e2e2dc;
+  --input: #f2f2ee;
+  --ring: #e85d04;
+  --radius: 0.375rem;
+}
+
 .nav-logo {
   font-family: var(--font-ibm-plex-mono), "Courier New", monospace;
   font-weight: 500;

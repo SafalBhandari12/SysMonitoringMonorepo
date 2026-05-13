@@ -11,7 +11,6 @@ import {
   LayoutDashboard,
   LogOut,
   ShieldCheck,
-  SunMoon,
   User,
 } from "lucide-react";
 
@@ -65,8 +64,46 @@ export default function AppSidebar() {
   const { data: session } = useSession();
   const user = session?.user;
   const { setTheme } = useTheme();
+  const [shouldShowDomain, setShouldShowDomain] = React.useState(false);
+  const fallbackShouldShowDomain = user?.onboarded === false;
 
   const displayName = user?.name || user?.email || "User";
+  const sidebarItems =
+    shouldShowDomain
+      ? [
+          ...navItems,
+          { name: "Domain", href: "/dashboard/domain", icon: ShieldCheck },
+        ]
+      : navItems;
+
+  React.useEffect(() => {
+    if (!user) {
+      setShouldShowDomain(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    fetch("/api/onboarding/domain")
+      .then((response) => (response.ok ? response.json() : null))
+      .then(
+        (
+          domain: {
+            verificationStatus?: "PENDING" | "VERIFIED" | "FAILED";
+          } | null,
+        ) => {
+          if (!isMounted) return;
+          setShouldShowDomain(domain?.verificationStatus !== "VERIFIED");
+        },
+      )
+      .catch(() => {
+        if (isMounted) setShouldShowDomain(fallbackShouldShowDomain);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pathname, user?.id, fallbackShouldShowDomain]);
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -95,7 +132,7 @@ export default function AppSidebar() {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
+              {sidebarItems.map((item) => {
                 const isActive =
                   item.href === "/dashboard"
                     ? pathname === "/dashboard"

@@ -7,8 +7,14 @@ import { Input } from "@/components/ui/input";
 import KeyValueInput from "@/components/dashboard/api/keyValueInput";
 import SelectApiGroup from "@/components/dashboard/api/SelectApiGroup";
 import SelectMethod from "@/components/dashboard/api/SelectMethod";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import Link from "next/link";
+import { useEffect, useState, useTransition } from "react";
+
+type DomainState = {
+  verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
+} | null;
 
 export default function CreateApiPage() {
   const [selectedApiGroup, setSelectedApiGroup] = useState<{
@@ -16,8 +22,27 @@ export default function CreateApiPage() {
     name: string;
   } | null>(null);
   const [selectedMethod, setSelectedMethod] = useState("");
+  const [domain, setDomain] = useState<DomainState | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const hasVerifiedDomain = domain?.verificationStatus === "VERIFIED";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch("/api/onboarding/domain")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: DomainState) => {
+        if (isMounted) setDomain(payload);
+      })
+      .catch(() => {
+        if (isMounted) setDomain(null);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-6 px-6 py-5">
@@ -31,6 +56,16 @@ export default function CreateApiPage() {
       </div>
 
       <div className="max-w-2xl">
+        {domain !== undefined && !hasVerifiedDomain && (
+          <Alert className="mb-4">
+            <AlertTitle>Verify your domain first</AlertTitle>
+            <AlertDescription>
+              Monitored APIs need a verified domain before they can be created.{" "}
+              <Link href="/dashboard/domain">Go to Domain</Link>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form
           id="create-api-form"
           action={(formData) => {
@@ -110,7 +145,7 @@ export default function CreateApiPage() {
           <Button
             type="submit"
             form="create-api-form"
-            disabled={isPending || !selectedApiGroup}
+            disabled={isPending || !selectedApiGroup || !hasVerifiedDomain}
           >
             {isPending ? "Creating..." : "Create API"}
           </Button>

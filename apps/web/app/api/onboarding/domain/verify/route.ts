@@ -1,4 +1,3 @@
-import { signOut } from "@/auth";
 import { getUserId } from "@/lib/auth-utils";
 import { cacheKey, deleteCached, getCached, setCached } from "@/lib/cache";
 import verifyDomain from "@/lib/onboarding/verifyDomain";
@@ -36,7 +35,16 @@ export async function POST() {
       "BOTH",
     );
 
+    await prisma.domain.update({
+      where: { id: domainRecord.id },
+      data: {
+        lastVerificationAttempt: new Date(),
+        verificationAttempts: { increment: 1 },
+      },
+    });
+
     if (!isVerified) {
+      await deleteCached(domainCacheKey);
       return NextResponse.json({ success: true, verified: false });
     }
 
@@ -46,6 +54,7 @@ export async function POST() {
       },
       data: {
         verificationStatus: "VERIFIED",
+        verifiedAt: new Date(),
       },
     });
     await prisma.user.update({
@@ -54,7 +63,6 @@ export async function POST() {
         onboarded: true,
       },
     });
-    await signOut({ redirect: false });
     await deleteCached(domainCacheKey);
 
     return NextResponse.json({ success: true, verified: true });

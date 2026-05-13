@@ -6,7 +6,7 @@ import { ipAddress } from "@vercel/functions";
 import { createRateLimit, enforceRateLimit } from "./app/utils/rate-limit";
 
 const rateLimitPing = createRateLimit("rl:ping", 1, "5m");
-const normalRateLimit = createRateLimit("rl:normal", 100, "1h");
+const normalRateLimit = createRateLimit("rl:normal", 1000, "1h");
 
 export const proxy = auth(async (req) => {
   const { pathname } = req.nextUrl;
@@ -62,13 +62,6 @@ export const proxy = auth(async (req) => {
 
   if (!isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
-  }
-
-  if (
-    req.auth?.user?.onboarded === false &&
-    !pathname.startsWith("/onboarding")
-  ) {
-    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
   }
 
   return NextResponse.next();

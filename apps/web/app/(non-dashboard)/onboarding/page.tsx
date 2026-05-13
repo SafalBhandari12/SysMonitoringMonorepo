@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { fetchServerApi } from "@/lib/server-api";
 
 type OnboardingDomain = {
+  domain: string;
   verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
   verificationCode: string;
 } | null;
@@ -23,12 +24,15 @@ export default async function Onboarding() {
   if (!domain) {
     return <DomainRegistration />;
   }
-  if (
-    domain.verificationStatus === "VERIFIED" &&
-    !userDetails?.user?.onboarded
-  ) {
-    redirect("/login");
+  if (domain.verificationStatus === "VERIFIED") {
+    redirect("/dashboard");
   }
 
-  return <DomainVerification userId={userDetails?.user?.id ?? ""} domain={domain} />;
+  return (
+    <DomainVerification
+      userId={userDetails?.user?.id ?? ""}
+      domain={domain}
+      redirectTo="/dashboard"
+    />
+  );
 }

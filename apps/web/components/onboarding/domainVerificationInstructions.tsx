@@ -30,12 +30,15 @@ import {
 type DomainVerificationProps = {
   userId: string;
   domain: {
+    domain?: string;
     verificationCode: string;
   };
+  redirectTo?: string;
 };
 
 export default function DomainVerification({
   domain,
+  redirectTo = "/dashboard",
 }: DomainVerificationProps) {
   const router = useRouter();
   const [isVerifying, setIsVerifying] = useState(false);
@@ -72,9 +75,10 @@ export default function DomainVerification({
 
       if (response.ok && payload.verified) {
         toast.success("Domain verified", {
-          description: "Your session is being refreshed.",
+          description: "Your dashboard is ready for monitored APIs.",
         });
-        router.replace("/login");
+        router.replace(redirectTo);
+        router.refresh();
         return;
       }
 
@@ -105,8 +109,9 @@ export default function DomainVerification({
           Verify your domain
         </CardTitle>
         <CardDescription className="max-w-2xl text-base leading-6">
-          Add the verification code to your DNS provider or meta tag, then run a
-          verification check to finish onboarding. For the DNS record, use
+          Add the verification code
+          {domain.domain ? ` for ${domain.domain}` : ""} to your DNS provider
+          or meta tag, then run a verification check. For the DNS record, use
           <span className="mx-1 font-semibold text-foreground">@</span> as the
           host/name.
         </CardDescription>

@@ -1,11 +1,24 @@
 import { getUserId } from "@/lib/auth-utils";
-import { cacheKey, deleteCached, getCached, setCached } from "@/lib/cache";
+import {
+  cacheKey,
+  deleteCached,
+  deleteCachedPattern,
+  getCached,
+  setCached,
+} from "@/lib/cache";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const registerDomainSchema = z.object({
-  domain: z.string().trim().min(1),
+  domain: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(
+      /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/,
+      "Enter a valid domain without http:// or https://",
+    ),
 });
 
 export async function GET() {
@@ -48,14 +61,53 @@ export async function POST(request: NextRequest) {
 
     const existingDomainForUser = await prisma.domain.findUnique({
       where: { userId },
-      select: { id: true },
+      select: { id: true, domain: true, verificationStatus: true },
     });
 
     if (existingDomainForUser) {
-      return NextResponse.json(
-        { error: "You have already registered a domain." },
-        { status: 409 },
-      );
+      if (existingDomainForUser.verificationStatus === "VERIFIED") {
+        return NextResponse.json(
+          { error: "Verified domains cannot be changed." },
+          { status: 409 },
+        );
+      }
+
+      const existingDomain = await prisma.domain.findUnique({
+        where: { domain },
+        select: { id: true },
+      });
+
+      if (existingDomain && existingDomain.id !== existingDomainForUser.id) {
+        return NextResponse.json(
+          { error: "That domain is already registered." },
+          { status: 409 },
+        );
+      }
+
+      await prisma.domain.update({
+        where: { id: existingDomainForUser.id },
+        data: {
+          domain,
+          verificationStatus: "PENDING",
+          lastVerificationAttempt: null,
+          verificationAttempts: 0,
+          verifiedAt: null,
+        },
+      });
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { onboarded: false },
+      });
+
+      await Promise.all([
+        deleteCached(cacheKey("onboarding", "domain", userId)),
+        deleteCachedPattern(
+          cacheKey("api", "by-url", existingDomainForUser.domain, "*"),
+        ),
+      ]);
+
+      return NextResponse.json({ success: true });
     }
 
     const existingDomain = await prisma.domain.findUnique({
