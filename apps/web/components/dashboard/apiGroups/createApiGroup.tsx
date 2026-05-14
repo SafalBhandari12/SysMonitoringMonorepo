@@ -38,7 +38,7 @@ export default function CreateApiGroup({
       }}
     >
       <DialogTrigger asChild>
-        <Button disabled={disabled}>
+        <Button>
           <Plus />
           New API Group
         </Button>
