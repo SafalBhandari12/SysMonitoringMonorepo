@@ -8,10 +8,9 @@ export async function POST() {
   try {
     const userId = await getUserId();
     const domainCacheKey = cacheKey("onboarding", "domain", userId);
-    const cachedDomain =
-      await getCached<{ domain: Awaited<ReturnType<typeof prisma.domain.findFirst>> }>(
-        domainCacheKey,
-      );
+    const cachedDomain = await getCached<{
+      domain: Awaited<ReturnType<typeof prisma.domain.findFirst>>;
+    }>(domainCacheKey);
     const domainRecord =
       cachedDomain !== null
         ? cachedDomain.domain

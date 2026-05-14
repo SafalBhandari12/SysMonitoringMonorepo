@@ -6,6 +6,7 @@ import {
   setCached,
 } from "@/lib/cache";
 import { prisma } from "@/prisma";
+import { hashKey } from "@/app/utils/hash";
 import { TDigestSchema } from "@/schema/pingApi.schema";
 
 function domainCandidate(url: URL): string {
@@ -19,6 +20,14 @@ function apiPathCandidate(pathname: string): string {
 export async function POST(request: NextRequest) {
   try {
     console.log("Received ping request");
+    const apiKey = request.headers.get("x-api-key");
+    if (!apiKey) {
+      return NextResponse.json(
+        { success: false, message: "API key missing" },
+        { status: 401 },
+      );
+    }
+
     const json = await request.json();
     const parsed = TDigestSchema.safeParse(json);
     if (!parsed.success) {
@@ -36,15 +45,25 @@ export async function POST(request: NextRequest) {
     const apiCacheKey = cacheKey("api", "by-url", domain, path);
     let api = await getCached<{ id: string; userId: string }>(apiCacheKey);
 
-    const userId = request.headers.get("x-authenticated-user-id");
-    if (!userId) {
+    const hashedKey = hashKey(apiKey);
+    const apiKeyRecord = await prisma.apiKey.findUnique({
+      where: {
+        key: hashedKey,
+      },
+      select: {
+        id: true,
+        userId: true,
+      },
+    });
+
+    if (!apiKeyRecord) {
       return NextResponse.json(
-        { error: "Missing authenticated user ID" },
+        { success: false, message: "Invalid API key" },
         { status: 401 },
       );
     }
 
-    console.log(url, domain, path);
+    const userId = apiKeyRecord.userId;
 
     if (!api) {
       const apiRecord = await prisma.api.findFirst({

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AlertCircle, Check, Copy, Loader2, ShieldCheck } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +42,7 @@ export default function DomainVerification({
   redirectTo = "/dashboard",
 }: DomainVerificationProps) {
   const router = useRouter();
+  const { update } = useSession();
   const [isVerifying, setIsVerifying] = useState(false);
   const [isDnsTokenCopied, setIsDnsTokenCopied] = useState(false);
   const verificationCode = domain.verificationCode;
@@ -74,6 +76,7 @@ export default function DomainVerification({
       };
 
       if (response.ok && payload.verified) {
+        await update();
         toast.success("Domain verified", {
           description: "Your dashboard is ready for monitored APIs.",
         });
