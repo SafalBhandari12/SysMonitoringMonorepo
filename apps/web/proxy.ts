@@ -29,12 +29,23 @@ export const proxy = auth(async (req) => {
     return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
   }
 
+  const isOnboarded = req.auth?.user?.onboarded;
+  
+  if (!isOnboarded && !pathname.startsWith("/onboarding")) {
+    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
+  }
+  
+  if (isOnboarded && pathname.startsWith("/onboarding")) {
+    return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
+  }
+
   return NextResponse.next();
 });
 
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/onboarding/:path*",
     "/api/ping/:path*",
     "/api/private/:path*",
   ],
