@@ -45,6 +45,7 @@ export default async function Api() {
             </div>
             {user?.organizationUrl && (
               <Button
+              asChild
               >
                 <Link href={statusPageUrl} target="_blank">
                   <span>View Status Page</span>
