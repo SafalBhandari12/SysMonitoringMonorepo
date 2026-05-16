@@ -152,7 +152,6 @@ export async function GET(request: NextRequest) {
       p99 = merged.percentile(0.99).toPrecision(3);
     }
 
-    console.log(apis, p90, p99);
 
     const apiStatusRows = apis.map((api) => {
       const totals = api.metrics.reduce(
@@ -178,7 +177,6 @@ export async function GET(request: NextRequest) {
       const p99Value =
         totals.weight > 0 ? totals.p99Total / totals.weight : null;
 
-      console.log(uptime, p90Value, p99Value);
 
       return {
         id: api.id,

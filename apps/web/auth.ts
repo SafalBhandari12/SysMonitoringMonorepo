@@ -9,7 +9,6 @@ declare module "next-auth" {
     user: {
       id: string;
       onboarded: boolean;
-      organizationName: string | null;
     } & DefaultSession["user"];
   }
 }
@@ -18,7 +17,6 @@ type AuthToken = JWT & {
   id?: string;
   emailVerified?: string | null;
   onboarded?: boolean;
-  organizationName?: string | null;
 };
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -35,9 +33,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (session?.onboarded !== undefined) {
           authToken.onboarded = session.onboarded;
         }
-        if (session?.organizationName !== undefined) {
-          authToken.organizationName = session.organizationName;
-        }
 
         if (!session || session.onboarded === undefined) {
           const userId = authToken.id ?? authToken.sub;
@@ -53,7 +48,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               email: true,
               emailVerified: true,
               onboarded: true,
-              organizationName: true,
             },
           });
 
@@ -66,7 +60,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           authToken.emailVerified =
             currentUser.emailVerified?.toISOString() ?? null;
           authToken.onboarded = currentUser.onboarded;
-          authToken.organizationName = currentUser.organizationName;
         }
 
         return authToken;
@@ -83,7 +76,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           user as { emailVerified?: Date | null }
         ).emailVerified?.toISOString() ?? null;
       authToken.onboarded = (user as any).onboarded ?? false;
-      authToken.organizationName = (user as any).organizationName ?? null;
 
       return authToken;
     },
@@ -101,7 +93,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ? new Date(authToken.emailVerified)
           : null,
         onboarded: !!authToken.onboarded,
-        organizationName: (authToken.organizationName as string | null | undefined) ?? null,
       };
 
       return session;

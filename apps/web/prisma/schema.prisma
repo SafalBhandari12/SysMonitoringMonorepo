@@ -56,6 +56,7 @@ model User {
 
   onboarded        Boolean @default(false)
   organizationName String? @unique
+  organizationUrl String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

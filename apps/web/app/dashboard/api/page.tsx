@@ -1,19 +1,28 @@
+export const dynamic = "force-dynamic";
 import { getUserId } from "@/lib/auth-utils";
 import getApi from "@/lib/getApi";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { methodEnum } from "@/prisma/generated/prisma/enums";
 import ApisByGroup from "@/components/dashboard/ApisByGroup";
+import { prisma } from "@/prisma";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default async function Api() {
   try {
     const userId = await getUserId();
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { organizationUrl: true },
+    });
+
+    const statusPageUrl = `/status/${user?.organizationUrl}`;
 
     // Build last-N-days range (default 90)
     const days = 90;
@@ -23,7 +32,6 @@ export default async function Api() {
     start.setUTCDate(start.getUTCDate() - (days - 1));
 
     const apisWithUptime = await getApi(userId, 90);
-    console.log("Fetched APIs with uptime data:", apisWithUptime);
 
     if (apisWithUptime.length === 0) {
       return (
@@ -35,6 +43,15 @@ export default async function Api() {
                 Monitor APIs and group assignments.
               </p>
             </div>
+            {user?.organizationUrl && (
+              <Button
+              >
+                <Link href={statusPageUrl} target="_blank">
+                  <span>View Status Page</span>
+                  <ExternalLink className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
           </div>
           <Card className="border-dashed bg-muted/20">
             <CardHeader>
@@ -57,6 +74,16 @@ export default async function Api() {
               Monitor APIs and group assignments.
             </p>
           </div>
+          {user?.organizationUrl && (
+            <Button
+              asChild
+            >
+              <Link href={statusPageUrl} target="_blank">
+                <span>View Status Page</span>
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <ApisByGroup groupedApis={apisWithUptime} />

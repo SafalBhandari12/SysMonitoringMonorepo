@@ -1,67 +1,56 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function loadingApi() {
+export default function LoadingApi() {
   return (
-    <div className="flex flex-col gap-8 px-6 py-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-baseline gap-3">
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-8 w-12" />
+    <div className="flex flex-col gap-6 px-6 py-5">
+      {/* Header Skeleton */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-1">
+          <Skeleton className="h-9 w-32" /> {/* APIs title */}
+          <Skeleton className="h-5 w-64" /> {/* description */}
         </div>
-        <Skeleton className="h-5 w-96 max-w-full" />
+        <Skeleton className="h-9 w-40 rounded-md" /> {/* Status Page Button */}
       </div>
 
-      {/* Stats Bar - 3 columns */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <Card
-            key={index}
-            className="bg-gradient-to-br from-muted/30 to-muted/50"
-          >
-            <CardContent className="pt-6">
-              <Skeleton className="h-4 w-24 mb-3" />
-              <Skeleton className="h-8 w-32" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* API List - Vertical Cards */}
-      <div className="flex flex-col gap-3">
-        {Array.from({ length: 8 }).map((_, index) => (
-          <Card key={index} className="border border-border/60">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 sm:p-5">
-              {/* Method Badge & Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <Skeleton className="h-6 w-12 rounded-md" />
-                  <div className="flex-1 min-w-0">
-                    <Skeleton className="h-4 w-40 mb-2" />
-                    <Skeleton className="h-3 w-56 max-w-full" />
+      {/* Content Skeleton (mimicking ApisByGroup) */}
+      <Card className="shadow-sm overflow-hidden bg-card border">
+        <div className="flex flex-col">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex flex-col border-b last:border-b-0">
+              <div className="px-4 py-3 flex flex-col gap-2">
+                {/* Top row */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-5 rounded-full" /> {/* Icon */}
+                    <Skeleton className="h-5 w-32" /> {/* Group name */}
+                    <div className="flex items-center gap-2 ml-3">
+                      <Skeleton className="h-4 w-24" /> {/* Components count */}
+                      <Skeleton className="h-4 w-4 rounded-sm" /> {/* Chevron */}
+                    </div>
                   </div>
+                  <Skeleton className="h-4 w-20" /> {/* Uptime % */}
                 </div>
-              </div>
 
-              {/* Uptime Bars */}
-              <div className="flex-1 min-w-0">
-                <div className="flex gap-1">
-                  {Array.from({ length: 15 }).map((_, i) => (
-                    <Skeleton key={i} className="h-4 flex-1 rounded-sm" />
+                {/* Uptime Bars Skeleton (mimicking UptimeBars) */}
+                <div className="hidden sm:flex flex-wrap items-center justify-between gap-[1px] w-full pt-1">
+                  {Array.from({ length: 90 }).map((_, j) => (
+                    <Skeleton 
+                      key={j} 
+                      className="h-[18px] rounded-sm opacity-60" 
+                      style={{ 
+                        width: 6, 
+                        flex: '0 1 6px',
+                        minWidth: 2
+                      }}
+                    />
                   ))}
                 </div>
               </div>
-
-              {/* Percentage */}
-              <div className="text-right">
-                <Skeleton className="h-8 w-16 mb-2" />
-                <Skeleton className="h-3 w-20" />
-              </div>
             </div>
-          </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
