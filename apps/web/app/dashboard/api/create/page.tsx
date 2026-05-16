@@ -59,11 +59,7 @@ export default function CreateApiPage() {
       </div>
 
       <div className="max-w-2xl">
-        <form
-          ref={formRef}
-          id="create-api-form"
-          action={handleSubmit}
-        >
+        <form ref={formRef} id="create-api-form" action={handleSubmit}>
           <FieldGroup>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
@@ -91,12 +87,16 @@ export default function CreateApiPage() {
                 disabled={isPending}
               />
               <p className="text-sm text-muted-foreground mt-1">
-                Paste the full URL to monitor (copy-paste complete URL). The system will call this URL directly.
+                Paste the full URL to monitor (copy-paste complete URL). The
+                system will call this URL directly.
               </p>
             </Field>
             <Field>
               <FieldLabel>API Group</FieldLabel>
-              <SelectApiGroup setGroup={setSelectedApiGroup} disabled={isPending} />
+              <SelectApiGroup
+                setGroup={setSelectedApiGroup}
+                disabled={isPending}
+              />
               {!selectedApiGroup && (
                 <p className="text-sm text-destructive">
                   Please select an API group.

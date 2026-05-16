@@ -167,7 +167,7 @@ async function processApi(
             [api.id, `API Failure Detected - ${api.targetUrl}`, [region]],
           );
         } else {
-            const incident = isThereIncident.rows[0];
+          const incident = isThereIncident.rows[0];
           const existingRegions = normalizeRegions(incident.regions);
           console.log(
             `Existing regions for incident ${incident.id}:`,

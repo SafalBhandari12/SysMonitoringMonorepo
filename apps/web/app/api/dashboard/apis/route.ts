@@ -177,7 +177,9 @@ export async function POST(request: NextRequest) {
       if (error?.code === "P2002") {
         const field = error?.meta?.target?.[0] || "targetUrl";
         return NextResponse.json(
-          { error: `An API with this ${field} already exists. Please use a different URL.` },
+          {
+            error: `An API with this ${field} already exists. Please use a different URL.`,
+          },
           { status: 409 },
         );
       }

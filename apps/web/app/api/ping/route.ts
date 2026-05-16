@@ -38,7 +38,9 @@ export async function POST(request: NextRequest) {
     const url = new URL(requestUrl);
     const fullUrl = fullUrlCandidate(url);
     const apiCacheKey = cacheKey("api", "by-url", fullUrl);
-    let api = await getCached<{ id: string; apiGroupUserId: string }>(apiCacheKey);
+    let api = await getCached<{ id: string; apiGroupUserId: string }>(
+      apiCacheKey,
+    );
 
     const hashedKey = hashKey(apiKey);
     const apiKeyRecord = await prisma.apiKey.findUnique({
@@ -77,10 +79,7 @@ export async function POST(request: NextRequest) {
 
       // Verify API belongs to the user making the request
       if (apiRecord.apiGroup.userId !== userId) {
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 403 },
-        );
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
 
       api = { id: apiRecord.id, apiGroupUserId: apiRecord.apiGroup.userId };
@@ -90,10 +89,7 @@ export async function POST(request: NextRequest) {
 
     // Verify API still belongs to the user (in case cached)
     if (api.apiGroupUserId !== userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     await prisma.apiDigest.create({

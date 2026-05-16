@@ -5,7 +5,13 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppToaster } from "@/components/app-toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { geistSans, geistMono, ibmPlexMono, ibmPlexSans, loraFont } from "./fonts";
+import {
+  geistSans,
+  geistMono,
+  ibmPlexMono,
+  ibmPlexSans,
+  loraFont,
+} from "./fonts";
 
 export const metadata: Metadata = {
   title: "Create Next App",

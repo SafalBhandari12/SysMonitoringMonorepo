@@ -29,9 +29,9 @@ export default function Home() {
           <em>before your users do</em>
         </h1>
         <p className="hero-sub">
-          URL-first API monitoring with a published Express package for
-          wiring monitored services into your setup. Add endpoints by pasting
-          a full URL and track health from the same dashboard.
+          URL-first API monitoring with a published Express package for wiring
+          monitored services into your setup. Add endpoints by pasting a full
+          URL and track health from the same dashboard.
         </p>
         <div className="hero-actions">
           <Link
@@ -181,12 +181,14 @@ app.listen(3000);
               <CheckSquare2 size={20} className="feat-sym-icon" />
               <div>
                 <div className="feat-name">URL Ownership (legacy)</div>
-                  <div className="feat-sub">Previously supported DNS/meta verification</div>
+                <div className="feat-sub">
+                  Previously supported DNS/meta verification
+                </div>
               </div>
             </div>
             <div className="feat-right">
-              Domain verification has been removed. You can now monitor any
-              full URL by pasting the endpoint directly into the dashboard.
+              Domain verification has been removed. You can now monitor any full
+              URL by pasting the endpoint directly into the dashboard.
             </div>
           </div>
           <div className="feat-row">
@@ -279,10 +281,10 @@ app.listen(3000);
             <div className="step">
               <div className="step-num">1</div>
               <div>
-                  <div className="step-title">Set up monitoring</div>
+                <div className="step-title">Set up monitoring</div>
                 <div className="step-desc">
-                    Create a group, add an API endpoint, and configure the method,
-                    path, headers, params, query values, and optional body data.
+                  Create a group, add an API endpoint, and configure the method,
+                  path, headers, params, query values, and optional body data.
                 </div>
               </div>
             </div>

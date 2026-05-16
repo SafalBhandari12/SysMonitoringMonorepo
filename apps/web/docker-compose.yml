@@ -1,52 +1,52 @@
-  services:
-    postgres:
-      image: postgres:16-alpine
-      container_name: monitoring-web-postgres
-      restart: unless-stopped
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: monitoring
-      ports:
-        - "5433:5432"
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
-      healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U postgres -d monitoring"]
-        interval: 5s
-        timeout: 5s
-        retries: 20
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: monitoring-web-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: monitoring
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d monitoring"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
-    redis:
-      image: redis:7-alpine
-      container_name: monitoring-web-redis
-      restart: unless-stopped
-      ports:
-        - "6379:6379"
-      volumes:
-        - redis_data:/data
-      healthcheck:
-        test: ["CMD", "redis-cli", "ping"]
-        interval: 5s
-        timeout: 3s
-        retries: 20
+  redis:
+    image: redis:7-alpine
+    container_name: monitoring-web-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
-    # Upstash-compatible REST API backed by local Redis.
-    # This lets @upstash/redis keep working in local development.
-    redis-http:
-      image: hiett/serverless-redis-http:latest
-      container_name: monitoring-web-redis-http
-      restart: unless-stopped
-      environment:
-        SRH_MODE: env
-        SRH_TOKEN: local-dev-token
-        SRH_CONNECTION_STRING: redis://redis:6379
-      ports:
-        - "8079:80"
-      depends_on:
-        redis:
-          condition: service_healthy
+  # Upstash-compatible REST API backed by local Redis.
+  # This lets @upstash/redis keep working in local development.
+  redis-http:
+    image: hiett/serverless-redis-http:latest
+    container_name: monitoring-web-redis-http
+    restart: unless-stopped
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: local-dev-token
+      SRH_CONNECTION_STRING: redis://redis:6379
+    ports:
+      - "8079:80"
+    depends_on:
+      redis:
+        condition: service_healthy
 
-  volumes:
-    postgres_data:
-    redis_data:
+volumes:
+  postgres_data:
+  redis_data:
