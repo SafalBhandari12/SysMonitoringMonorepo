@@ -5,6 +5,7 @@ type UptimeItem = {
   up: boolean;
   upCount: number;
   totalCount: number;
+  hasData?: boolean;
 };
 
 export default function UptimeBars(props: {
@@ -15,6 +16,9 @@ export default function UptimeBars(props: {
   method?: string;
   path?: string;
   groupName?: string;
+  showLabel?: boolean;
+  showHeader?: boolean;
+  currentUptime?: number | null;
   initialData?: UptimeItem[] | null;
 }) {
   const {
@@ -25,6 +29,9 @@ export default function UptimeBars(props: {
     method,
     path,
     groupName,
+    showLabel = true,
+    showHeader = true,
+    currentUptime,
     initialData = [],
   } = props;
 
@@ -35,26 +42,37 @@ export default function UptimeBars(props: {
 
   return (
     <div className="max-w-full min-w-0 overflow-x-hidden">
-      <div className="flex items-center justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2 min-w-0">
-          {method && (
-            <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground font-medium">
-              {method}
-            </span>
-          )}
-          {path && (
-            <code className="text-sm truncate text-muted-foreground">
-              {path}
-            </code>
-          )}
-          {groupName && (
-            <span className="text-xs px-2 py-0.5 rounded bg-muted/60 text-muted-foreground ml-2">
-              {groupName}
-            </span>
-          )}
+      {showHeader && (
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-2 min-w-0">
+            {method && (
+              <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground font-medium">
+                {method}
+              </span>
+            )}
+            {path && (
+              <code className="text-sm truncate text-muted-foreground">
+                {path}
+              </code>
+            )}
+            {groupName && (
+              <span className="text-xs px-2 py-0.5 rounded bg-muted/60 text-muted-foreground ml-2">
+                {groupName}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded">
+              {(currentUptime ?? 0).toFixed(1)}%
+            </div>
+            {showLabel ? (
+              <div className="text-xs text-muted-foreground">
+                Last {days} days
+              </div>
+            ) : null}
+          </div>
         </div>
-        <div className="text-xs text-muted-foreground">Last {days} days</div>
-      </div>
+      )}
 
       {data.length === 0 ? (
         <div className="text-sm text-muted-foreground">
@@ -63,22 +81,33 @@ export default function UptimeBars(props: {
       ) : null}
 
       <div
-        className="flex flex-wrap items-center content-start gap-1 max-w-full min-w-0 overflow-y-auto"
+        className="flex flex-wrap items-center justify-between content-start gap-[1px] max-w-full min-w-0 overflow-hidden"
         style={{ maxHeight }}
       >
-        {data.map((d) => (
-          <div
-            key={d.date}
-            title={`${d.date} — ${d.up ? "UP" : "DOWN"} (${d.upCount}/${d.totalCount})`}
-            className={`${d.up ? "bg-green-600" : "bg-red-600"} rounded-sm`}
-            style={{
-              width: cellWidth,
-              height: cellHeight,
-              flex: `0 1 ${cellWidth}px`,
-              minWidth: 4,
-            }}
-          />
-        ))}
+        {data.map((d) => {
+          const isMissing = d.hasData === false;
+          const bgClass = isMissing
+            ? "bg-gray-200 dark:bg-gray-800"
+            : d.up
+              ? "bg-emerald-500"
+              : d.upCount > 0 
+                ? "bg-amber-500" 
+                : "bg-red-500";
+
+          return (
+            <div
+              key={d.date}
+              title={`${d.date} — ${isMissing ? "NO DATA" : d.up ? "UP" : "DOWN"} (${d.upCount}/${d.totalCount})`}
+              className={`${bgClass} rounded-sm`}
+              style={{
+                width: cellWidth,
+                height: cellHeight,
+                flex: `0 1 ${cellWidth}px`,
+                minWidth: 2,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

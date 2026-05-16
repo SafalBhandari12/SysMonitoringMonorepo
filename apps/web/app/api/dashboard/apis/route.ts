@@ -98,6 +98,7 @@ export async function GET() {
         up: boolean;
         upCount: number;
         totalCount: number;
+        hasData?: boolean;
       }> = [];
       for (
         let d = new Date(start);
@@ -114,9 +115,17 @@ export async function GET() {
             up,
             upCount: stat.upCount,
             totalCount: stat.totalCount,
+            hasData: true,
           });
         } else {
-          result.push({ date: key, up: false, upCount: 0, totalCount: 0 });
+          // mark as missing data for this date
+          result.push({
+            date: key,
+            up: false,
+            upCount: 0,
+            totalCount: 0,
+            hasData: false,
+          });
         }
       }
 

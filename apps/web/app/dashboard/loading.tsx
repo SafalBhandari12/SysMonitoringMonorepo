@@ -13,16 +13,16 @@ export default function DashboardLoading() {
         <Skeleton className="h-4 w-130 max-w-full" />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {Array.from({ length: 5 }).map((_, index) => (
-          <Card key={index} size="default" className="gap-2 px-2 shadow-sm">
-            <CardHeader>
+          <Card key={index} size="default" className="p-2 shadow-sm">
+            <CardHeader className="py-1">
               <CardTitle className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">
                 <Skeleton className="h-3 w-20" />
               </CardTitle>
             </CardHeader>
-            <CardContent className="pb-1">
-              <Skeleton className="h-7 w-24" />
+            <CardContent className="py-1">
+              <Skeleton className="h-5 w-20" />
             </CardContent>
           </Card>
         ))}
