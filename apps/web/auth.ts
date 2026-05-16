@@ -6,7 +6,6 @@ import { prisma } from "./prisma";
 
 type AuthToken = JWT & {
   id?: string;
-  onboarded?: boolean;
   emailVerified?: string | null;
 };
 
@@ -29,7 +28,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { id: userId },
           select: {
             id: true,
-            onboarded: true,
             name: true,
             image: true,
             email: true,
@@ -40,7 +38,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!currentUser) return authToken;
 
         authToken.id = currentUser.id;
-        authToken.onboarded = Boolean(currentUser.onboarded);
         authToken.name = currentUser.name ?? null;
         authToken.image = currentUser.image ?? null;
         authToken.email = currentUser.email ?? null;
@@ -53,7 +50,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!user) return token;
 
       authToken.id = user.id;
-      authToken.onboarded = Boolean(user.onboarded);
       authToken.name = user.name ?? null;
       authToken.image = user.image ?? null;
       authToken.email = user.email ?? null;
@@ -71,7 +67,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       session.user = {
         id: String(authToken.id ?? authToken.sub ?? ""),
-        onboarded: Boolean(authToken.onboarded),
         name: (authToken.name as string | null | undefined) ?? null,
         image: (authToken.image as string | null | undefined) ?? null,
         email: (authToken.email as string | null | undefined) ?? "",

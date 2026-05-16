@@ -15,8 +15,10 @@ type ApiGroup = {
 
 export default function SelectApiGroup({
   setGroup,
+  disabled = false,
 }: {
   setGroup: (group: ApiGroup | null) => void;
+  disabled?: boolean;
 }) {
   const [apiGroups, setApiGroups] = useState<ApiGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,9 +76,11 @@ export default function SelectApiGroup({
         const group = apiGroups.find((g) => g.name === value);
         setGroup(group || null);
       }}
+      disabled={disabled}
     >
       <ComboboxInput
         placeholder="Select an API group"
+        disabled={disabled}
         onChange={(event) => {
           setSearchValue(event.currentTarget.value);
         }}

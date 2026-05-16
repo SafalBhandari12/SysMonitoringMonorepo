@@ -34,12 +34,10 @@ interface ApiData {
   method: string;
   body: string | null;
   headers: string | null;
-  path: string;
   pathParams: string | null;
   queryParams: string | null;
-  domain: {
-    domain: string;
-  };
+  name: string;
+  targetUrl: string;
 }
 
 interface ResponseData {
@@ -114,10 +112,8 @@ async function processApi(
   let responseData: ResponseData;
 
   try {
-    const apiUrl =
-      process.env.NODE_ENV === "development"
-        ? `http://${api.domain.domain}${api.path}`
-        : `https://${api.domain.domain}${api.path}`;
+    // `targetUrl` is required for monitoring
+    const apiUrl = api.targetUrl;
 
     responseData = await getResponse(apiUrl, api.method, api.headers, api.body);
   } catch (fetchErr: any) {
@@ -168,10 +164,10 @@ async function processApi(
           await client.query(
             `INSERT INTO "Incident" (id, "apiId", title, status, regions, "createdAt", "updatedAt") 
              VALUES (gen_random_uuid(), $1, $2, 'ONGOING', $3::"regions"[], NOW(), NOW())`,
-            [api.id, `API Failure Detected - ${api.path}`, [region]],
+            [api.id, `API Failure Detected - ${api.targetUrl}`, [region]],
           );
         } else {
-          const incident = isThereIncident.rows[0];
+            const incident = isThereIncident.rows[0];
           const existingRegions = normalizeRegions(incident.regions);
           console.log(
             `Existing regions for incident ${incident.id}:`,
@@ -237,9 +233,10 @@ export async function hitAndStoreApi(
     // Ensure Redis is connected before processing
     await ensureRedisConnection();
 
+    // Select monitoring targetUrl and metadata
     const result = await client.query(
-      `SELECT a.id, a.method, a.body, a.headers, a.path, a."pathParams", a."queryParams", 
-              d.domain FROM "Api" a JOIN "Domain" d ON a."domainId" = d.id`,
+      `SELECT a.id, a.method, a.body, a.headers, a."pathParams", a."queryParams", a."targetUrl", a.name
+       FROM "Api" a`,
     );
 
     const apis: ApiData[] = result.rows;

@@ -7,7 +7,6 @@ import { useSession } from "next-auth/react";
 import { CardSmall } from "@/components/dashboard/card";
 import { ApiStatusTable } from "@/components/dashboard/ApiStatusTable";
 import { TimeLine } from "@/components/dashboard/Timeline";
-import { DomainVerificationDialog } from "@/components/dashboard/DomainVerificationDialog";
 import CreateButton from "@/components/reui/createButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { incidentStatusEnum, regions } from "@/prisma/generated/prisma/enums";
@@ -43,10 +42,6 @@ type DashboardOverview = {
   }[];
 };
 
-type DashboardDomain = {
-  verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
-} | null;
-
 type Incident = {
   title: string;
   regions: regions[];
@@ -57,18 +52,18 @@ type Incident = {
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["dashboard", "bootstrap"],
+  const {
+    data: overview,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["dashboard", "overview"],
     queryFn: async () => {
-      const [overviewResponse, domainResponse] = await Promise.all([
-        axios.get<DashboardOverview>("/api/dashboard/overview"),
-        axios.get<DashboardDomain>("/api/onboarding/domain"),
-      ]);
+      const response = await axios.get<DashboardOverview>(
+        "/api/dashboard/overview",
+      );
 
-      return {
-        overview: overviewResponse.data,
-        domain: domainResponse.data,
-      };
+      return response.data;
     },
     enabled: status === "authenticated",
   });
@@ -85,7 +80,7 @@ export default function Dashboard() {
     );
   }
 
-  if (error || !data) {
+  if (error || !overview) {
     return (
       <div className="flex h-screen items-center justify-center">
         <h1 className="text-2xl font-semibold">
@@ -97,8 +92,6 @@ export default function Dashboard() {
     );
   }
 
-  const { overview, domain } = data;
-  const shouldShowDomainDialog = domain?.verificationStatus !== "VERIFIED";
   const incidents = overview.incidents.map(
     (incident): Incident => ({
       title: incident.title,
@@ -111,7 +104,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-muted/30 p-4 sm:p-6">
-      <DomainVerificationDialog shouldShow={shouldShowDomainDialog} />
       <div className="mb-6 flex flex-col gap-1">
         <div className="flex justify-between">
           <h1 className="text-3xl font-semibold tracking-normal">

@@ -14,7 +14,7 @@ const jsonSchema: z.ZodType<Prisma.InputJsonValue | null> = z.json().nullable();
 
 const createApiSchema = z.object({
   name: z.string().trim().min(1),
-  path: z.string().trim().min(1),
+  targetUrl: z.string().url(),
   method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
   apiGroupId: z.string().trim().min(1),
   headers: jsonSchema,
@@ -22,6 +22,9 @@ const createApiSchema = z.object({
   pathParams: jsonSchema,
   queryParams: jsonSchema,
 });
+
+// targetUrl is required (no path compatibility)
+const createApiSchemaRefined = createApiSchema;
 
 function toNullableJson(value: Prisma.InputJsonValue | null) {
   return value === null ? Prisma.JsonNull : value;
@@ -38,20 +41,9 @@ export async function GET() {
     }
 
     const apis = await prisma.api.findMany({
-      where: {
-        domain: {
-          userId,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        method: true,
-        path: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      where: { apiGroup: { userId } },
+      select: { id: true, name: true, method: true, targetUrl: true },
+      orderBy: { createdAt: "desc" },
     });
 
     // Build last-N-days range (default 90)
@@ -151,44 +143,47 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const userId = await getUserId();
-    const payload = createApiSchema.parse(await request.json());
-    const domain = await prisma.domain.findFirst({
-      where: {
-        userId,
-      },
-      select: {
-        id: true,
-        verificationStatus: true,
-      },
+    const payload = createApiSchemaRefined.parse(await request.json());
+
+    // Verify the API group belongs to the user
+    const apiGroup = await prisma.apiGroup.findUnique({
+      where: { id: payload.apiGroupId },
+      select: { userId: true },
     });
 
-    if (!domain) {
+    if (!apiGroup || apiGroup.userId !== userId) {
       return NextResponse.json(
-        { error: "No domain found for user" },
-        { status: 404 },
-      );
-    }
-
-    if (domain.verificationStatus !== "VERIFIED") {
-      return NextResponse.json(
-        { error: "Verify your domain before creating monitored APIs." },
+        { error: "API group not found or unauthorized" },
         { status: 403 },
       );
     }
 
-    await prisma.api.create({
-      data: {
-        name: payload.name,
-        path: payload.path,
-        method: payload.method,
-        domainId: domain.id,
-        apiGroupId: payload.apiGroupId,
-        headers: toNullableJson(payload.headers),
-        body: toNullableJson(payload.body),
-        pathParams: toNullableJson(payload.pathParams),
-        queryParams: toNullableJson(payload.queryParams),
-      },
-    });
+    // Persist API with required `targetUrl` and `apiGroupId`
+    try {
+      await prisma.api.create({
+        data: {
+          name: payload.name,
+          targetUrl: payload.targetUrl,
+          method: payload.method,
+          apiGroupId: payload.apiGroupId,
+          headers: toNullableJson(payload.headers),
+          body: toNullableJson(payload.body),
+          pathParams: toNullableJson(payload.pathParams),
+          queryParams: toNullableJson(payload.queryParams),
+        },
+      });
+    } catch (error: any) {
+      // Handle unique constraint violation (targetUrl already exists)
+      if (error?.code === "P2002") {
+        const field = error?.meta?.target?.[0] || "targetUrl";
+        return NextResponse.json(
+          { error: `An API with this ${field} already exists. Please use a different URL.` },
+          { status: 409 },
+        );
+      }
+      // Re-throw other errors
+      throw error;
+    }
 
     await Promise.all([
       deleteCachedPattern(cacheKey("dashboard", "apis", userId)),

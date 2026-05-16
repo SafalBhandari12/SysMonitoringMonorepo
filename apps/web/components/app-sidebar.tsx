@@ -10,7 +10,6 @@ import {
   KeyRound,
   LayoutDashboard,
   LogOut,
-  ShieldCheck,
   User,
 } from "lucide-react";
 
@@ -64,45 +63,9 @@ export default function AppSidebar() {
   const { data: session } = useSession();
   const user = session?.user;
   const { setTheme } = useTheme();
-  const [shouldShowDomain, setShouldShowDomain] = React.useState(false);
-  const fallbackShouldShowDomain = user?.onboarded === false;
 
   const displayName = user?.name || user?.email || "User";
-  const sidebarItems = shouldShowDomain
-    ? [
-        ...navItems,
-        { name: "Domain", href: "/dashboard/domain", icon: ShieldCheck },
-      ]
-    : navItems;
-
-  React.useEffect(() => {
-    if (!user) {
-      setShouldShowDomain(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    fetch("/api/onboarding/domain")
-      .then((response) => (response.ok ? response.json() : null))
-      .then(
-        (
-          domain: {
-            verificationStatus?: "PENDING" | "VERIFIED" | "FAILED";
-          } | null,
-        ) => {
-          if (!isMounted) return;
-          setShouldShowDomain(domain?.verificationStatus !== "VERIFIED");
-        },
-      )
-      .catch(() => {
-        if (isMounted) setShouldShowDomain(fallbackShouldShowDomain);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user?.id, fallbackShouldShowDomain]);
+  const sidebarItems = navItems;
 
   return (
     <Sidebar collapsible="icon" variant="inset">

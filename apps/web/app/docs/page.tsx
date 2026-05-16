@@ -136,10 +136,16 @@ function SectionHeader({
           {eyebrow}
         </span>
       </div>
-      <h2 className="mb-3 text-3xl font-bold" style={{ color: "var(--landing-text)" }}>
+      <h2
+        className="mb-3 text-3xl font-bold"
+        style={{ color: "var(--landing-text)" }}
+      >
         {title}
       </h2>
-      <p className="max-w-2xl leading-7" style={{ color: "var(--landing-text-2)" }}>
+      <p
+        className="max-w-2xl leading-7"
+        style={{ color: "var(--landing-text-2)" }}
+      >
         {description}
       </p>
     </div>
@@ -148,7 +154,10 @@ function SectionHeader({
 
 function StepList({ steps }: { steps: string[] }) {
   return (
-    <ol className="mt-6 divide-y" style={{ borderColor: "var(--landing-border)" }}>
+    <ol
+      className="mt-6 divide-y"
+      style={{ borderColor: "var(--landing-border)" }}
+    >
       {steps.map((step, index) => (
         <li key={step} className="flex gap-4 py-4">
           <span
@@ -160,7 +169,10 @@ function StepList({ steps }: { steps: string[] }) {
           >
             {index + 1}
           </span>
-          <span className="leading-7" style={{ color: "var(--landing-text-2)" }}>
+          <span
+            className="leading-7"
+            style={{ color: "var(--landing-text-2)" }}
+          >
             {step}
           </span>
         </li>
@@ -182,7 +194,10 @@ export default function DocsPage() {
         }}
       >
         <div className="mx-auto max-w-7xl">
-          <section className="grid gap-8 border-b pb-10 lg:grid-cols-[1fr_380px]" style={{ borderColor: "var(--landing-border)" }}>
+          <section
+            className="grid gap-8 border-b pb-10 lg:grid-cols-[1fr_380px]"
+            style={{ borderColor: "var(--landing-border)" }}
+          >
             <div>
               <div
                 className="mb-5 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider"
@@ -194,17 +209,28 @@ export default function DocsPage() {
                 <BookOpen size={14} />
                 SDK Guide
               </div>
-              <h1 className="max-w-3xl text-5xl font-bold leading-tight" style={{ color: "var(--landing-text)" }}>
+              <h1
+                className="max-w-3xl text-5xl font-bold leading-tight"
+                style={{ color: "var(--landing-text)" }}
+              >
                 Monitor Express APIs with a small SDK setup.
               </h1>
-              <p className="mt-5 max-w-2xl text-lg leading-8" style={{ color: "var(--landing-text-2)" }}>
-                Install Watchlayer, connect your API key, register the endpoints that matter, and keep a clean view of uptime, latency, incidents, and alerts.
+              <p
+                className="mt-5 max-w-2xl text-lg leading-8"
+                style={{ color: "var(--landing-text-2)" }}
+              >
+                Install Watchlayer, connect your API key, register the endpoints
+                that matter, and keep a clean view of uptime, latency,
+                incidents, and alerts.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link href="#installation" className="btn-hero btn-hero-dark">
                   Start setup <ArrowRight size={18} />
                 </Link>
-                <Link href="https://sys-monitoring-monorepo-web.vercel.app/login" className="btn-hero btn-hero-light">
+                <Link
+                  href="https://sys-monitoring-monorepo-web.vercel.app/login"
+                  className="btn-hero btn-hero-light"
+                >
                   Open dashboard
                 </Link>
               </div>
@@ -218,16 +244,39 @@ export default function DocsPage() {
               }}
             >
               <div className="mb-4 flex items-center justify-between">
-                <span className="font-mono text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--landing-text-3)" }}>
+                <span
+                  className="font-mono text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--landing-text-3)" }}
+                >
                   Quick path
                 </span>
-                <CheckCircle2 size={18} style={{ color: "var(--landing-green)" }} />
+                <CheckCircle2
+                  size={18}
+                  style={{ color: "var(--landing-green)" }}
+                />
               </div>
               <div className="space-y-3">
-                {["Install package", "Initialize SDK", "Create API group", "Add endpoints"].map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-md border px-3 py-3" style={{ borderColor: "var(--landing-border)" }}>
-                    <CheckCircle2 size={16} style={{ color: "var(--landing-green)" }} />
-                    <span className="text-sm font-medium" style={{ color: "var(--landing-text)" }}>{item}</span>
+                {[
+                  "Install package",
+                  "Initialize SDK",
+                  "Create API group",
+                  "Add endpoints",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 rounded-md border px-3 py-3"
+                    style={{ borderColor: "var(--landing-border)" }}
+                  >
+                    <CheckCircle2
+                      size={16}
+                      style={{ color: "var(--landing-green)" }}
+                    />
+                    <span
+                      className="text-sm font-medium"
+                      style={{ color: "var(--landing-text)" }}
+                    >
+                      {item}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -237,7 +286,10 @@ export default function DocsPage() {
           <div className="grid gap-10 py-10 lg:grid-cols-[220px_1fr]">
             <aside className="hidden lg:block">
               <div className="sticky top-8">
-                <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--landing-text-3)" }}>
+                <p
+                  className="mb-3 font-mono text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--landing-text-3)" }}
+                >
                   On this page
                 </p>
                 <nav className="flex flex-col items-stretch gap-1">
@@ -245,7 +297,7 @@ export default function DocsPage() {
                     <Link
                       key={href}
                       href={href}
-                      className="rounded-md px-3 py-2 text-sm transition-colors hover:bg-[var(--landing-bg-off)]"
+                      className="rounded-md px-3 py-2 text-sm transition-colors hover:bg-(--landing-bg-off)"
                       style={{ color: "var(--landing-text-2)" }}
                     >
                       {label}
@@ -303,9 +355,26 @@ app.listen(3000, () => {
                     borderColor: "var(--landing-accent2)",
                   }}
                 >
-                  <AlertCircle size={20} style={{ color: "var(--landing-accent2)", flexShrink: 0, marginTop: 2 }} />
-                  <p className="text-sm leading-6" style={{ color: "var(--landing-text-2)" }}>
-                    Replace <code className="rounded px-1.5 py-0.5" style={{ background: "rgba(0,0,0,0.08)" }}>WATCHLAYER_API_KEY</code> with an API key from your dashboard.
+                  <AlertCircle
+                    size={20}
+                    style={{
+                      color: "var(--landing-accent2)",
+                      flexShrink: 0,
+                      marginTop: 2,
+                    }}
+                  />
+                  <p
+                    className="text-sm leading-6"
+                    style={{ color: "var(--landing-text-2)" }}
+                  >
+                    Replace{" "}
+                    <code
+                      className="rounded px-1.5 py-0.5"
+                      style={{ background: "rgba(0,0,0,0.08)" }}
+                    >
+                      WATCHLAYER_API_KEY
+                    </code>{" "}
+                    with an API key from your dashboard.
                   </p>
                 </div>
               </section>
@@ -337,8 +406,15 @@ app.listen(3000, () => {
                     borderColor: "var(--landing-green)",
                   }}
                 >
-                  <p className="text-sm leading-6" style={{ color: "var(--landing-text-2)" }}>
-                    <strong style={{ color: "var(--landing-text)" }}>Auto-monitoring:</strong> the SDK checks configured endpoints and alerts you when availability or latency drifts.
+                  <p
+                    className="text-sm leading-6"
+                    style={{ color: "var(--landing-text-2)" }}
+                  >
+                    <strong style={{ color: "var(--landing-text)" }}>
+                      Auto-monitoring:
+                    </strong>{" "}
+                    the SDK checks configured endpoints and alerts you when
+                    availability or latency drifts.
                   </p>
                 </div>
               </section>
@@ -352,7 +428,9 @@ app.listen(3000, () => {
                   description="Generate scoped keys from the dashboard, store them in your runtime environment, and rotate them when needed."
                 />
                 <StepList steps={keySteps} />
-                <CodeBlock>WATCHLAYER_API_KEY=wl_xxxxxxxxxxxxxxxxxxxxxx</CodeBlock>
+                <CodeBlock>
+                  WATCHLAYER_API_KEY=wl_xxxxxxxxxxxxxxxxxxxxxx
+                </CodeBlock>
                 <div
                   className="flex gap-3 rounded-lg border p-4"
                   style={{
@@ -360,9 +438,20 @@ app.listen(3000, () => {
                     borderColor: "var(--landing-red)",
                   }}
                 >
-                  <Lock size={20} style={{ color: "var(--landing-red)", flexShrink: 0, marginTop: 2 }} />
-                  <p className="text-sm leading-6" style={{ color: "var(--landing-text-2)" }}>
-                    Never commit API keys to version control. Use environment variables or a secret manager.
+                  <Lock
+                    size={20}
+                    style={{
+                      color: "var(--landing-red)",
+                      flexShrink: 0,
+                      marginTop: 2,
+                    }}
+                  />
+                  <p
+                    className="text-sm leading-6"
+                    style={{ color: "var(--landing-text-2)" }}
+                  >
+                    Never commit API keys to version control. Use environment
+                    variables or a secret manager.
                   </p>
                 </div>
               </section>
@@ -376,26 +465,34 @@ app.listen(3000, () => {
                   description="Once configured, Watchlayer gives you a clear operational view of your endpoints and the incidents around them."
                 />
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  {monitoringFeatures.map(({ icon: Icon, title, text, color }) => (
-                    <div
-                      key={title}
-                      className="rounded-lg border p-5"
-                      style={{
-                        background: "rgba(250, 250, 248, 0.72)",
-                        borderColor: "var(--landing-border)",
-                      }}
-                    >
-                      <div className="mb-3 flex items-center gap-3">
-                        <Icon size={20} style={{ color }} />
-                        <h3 className="font-semibold" style={{ color: "var(--landing-text)" }}>
-                          {title}
-                        </h3>
+                  {monitoringFeatures.map(
+                    ({ icon: Icon, title, text, color }) => (
+                      <div
+                        key={title}
+                        className="rounded-lg border p-5"
+                        style={{
+                          background: "rgba(250, 250, 248, 0.72)",
+                          borderColor: "var(--landing-border)",
+                        }}
+                      >
+                        <div className="mb-3 flex items-center gap-3">
+                          <Icon size={20} style={{ color }} />
+                          <h3
+                            className="font-semibold"
+                            style={{ color: "var(--landing-text)" }}
+                          >
+                            {title}
+                          </h3>
+                        </div>
+                        <p
+                          className="text-sm leading-6"
+                          style={{ color: "var(--landing-text-2)" }}
+                        >
+                          {text}
+                        </p>
                       </div>
-                      <p className="text-sm leading-6" style={{ color: "var(--landing-text-2)" }}>
-                        {text}
-                      </p>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </section>
 
@@ -406,13 +503,23 @@ app.listen(3000, () => {
                   borderColor: "var(--landing-accent)",
                 }}
               >
-                <h2 className="mb-3 text-2xl font-bold" style={{ color: "var(--landing-text)" }}>
+                <h2
+                  className="mb-3 text-2xl font-bold"
+                  style={{ color: "var(--landing-text)" }}
+                >
                   Ready to connect your first API?
                 </h2>
-                <p className="mx-auto mb-6 max-w-xl leading-7" style={{ color: "var(--landing-text-2)" }}>
-                  Open the dashboard, create a group, and add the key to your Express app.
+                <p
+                  className="mx-auto mb-6 max-w-xl leading-7"
+                  style={{ color: "var(--landing-text-2)" }}
+                >
+                  Open the dashboard, create a group, and add the key to your
+                  Express app.
                 </p>
-                <Link href="https://sys-monitoring-monorepo-web.vercel.app/login" className="btn-hero btn-hero-dark">
+                <Link
+                  href="https://sys-monitoring-monorepo-web.vercel.app/login"
+                  className="btn-hero btn-hero-dark"
+                >
                   Start monitoring <ArrowRight size={18} />
                 </Link>
               </section>

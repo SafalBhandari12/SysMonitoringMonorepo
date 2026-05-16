@@ -44,8 +44,7 @@ function ApiGroupsPageSkeleton() {
 }
 
 export default function ApiGroup() {
-  const { data: session, status } = useSession();
-  const canCreate = Boolean(session?.user?.onboarded);
+  const { status } = useSession();
   const {
     data: apiGroups,
     isLoading,
@@ -64,14 +63,6 @@ export default function ApiGroup() {
 
   if (status === "loading" || isLoading) {
     return <ApiGroupsPageSkeleton />;
-  }
-
-  if (status !== "authenticated") {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <h1 className="text-4xl font-bold">Unauthorized</h1>
-      </div>
-    );
   }
 
   if (error || !apiGroups) {
@@ -93,7 +84,7 @@ export default function ApiGroup() {
             Organize related APIs into focused monitoring groups.
           </p>
         </div>
-        <CreateApiGroup disabled={!canCreate} />
+        <CreateApiGroup />
       </div>
       {apiGroups.length === 0 ? (
         <Card className="border-dashed bg-muted/20">

@@ -9,12 +9,8 @@ import { prisma } from "@/prisma";
 import { hashKey } from "@/app/utils/hash";
 import { TDigestSchema } from "@/schema/pingApi.schema";
 
-function domainCandidate(url: URL): string {
-  return url.hostname.toLowerCase();
-}
-
-function apiPathCandidate(pathname: string): string {
-  return pathname || "/";
+function fullUrlCandidate(url: URL): string {
+  return url.toString();
 }
 
 export async function POST(request: NextRequest) {
@@ -40,10 +36,9 @@ export async function POST(request: NextRequest) {
 
     const { requestUrl, windowKey, centroids } = parsed.data;
     const url = new URL(requestUrl);
-    const domain = domainCandidate(url);
-    const path = apiPathCandidate(url.pathname);
-    const apiCacheKey = cacheKey("api", "by-url", domain, path);
-    let api = await getCached<{ id: string; userId: string }>(apiCacheKey);
+    const fullUrl = fullUrlCandidate(url);
+    const apiCacheKey = cacheKey("api", "by-url", fullUrl);
+    let api = await getCached<{ id: string; apiGroupUserId: string }>(apiCacheKey);
 
     const hashedKey = hashKey(apiKey);
     const apiKeyRecord = await prisma.apiKey.findUnique({
@@ -67,15 +62,10 @@ export async function POST(request: NextRequest) {
 
     if (!api) {
       const apiRecord = await prisma.api.findFirst({
-        where: {
-          domain: {
-            domain,
-            userId,
-          },
-          path,
-        },
+        where: { targetUrl: fullUrl },
         select: {
           id: true,
+          apiGroup: { select: { userId: true } },
         },
       });
       if (!apiRecord) {
@@ -85,9 +75,25 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      api = { id: apiRecord?.id, userId: userId };
+      // Verify API belongs to the user making the request
+      if (apiRecord.apiGroup.userId !== userId) {
+        return NextResponse.json(
+          { error: "Unauthorized" },
+          { status: 403 },
+        );
+      }
+
+      api = { id: apiRecord.id, apiGroupUserId: apiRecord.apiGroup.userId };
 
       void setCached(apiCacheKey, api, 3600);
+    }
+
+    // Verify API still belongs to the user (in case cached)
+    if (api.apiGroupUserId !== userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 },
+      );
     }
 
     await prisma.apiDigest.create({
@@ -99,7 +105,7 @@ export async function POST(request: NextRequest) {
     });
 
     await deleteCachedPattern(
-      cacheKey("dashboard", "overview", api.userId, "*"),
+      cacheKey("dashboard", "overview", api.apiGroupUserId, "*"),
     );
 
     return NextResponse.json({ message: "stored" });

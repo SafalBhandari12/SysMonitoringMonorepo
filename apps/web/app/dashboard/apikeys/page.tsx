@@ -42,8 +42,7 @@ function ApiKeysPageSkeleton() {
 }
 
 export default function ApiKeysPage() {
-  const { data: session, status } = useSession();
-  const canCreate = Boolean(session?.user?.onboarded);
+  const { status } = useSession();
   const {
     data: apis,
     isLoading,
@@ -62,14 +61,6 @@ export default function ApiKeysPage() {
 
   if (status === "loading" || isLoading) {
     return <ApiKeysPageSkeleton />;
-  }
-
-  if (status !== "authenticated") {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <h1 className="text-4xl font-bold">Unauthorized</h1>
-      </div>
-    );
   }
 
   if (error || !apis) {
@@ -91,7 +82,7 @@ export default function ApiKeysPage() {
             Create and track the keys used to access monitored endpoints.
           </p>
         </div>
-        <CreateApiKeys disabled={!canCreate} />
+        <CreateApiKeys />
       </div>
       {apis.length > 0 ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

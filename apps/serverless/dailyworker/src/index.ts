@@ -3,7 +3,6 @@ import { TDigest } from 'tdigest';
 
 const API_METRICS_CRON = '*/15 * * * *';
 const DAILY_STATS_CRON = '1 0 * * *';
-const DOMAIN_VERIFICATION_CRON = '*/30 * * * *';
 const DNS_TXT_PREFIXES = ['monitoring-verify=', 'sysmonitoring-verification='];
 const META_NAMES = ['sysMonitoring-Verification', 'sysmonitoring-verification'];
 
@@ -16,8 +15,6 @@ export interface Env {
 type PendingDomain = {
 	id: string;
 	domain: string;
-	verificationCode: string;
-	verificationAttempts: number;
 };
 
 type ApiResponseRow = {
@@ -42,127 +39,21 @@ function escapeRegExp(value: string): string {
 }
 
 async function verifyDomainWithDns(domain: string, verificationCode: string): Promise<boolean> {
-	try {
-		const url = new URL('https://cloudflare-dns.com/dns-query');
-		url.searchParams.set('name', domain);
-		url.searchParams.set('type', 'TXT');
-
-		const response = await fetch(url, {
-			headers: {
-				accept: 'application/dns-json',
-			},
-		});
-
-		if (!response.ok) {
-			return false;
-		}
-
-		const data = (await response.json()) as DnsJsonResponse;
-		const expectedTokens = DNS_TXT_PREFIXES.map((prefix) => `${prefix}${verificationCode}`);
-
-		return (data.Answer ?? []).some((record) => {
-			if (!record.data) {
-				return false;
-			}
-
-			const normalized = normalizeTxtValue(record.data);
-			return expectedTokens.includes(normalized);
-		});
-	} catch (error) {
-		console.error(`[DNS] Error verifying ${domain}:`, error);
-		return false;
-	}
+	// Domain verification removed from worker. Keep stub for compatibility.
+	return false;
 }
 
 async function verifyDomainWithMeta(domain: string, verificationCode: string): Promise<boolean> {
-	try {
-		const response = await fetch(`https://${domain}`, {
-			headers: {
-				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-				Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-			},
-			redirect: 'follow',
-		});
-
-		const html = await response.text();
-
-		for (const name of META_NAMES) {
-			const safeName = escapeRegExp(name);
-			const contentFirst = new RegExp(`<meta\\b[^>]*content=["']([^"']+)["'][^>]*name=["']${safeName}["'][^>]*>`, 'i');
-			const nameFirst = new RegExp(`<meta\\b[^>]*name=["']${safeName}["'][^>]*content=["']([^"']+)["'][^>]*>`, 'i');
-
-			const contentFirstMatch = html.match(contentFirst);
-			if (contentFirstMatch?.[1] === verificationCode) {
-				return true;
-			}
-
-			const nameFirstMatch = html.match(nameFirst);
-			if (nameFirstMatch?.[1] === verificationCode) {
-				return true;
-			}
-		}
-
-		return false;
-	} catch (error) {
-		console.error(`[META] Error verifying ${domain}:`, error);
-		return false;
-	}
+	// Domain verification removed from worker. Keep stub for compatibility.
+	return false;
 }
 
 async function verifyDomain(domain: string, verificationCode: string): Promise<boolean> {
-	const [dnsResult, metaResult] = await Promise.all([
-		verifyDomainWithDns(domain, verificationCode),
-		verifyDomainWithMeta(domain, verificationCode),
-	]);
-
-	return dnsResult || metaResult;
+	return false;
 }
 
 async function runDomainVerification(sql: Sql): Promise<void> {
-	const domains = (await sql`
-		SELECT id, domain, "verificationCode", "verificationAttempts"
-		FROM "Domain"
-		WHERE "verificationStatus" = 'PENDING'
-		ORDER BY "createdAt" ASC
-	`) as PendingDomain[];
-
-	if (domains.length === 0) {
-		console.log('No pending domains found for verification');
-		return;
-	}
-
-	console.log(`Found ${domains.length} pending domains to verify`);
-
-	for (const domainRecord of domains) {
-		console.log(`[DOMAIN] Verifying ${domainRecord.domain}`);
-		const verified = await verifyDomain(domainRecord.domain, domainRecord.verificationCode);
-		const now = new Date();
-
-		if (verified) {
-			await sql`
-				UPDATE "Domain"
-				SET "verificationStatus" = 'VERIFIED',
-					"lastVerificationAttempt" = ${now},
-					"verificationAttempts" = "verificationAttempts" + 1,
-					"verifiedAt" = ${now},
-					"updatedAt" = NOW()
-				WHERE id = ${domainRecord.id}
-			`;
-
-			console.log(`[DOMAIN] Verified ${domainRecord.domain}`);
-			continue;
-		}
-
-		await sql`
-			UPDATE "Domain"
-			SET "lastVerificationAttempt" = ${now},
-				"verificationAttempts" = "verificationAttempts" + 1,
-				"updatedAt" = NOW()
-			WHERE id = ${domainRecord.id}
-		`;
-
-		console.log(`[DOMAIN] Still pending ${domainRecord.domain}`);
-	}
+	console.log('Domain verification disabled; skipping.');
 }
 
 async function runDailyStatsAggregation(sql: Sql): Promise<void> {
@@ -412,9 +303,8 @@ export default {
 		const url = new URL(req.url);
 		url.pathname = '/__scheduled';
 		url.searchParams.append('cron', API_METRICS_CRON);
-		url.searchParams.append('cron', DOMAIN_VERIFICATION_CRON);
 		return new Response(
-			`To test the scheduled handler, ensure you have used the "--test-scheduled" then try running "curl ${url.href}". Supported crons: ${API_METRICS_CRON}, ${DOMAIN_VERIFICATION_CRON}, ${DAILY_STATS_CRON}.`,
+			`To test the scheduled handler, ensure you have used the "--test-scheduled" then try running "curl ${url.href}". Supported crons: ${API_METRICS_CRON}, ${DAILY_STATS_CRON}.`,
 		);
 	},
 
@@ -424,11 +314,6 @@ export default {
 		try {
 			if (event.cron === API_METRICS_CRON) {
 				await runApiMetricsAggregation(sql);
-				return;
-			}
-
-			if (event.cron === DOMAIN_VERIFICATION_CRON) {
-				await runDomainVerification(sql);
 				return;
 			}
 

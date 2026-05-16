@@ -7,12 +7,6 @@ generator client {
   output   = "./generated/prisma"
 }
 
-enum DomainVerificationStatus {
-  PENDING
-  VERIFIED
-  FAILED
-}
-
 enum methodEnum {
   GET
   POST
@@ -56,9 +50,7 @@ model User {
   sessions      Session[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
-  onboarded     Boolean         @default(false)
-
-  domains       Domain?
+  
   apiGroups     ApiGroup[]
   apiKeys       ApiKey[]
 
@@ -134,25 +126,7 @@ model Authenticator {
   @@id([userId, credentialID])
 }
 
-model Domain {
-  id String @id @default(uuid())
 
-  domain String @unique
-
-  verificationStatus      DomainVerificationStatus @default(PENDING)
-  verificationCode        String                   @default(cuid())
-  lastVerificationAttempt DateTime?
-  verificationAttempts    Int                      @default(0)
-  verifiedAt              DateTime?
-
-  apis Api[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id])
-}
 
 model ApiGroup {
   id String @id @default(uuid())
@@ -172,13 +146,11 @@ model ApiGroup {
 model Api {
   id String @id @default(uuid())
 
-  domainId String
-  domain   Domain @relation(fields: [domainId], references: [id])
+  // Full URL to monitor (copy-paste). The worker will call this directly.
+  targetUrl String @unique
 
   apiGroupId String
-  apiGroup   ApiGroup? @relation(fields: [apiGroupId], references: [id])
-
-  path String
+  apiGroup   ApiGroup @relation(fields: [apiGroupId], references: [id], onDelete: Cascade)
 
   name        String
   method      methodEnum
@@ -198,7 +170,7 @@ model Api {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([domainId, path])
+  @@index([apiGroupId])
 }
 
 model ApiDigest{

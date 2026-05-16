@@ -37,6 +37,5 @@ export const config = {
     "/dashboard/:path*",
     "/api/ping/:path*",
     "/api/private/:path*",
-    "/onboarding/:path*",
   ],
 };

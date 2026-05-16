@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import addApiAction from "@/actions/dashboard/addApi";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -8,48 +7,45 @@ import { Input } from "@/components/ui/input";
 import KeyValueInput from "@/components/dashboard/api/keyValueInput";
 import SelectApiGroup from "@/components/dashboard/api/SelectApiGroup";
 import SelectMethod from "@/components/dashboard/api/SelectMethod";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useEffect, useRef, useState, useTransition } from "react";
-
-type DomainState = {
-  verificationStatus: "PENDING" | "VERIFIED" | "FAILED";
-} | null;
+import { useRef, useState, useTransition } from "react";
+import { toast } from "sonner";
 
 export default function CreateApiPage() {
   const [selectedApiGroup, setSelectedApiGroup] = useState<{
     id: string;
     name: string;
   } | null>(null);
-  const [selectedMethod, setSelectedMethod] = useState("");
-  const [domain, setDomain] = useState<DomainState | undefined>(undefined);
+  const [, setSelectedMethod] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const hasFetchedDomain = useRef(false);
-  const hasVerifiedDomain = domain?.verificationStatus === "VERIFIED";
+  const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (hasFetchedDomain.current) {
-      return;
-    }
-    hasFetchedDomain.current = true;
-
-    let isMounted = true;
-
-    axios
-      .get<DomainState>("/api/onboarding/domain")
-      .then((response) => {
-        if (isMounted) setDomain(response.data);
-      })
-      .catch(() => {
-        if (isMounted) setDomain(null);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const handleSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await addApiAction(formData);
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
+      if (result?.success) {
+        toast.success("API created successfully");
+        // Only reset form and state after successful completion
+        setSelectedApiGroup(null);
+        if (formRef.current) {
+          formRef.current.reset();
+        }
+        router.push("/dashboard/api");
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            if (window.location.pathname !== "/dashboard/api") {
+              window.location.href = "/dashboard/api";
+            }
+          }, 200);
+        }
+      }
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6 px-6 py-5">
@@ -63,33 +59,10 @@ export default function CreateApiPage() {
       </div>
 
       <div className="max-w-2xl">
-        {domain !== undefined && !hasVerifiedDomain && (
-          <Alert className="mb-4">
-            <AlertTitle>Verify your domain first</AlertTitle>
-            <AlertDescription>
-              Monitored APIs need a verified domain before they can be created.{" "}
-              <Link href="/dashboard/domain">Go to Domain</Link>
-            </AlertDescription>
-          </Alert>
-        )}
-
         <form
+          ref={formRef}
           id="create-api-form"
-          action={(formData) => {
-            startTransition(async () => {
-              await addApiAction(formData);
-              setSelectedApiGroup(null);
-              router.push("/dashboard/api");
-              // Fallback: if client-side navigation doesn't change the URL, perform a hard redirect
-              if (typeof window !== "undefined") {
-                setTimeout(() => {
-                  if (window.location.pathname !== "/dashboard/api") {
-                    window.location.href = "/dashboard/api";
-                  }
-                }, 200);
-              }
-            });
-          }}
+          action={handleSubmit}
         >
           <FieldGroup>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -100,6 +73,7 @@ export default function CreateApiPage() {
                   name="name"
                   placeholder="List users"
                   required
+                  disabled={isPending}
                 />
               </Field>
               <Field>
@@ -108,17 +82,21 @@ export default function CreateApiPage() {
               </Field>
             </div>
             <Field>
-              <FieldLabel htmlFor="path">Path</FieldLabel>
+              <FieldLabel htmlFor="targetUrl">Target URL</FieldLabel>
               <Input
-                id="path"
-                name="path"
-                placeholder="/api/v1/users"
+                id="targetUrl"
+                name="targetUrl"
+                placeholder="https://example.com/api/v1/users"
                 required
+                disabled={isPending}
               />
+              <p className="text-sm text-muted-foreground mt-1">
+                Paste the full URL to monitor (copy-paste complete URL). The system will call this URL directly.
+              </p>
             </Field>
             <Field>
               <FieldLabel>API Group</FieldLabel>
-              <SelectApiGroup setGroup={setSelectedApiGroup} />
+              <SelectApiGroup setGroup={setSelectedApiGroup} disabled={isPending} />
               {!selectedApiGroup && (
                 <p className="text-sm text-destructive">
                   Please select an API group.
@@ -159,7 +137,7 @@ export default function CreateApiPage() {
           <Button
             type="submit"
             form="create-api-form"
-            disabled={isPending || !selectedApiGroup || !hasVerifiedDomain}
+            disabled={isPending || !selectedApiGroup}
           >
             {isPending ? "Creating..." : "Create API"}
           </Button>

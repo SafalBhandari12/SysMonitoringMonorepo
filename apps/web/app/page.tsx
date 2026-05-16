@@ -29,9 +29,9 @@ export default function Home() {
           <em>before your users do</em>
         </h1>
         <p className="hero-sub">
-          Domain-first API monitoring with a published Express package for
-          wiring monitored services into your setup. Verify ownership, add
-          endpoints, and track health from the same dashboard.
+          URL-first API monitoring with a published Express package for
+          wiring monitored services into your setup. Add endpoints by pasting
+          a full URL and track health from the same dashboard.
         </p>
         <div className="hero-actions">
           <Link
@@ -52,8 +52,8 @@ export default function Home() {
           </Link>
         </div>
         <p className="hero-note">
-          Install the Express package, sign in, verify your domain, then create
-          API groups, endpoints, and API keys.
+          Install the Express package, sign in, then create API groups,
+          endpoints (paste the full URL), and API keys.
         </p>
 
         {/* Terminal */}
@@ -103,7 +103,7 @@ app.listen(3000);
         </h2>
         <p className="section-desc">
           Current frontend, Prisma schema, scheduled workers, and dashboard work
-          together: verify domains, register APIs, and collect responses.
+          together: register APIs by URL and collect responses.
         </p>
 
         <div className="stats-row">
@@ -180,14 +180,13 @@ app.listen(3000);
             <div className="feat-left">
               <CheckSquare2 size={20} className="feat-sym-icon" />
               <div>
-                <div className="feat-name">Domain Verification</div>
-                <div className="feat-sub">DNS or meta ownership proof</div>
+                <div className="feat-name">URL Ownership (legacy)</div>
+                  <div className="feat-sub">Previously supported DNS/meta verification</div>
               </div>
             </div>
             <div className="feat-right">
-              Users prove domain ownership with a generated token before
-              monitoring begins. DNS TXT and meta-tag verification are both
-              supported by the current setup.
+              Domain verification has been removed. You can now monitor any
+              full URL by pasting the endpoint directly into the dashboard.
             </div>
           </div>
           <div className="feat-row">
@@ -271,8 +270,8 @@ app.listen(3000);
         </div>
         <h2 className="section-h2">From setup to insight in minutes</h2>
         <p className="section-desc">
-          A practical lifecycle connects onboarding, endpoint setup, scheduled
-          checks, and dashboard reporting without changing screens or systems.
+          A practical lifecycle connects endpoint setup, scheduled checks, and
+          dashboard reporting without changing screens or systems.
         </p>
 
         <div className="two-col">
@@ -280,10 +279,10 @@ app.listen(3000);
             <div className="step">
               <div className="step-num">1</div>
               <div>
-                <div className="step-title">Register a domain</div>
+                  <div className="step-title">Set up monitoring</div>
                 <div className="step-desc">
-                  Register a domain without a protocol prefix, then verify it
-                  with either the DNS TXT token or the supported meta tag.
+                    Create a group, add an API endpoint, and configure the method,
+                    path, headers, params, query values, and optional body data.
                 </div>
               </div>
             </div>
@@ -784,8 +783,8 @@ app.listen(3000);
           <div className="oss-cell">
             <div className="oss-label">Next.js Web App</div>
             <div className="oss-desc">
-              App Router frontend with NextAuth, onboarding routes, dashboard
-              APIs, Prisma access, and reusable UI components.
+              App Router frontend with NextAuth, dashboard APIs, Prisma access,
+              and reusable UI components.
             </div>
             <Link
               href="https://github.com/watchlayer/backend"
@@ -822,8 +821,8 @@ app.listen(3000);
           <div className="oss-cell">
             <div className="oss-label">Cloudflare Cron</div>
             <div className="oss-desc">
-              Scheduled worker for domain verification, API metrics, and daily
-              stat aggregation through Hyperdrive/PostgreSQL.
+              Scheduled worker for API metrics and daily stat aggregation
+              through Hyperdrive/PostgreSQL.
             </div>
             <Link
               href="https://github.com/watchlayer/packages"
@@ -880,10 +879,10 @@ app.listen(3000);
           </div>
           <div className="update-row">
             <span className="update-date">Now</span>
-            <span className="update-title">Domain onboarding</span>
+            <span className="update-title">Domain management</span>
             <span className="update-desc">
-              Users register one domain, receive a verification token, and
-              complete ownership verification before moving to the dashboard.
+              The dashboard no longer blocks access behind a setup gate; API
+              monitoring and grouping are available immediately after sign-in.
             </span>
           </div>
           <div className="update-row">
