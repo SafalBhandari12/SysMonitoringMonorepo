@@ -75,9 +75,55 @@ export async function getApi(
   for (const s of stats) {
     const dkey = formatDate(new Date(s.date));
     if (!map.has(s.apiId)) map.set(s.apiId, new Map());
+    const existing = map.get(s.apiId)!.get(dkey) || { upCount: 0, totalCount: 0 };
     map
       .get(s.apiId)!
-      .set(dkey, { upCount: s.upCount, totalCount: s.totalCount });
+      .set(dkey, {
+        upCount: existing.upCount + s.upCount,
+        totalCount: existing.totalCount + s.totalCount,
+      });
+  }
+
+  // Fetch today's live responses to populate the current day's bar in real-time
+  const todayStart = end;
+  const todayEnd = new Date(todayStart);
+  todayEnd.setUTCDate(todayEnd.getUTCDate() + 1);
+
+  const todayResponses =
+    apiIds.length > 0
+      ? await prisma.apiResponse.findMany({
+          where: {
+            apiId: { in: apiIds },
+            createdAt: { gte: todayStart, lt: todayEnd },
+          },
+          select: {
+            apiId: true,
+            status: true,
+          },
+        })
+      : [];
+
+  const todayStatsMap = new Map<string, { upCount: number; totalCount: number }>();
+  for (const r of todayResponses) {
+    const existing = todayStatsMap.get(r.apiId) || { upCount: 0, totalCount: 0 };
+    existing.totalCount += 1;
+    if (r.status === "UP") {
+      existing.upCount += 1;
+    }
+    todayStatsMap.set(r.apiId, existing);
+  }
+
+  // Inject today's live stats into the map
+  const todayKey = formatDate(todayStart);
+  for (const [apiId, counts] of todayStatsMap.entries()) {
+    if (!map.has(apiId)) map.set(apiId, new Map());
+    const existing = map.get(apiId)!.get(todayKey) || { upCount: 0, totalCount: 0 };
+    map
+      .get(apiId)!
+      .set(todayKey, {
+        upCount: existing.upCount + counts.upCount,
+        totalCount: existing.totalCount + counts.totalCount,
+      });
   }
 
   const apisWithUptime: ApiWithUptime[] = apis.map((a) => {
@@ -89,7 +135,7 @@ export async function getApi(
       const stat = perApiMap.get(key);
       if (stat) {
         const up =
-          stat.upCount > 0 && stat.totalCount > 0 ? stat.upCount >= 1 : false;
+          stat.upCount > 0 && stat.totalCount > 0 ? stat.upCount === stat.totalCount : false;
         result.push({
           date: key,
           up,
