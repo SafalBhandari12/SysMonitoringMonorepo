@@ -3,7 +3,10 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { AlertCircle, CheckCircle2, ChevronRight, Layers } from "lucide-react";
 import CreateApiGroup from "@/components/dashboard/apiGroups/createApiGroup";
+import UptimeBars from "@/components/dashboard/UptimeBars";
 import {
   Card,
   CardDescription,
@@ -12,10 +15,21 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+type UptimeEntry = {
+  date: string;
+  up: boolean;
+  upCount: number;
+  totalCount: number;
+  hasData?: boolean;
+};
+
 type ApiGroupListItem = {
   id: string;
   name: string;
   description: string | null;
+  apisCount: number;
+  aggregateUptime: number | null;
+  aggregateUptimeBars: UptimeEntry[];
 };
 
 function ApiGroupsPageSkeleton() {
@@ -35,6 +49,7 @@ function ApiGroupsPageSkeleton() {
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-6 w-full mt-2" />
             </CardHeader>
           </Card>
         ))}
@@ -50,10 +65,10 @@ export default function ApiGroup() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["dashboard", "api-groups"],
+    queryKey: ["dashboard", "api-groups", "withStats"],
     queryFn: async () => {
       const response = await axios.get<ApiGroupListItem[]>(
-        "/api/dashboard/api-groups",
+        "/api/dashboard/api-groups?withStats=true",
       );
 
       return response.data;
@@ -97,19 +112,71 @@ export default function ApiGroup() {
         </Card>
       ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {apiGroups.map((group) => (
-            <Card
-              key={group.id}
-              className="shadow-sm transition-colors hover:bg-muted/20"
-            >
-              <CardHeader>
-                <CardTitle>{group.name}</CardTitle>
-                <CardDescription>
-                  {group.description || "No description added."}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
+          {apiGroups.map((group) => {
+            const hasApis = group.apisCount > 0;
+            const isAllUp = (group.aggregateUptime ?? 100) >= 99;
+            const StatusIcon = !hasApis
+              ? Layers
+              : isAllUp
+                ? CheckCircle2
+                : AlertCircle;
+            const statusColor = !hasApis
+              ? "text-muted-foreground"
+              : isAllUp
+                ? "text-emerald-500"
+                : "text-amber-500";
+
+            return (
+              <Link key={group.id} href={`/dashboard/apigroups/${group.id}`}>
+                <Card className="shadow-sm transition-colors hover:bg-muted/20 h-full">
+                  <CardHeader className="gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <StatusIcon
+                          className={`h-4 w-4 shrink-0 ${statusColor}`}
+                        />
+                        <CardTitle className="truncate">
+                          {group.name}
+                        </CardTitle>
+                      </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    </div>
+                    <CardDescription className="line-clamp-2">
+                      {group.description || "No description added."}
+                    </CardDescription>
+
+                    <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>
+                        {group.apisCount} API{group.apisCount !== 1 ? "s" : ""}
+                      </span>
+                      {hasApis && (
+                        <span className="font-medium">
+                          {(group.aggregateUptime ?? 0).toFixed(2)}% uptime
+                        </span>
+                      )}
+                    </div>
+
+                    {hasApis && group.aggregateUptimeBars.length > 0 ? (
+                      <UptimeBars
+                        days={30}
+                        initialData={group.aggregateUptimeBars}
+                        currentUptime={group.aggregateUptime}
+                        cellHeight={22}
+                        cellWidth={5}
+                        maxRows={1}
+                        showLabel={false}
+                        showHeader={false}
+                      />
+                    ) : (
+                      <div className="text-xs text-muted-foreground">
+                        No monitoring data yet.
+                      </div>
+                    )}
+                  </CardHeader>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

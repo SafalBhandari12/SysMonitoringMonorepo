@@ -245,6 +245,7 @@ export async function POST(request: NextRequest) {
     await Promise.all([
       deleteCachedPattern(cacheKey("dashboard", "apis", userId)),
       deleteCachedPattern(cacheKey("dashboard", "overview", userId, "*")),
+      deleteCachedPattern(cacheKey("dashboard", "api-groups", userId, "*")),
     ]);
 
     return NextResponse.json({ success: true });

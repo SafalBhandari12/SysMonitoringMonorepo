@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import KeyValueInput from "@/components/dashboard/api/keyValueInput";
 import SelectApiGroup from "@/components/dashboard/api/SelectApiGroup";
 import SelectMethod from "@/components/dashboard/api/SelectMethod";
+import CreateApiGroup from "@/components/dashboard/apiGroups/createApiGroup";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -92,9 +94,31 @@ export default function CreateApiPage() {
               </p>
             </Field>
             <Field>
-              <FieldLabel>API Group</FieldLabel>
+              <div className="flex items-center justify-between">
+                <FieldLabel>API Group</FieldLabel>
+                <CreateApiGroup
+                  disabled={isPending}
+                  onCreated={(group) => {
+                    setSelectedApiGroup(group);
+                    toast.success(`Group "${group.name}" created and selected`);
+                  }}
+                  trigger={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={isPending}
+                      className="h-7 px-2 text-xs text-muted-foreground"
+                    >
+                      <Plus className="size-3.5" />
+                      New group
+                    </Button>
+                  }
+                />
+              </div>
               <SelectApiGroup
                 setGroup={setSelectedApiGroup}
+                selectedGroup={selectedApiGroup}
                 disabled={isPending}
               />
               {!selectedApiGroup && (

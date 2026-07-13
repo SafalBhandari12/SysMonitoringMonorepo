@@ -42,7 +42,8 @@
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
 	"triggers": {
-		"crons": ["*/15 * * * *", "*/30 * * * *", "1 0 * * *"],
+		// */5 = ping/monitor APIs, */15 = api metrics rollup, 1 0 * * * = daily stats rollup
+		"crons": ["*/5 * * * *", "*/15 * * * *", "1 0 * * *"],
 	},
 	"hyperdrive": [
 		{
@@ -52,4 +53,17 @@
 			// Optional. Can be used to connect to a local database for local development with `wrangler dev`
 		},
 	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "sysmonitoring-failures",
+			"database_id": "921b85d9-582f-448b-b635-d9decc8fd0cc",
+		},
+	],
+	"vars": {
+		// Cloudflare Cron Triggers cannot be pinned to a specific geographic region the way the
+		// old per-region Azure Function Apps were, so this is a single logical label recorded
+		// alongside each ApiResponse/DailyStats/ApiMetrics row.
+		"REGION": "IN",
+	},
 }

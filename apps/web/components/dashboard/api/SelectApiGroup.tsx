@@ -16,9 +16,16 @@ type ApiGroup = {
 export default function SelectApiGroup({
   setGroup,
   disabled = false,
+  selectedGroup = null,
 }: {
   setGroup: (group: ApiGroup | null) => void;
   disabled?: boolean;
+  /**
+   * Controlled selection, e.g. a group just created inline via CreateApiGroup.
+   * When set, it's merged into the fetched options so the combobox can show it
+   * as selected even before the list has been refetched from the server.
+   */
+  selectedGroup?: ApiGroup | null;
 }) {
   const [apiGroups, setApiGroups] = useState<ApiGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +59,6 @@ export default function SelectApiGroup({
         if (!isActive) {
           return;
         }
-        console.log("Fetched API groups:", data);
         setApiGroups(data);
         setLoading(false);
       })
@@ -69,9 +75,22 @@ export default function SelectApiGroup({
     };
   }, [debouncedSearchValue]);
 
+  // Keep a controlled selection (e.g. a group just created inline) visible even
+  // if it isn't part of the currently fetched page of results.
+  useEffect(() => {
+    if (!selectedGroup) return;
+
+    setApiGroups((current) =>
+      current.some((g) => g.id === selectedGroup.id)
+        ? current
+        : [selectedGroup, ...current],
+    );
+  }, [selectedGroup]);
+
   return (
     <Combobox
       items={apiGroups}
+      value={selectedGroup?.name ?? null}
       onValueChange={(value) => {
         const group = apiGroups.find((g) => g.name === value);
         setGroup(group || null);

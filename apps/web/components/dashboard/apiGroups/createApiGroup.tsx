@@ -1,6 +1,8 @@
 "use client";
 
-import addApiGroupAction from "@/actions/dashboard/addApiGroup";
+import addApiGroupAction, {
+  AddApiGroupResult,
+} from "@/actions/dashboard/addApiGroup";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,12 +18,26 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { ReactNode, useState, useTransition } from "react";
+import { toast } from "sonner";
+
+type CreatedApiGroup = NonNullable<AddApiGroupResult["apiGroup"]>;
 
 export default function CreateApiGroup({
   disabled = false,
+  trigger,
+  onCreated,
 }: {
   disabled?: boolean;
+  /** Custom trigger element. Defaults to a "New API Group" button. */
+  trigger?: ReactNode;
+  /**
+   * Called with the newly created group instead of the default
+   * router.refresh() + full page reload behavior. Use this when embedding
+   * the dialog inline on another page (e.g. Create API) so the rest of the
+   * page's state (like an in-progress form) isn't blown away.
+   */
+  onCreated?: (group: CreatedApiGroup) => void;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -38,10 +54,12 @@ export default function CreateApiGroup({
       }}
     >
       <DialogTrigger asChild>
-        <Button>
-          <Plus />
-          New API Group
-        </Button>
+        {trigger ?? (
+          <Button>
+            <Plus />
+            New API Group
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -54,8 +72,20 @@ export default function CreateApiGroup({
           id="create-api-group-form"
           action={(formData) => {
             startTransition(async () => {
-              await addApiGroupAction(formData);
+              const result = await addApiGroupAction(formData);
+
+              if (result.error || !result.apiGroup) {
+                toast.error(result.error || "Failed to create API group");
+                return;
+              }
+
               setOpen(false);
+
+              if (onCreated) {
+                onCreated(result.apiGroup);
+                return;
+              }
+
               router.refresh();
               if (typeof window !== "undefined") {
                 setTimeout(() => {

@@ -5,6 +5,7 @@ import {
   getCached,
   setCached,
 } from "@/lib/cache";
+import { getApi } from "@/lib/getApi";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -14,11 +15,21 @@ const createApiGroupSchema = z.object({
   description: z.string().trim().optional(),
 });
 
+// Compact sparkline window for the group cards; the detail page uses the full 90 days.
+const CARD_UPTIME_DAYS = 30;
+
 export async function GET(request: NextRequest) {
   try {
     const userId = await getUserId();
     const query = request.nextUrl.searchParams.get("q") || "";
-    const key = cacheKey("dashboard", "api-groups", userId, query || "all");
+    const withStats = request.nextUrl.searchParams.get("withStats") === "true";
+    const key = cacheKey(
+      "dashboard",
+      "api-groups",
+      userId,
+      query || "all",
+      withStats ? "stats" : "plain",
+    );
     const cached = await getCached(key);
 
     if (cached) {
@@ -40,15 +51,33 @@ export async function GET(request: NextRequest) {
         name: true,
         description: true,
       },
-      take: query ? 10 : undefined,
+      take: query && !withStats ? 10 : undefined,
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    void setCached(key, apiGroups, query ? 30 : 300);
+    if (!withStats) {
+      void setCached(key, apiGroups, query ? 30 : 300);
+      return NextResponse.json(apiGroups);
+    }
 
-    return NextResponse.json(apiGroups);
+    const grouped = await getApi(userId, CARD_UPTIME_DAYS);
+    const statsByGroupId = new Map(grouped.map((g) => [g.groupId, g]));
+
+    const apiGroupsWithStats = apiGroups.map((group) => {
+      const stats = statsByGroupId.get(group.id);
+      return {
+        ...group,
+        apisCount: stats?.apis.length ?? 0,
+        aggregateUptime: stats?.aggregateUptime ?? null,
+        aggregateUptimeBars: stats?.aggregateUptimeBars ?? [],
+      };
+    });
+
+    void setCached(key, apiGroupsWithStats, 60);
+
+    return NextResponse.json(apiGroupsWithStats);
   } catch (error) {
     console.error("Error fetching API groups:", error);
 
@@ -68,11 +97,16 @@ export async function POST(request: NextRequest) {
     const userId = await getUserId();
     const body = createApiGroupSchema.parse(await request.json());
 
-    await prisma.apiGroup.create({
+    const apiGroup = await prisma.apiGroup.create({
       data: {
         name: body.name,
         description: body.description,
         userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
       },
     });
 
@@ -81,7 +115,7 @@ export async function POST(request: NextRequest) {
       deleteCachedPattern(cacheKey("dashboard", "overview", userId, "*")),
     ]);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, apiGroup });
   } catch (error) {
     console.error("Error creating API group:", error);
 

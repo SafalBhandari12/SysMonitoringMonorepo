@@ -13,10 +13,12 @@ type ApiWithUptime = {
   name: string;
   uptime: UptimeEntry[];
   currentUptime: number | null;
+  apiGroupId: string;
   apiGroup: { name: string };
 };
 
 type GroupedApiResponse = {
+  groupId: string;
   groupName: string;
   apis: ApiWithUptime[];
   aggregateUptime: number | null;
@@ -26,6 +28,7 @@ type GroupedApiResponse = {
 export async function getApi(
   userId: string,
   days = 90,
+  groupId?: string,
 ): Promise<GroupedApiResponse> {
   // Build last-N-days range
   const end = new Date();
@@ -34,10 +37,14 @@ export async function getApi(
   start.setUTCDate(start.getUTCDate() - (days - 1));
 
   const apis = await prisma.api.findMany({
-    where: { apiGroup: { userId } },
+    where: {
+      apiGroup: { userId },
+      ...(groupId && { apiGroupId: groupId }),
+    },
     select: {
       id: true,
       name: true,
+      apiGroupId: true,
       metrics: { select: { upCount: true, totalCount: true } },
       apiGroup: { select: { name: true } },
     },
@@ -169,22 +176,26 @@ export async function getApi(
       name: a.name,
       uptime: result,
       currentUptime,
+      apiGroupId: a.apiGroupId,
       apiGroup: { name: a.apiGroup.name },
     };
   });
 
-  // Group APIs by group name and calculate aggregates
-  const groupsMap = new Map<string, ApiWithUptime[]>();
+  // Group APIs by group id and calculate aggregates
+  const groupsMap = new Map<
+    string,
+    { groupName: string; apis: ApiWithUptime[] }
+  >();
   apisWithUptime.forEach((api) => {
-    const groupName = api.apiGroup.name;
-    if (!groupsMap.has(groupName)) {
-      groupsMap.set(groupName, []);
+    const gid = api.apiGroupId;
+    if (!groupsMap.has(gid)) {
+      groupsMap.set(gid, { groupName: api.apiGroup.name, apis: [] });
     }
-    groupsMap.get(groupName)!.push(api);
+    groupsMap.get(gid)!.apis.push(api);
   });
 
   const result: GroupedApiResponse = Array.from(groupsMap.entries()).map(
-    ([groupName, groupApis]) => {
+    ([groupId, { groupName, apis: groupApis }]) => {
       // Calculate aggregate uptime (average of all child APIs)
       const aggregateUptime =
         groupApis.length > 0
@@ -234,6 +245,7 @@ export async function getApi(
       );
 
       return {
+        groupId,
         groupName,
         apis: groupApis,
         aggregateUptime,

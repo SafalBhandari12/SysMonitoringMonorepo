@@ -39,7 +39,10 @@ export async function DELETE(
     });
 
     // Invalidate dashboard cache
-    await deleteCachedPattern(`watchlayer:dashboard:overview:${userId}:*`);
+    await Promise.all([
+      deleteCachedPattern(`watchlayer:dashboard:overview:${userId}:*`),
+      deleteCachedPattern(`watchlayer:dashboard:api-groups:${userId}:*`),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

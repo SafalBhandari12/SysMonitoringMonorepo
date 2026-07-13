@@ -1,3 +1,10 @@
+> **DEPRECATED (2026-07-13):** API pinging has moved to a Cloudflare Worker with a cron
+> trigger — see `apps/serverless/dailyworker` (the `*/5 * * * *` schedule runs `runPingSweep`).
+> This Azure app is kept in the repo as a dormant fallback and is **not being redeployed**.
+> If the Azure Function Apps (KR/IN) described below are still running in your Azure
+> subscription, disable or delete them to avoid double-pinging your monitored APIs and
+> duplicate incident detection. See the repo's summary notes for the `az` CLI commands.
+
 # Create 2 Azure Function Apps (Korea, India)
 
 This guide creates 2 Azure Function Apps for these deployment locations:
