@@ -178,7 +178,7 @@ export async function GET() {
       return { ...a, uptime: result };
     });
 
-    void setCached(key, apisWithUptime, 300);
+    void setCached(key, apisWithUptime, 60);
 
     return NextResponse.json(apisWithUptime);
   } catch (error) {
@@ -213,7 +213,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Persist API with required `targetUrl` and `apiGroupId`
+    // Persist API with required `targetUrl` and `apiGroupId`.
+    // targetUrl uniqueness is scoped per-user (userId + targetUrl), so two different
+    // users can monitor the same URL, but the same user can't add it twice.
     try {
       await prisma.api.create({
         data: {
@@ -221,6 +223,7 @@ export async function POST(request: NextRequest) {
           targetUrl: payload.targetUrl,
           method: payload.method,
           apiGroupId: payload.apiGroupId,
+          userId,
           headers: toNullableJson(payload.headers),
           body: toNullableJson(payload.body),
           pathParams: toNullableJson(payload.pathParams),
@@ -228,12 +231,12 @@ export async function POST(request: NextRequest) {
         },
       });
     } catch (error: any) {
-      // Handle unique constraint violation (targetUrl already exists)
+      // Handle unique constraint violation (same user, same targetUrl)
       if (error?.code === "P2002") {
-        const field = error?.meta?.target?.[0] || "targetUrl";
         return NextResponse.json(
           {
-            error: `An API with this ${field} already exists. Please use a different URL.`,
+            error:
+              "You already have an API monitoring this target URL. Please use a different URL.",
           },
           { status: 409 },
         );

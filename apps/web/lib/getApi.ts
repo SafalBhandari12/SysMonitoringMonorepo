@@ -161,7 +161,8 @@ export async function getApi(
       }
     }
 
-    // Calculate current uptime from all metrics across regions
+    // ApiMetrics is updated incrementally on every ping (see the worker's processApi), so
+    // it's already current as of the latest ping.
     let currentUptime: number | null = null;
     if (a.metrics && a.metrics.length > 0) {
       const totalUp = a.metrics.reduce((sum, m) => sum + m.upCount, 0);

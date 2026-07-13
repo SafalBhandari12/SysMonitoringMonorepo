@@ -421,6 +421,22 @@ async function processApi(sql: Sql, db: D1Database, api: ApiRow, region: string)
 			VALUES (${crypto.randomUUID()}, ${api.id}, ${result.status}, ${result.responseTime}, ${result.statusCode}, ${region}, NOW())
 		`;
 
+		// Update ApiMetrics incrementally so uptime/status reflect this ping immediately,
+		// instead of waiting for the next runApiMetricsAggregation cron (every 15 min), which
+		// still runs separately to recompute p90/p99 (percentiles can't be updated incrementally)
+		// and to correct any drift.
+		await sql`
+			INSERT INTO "ApiMetrics" (id, "apiId", region, "averageResponseTime", "p90ResponseTime", "p99ResponseTime", "upCount", "totalCount", "createdAt", "updatedAt")
+			VALUES (${crypto.randomUUID()}, ${api.id}, ${region}, ${result.responseTime}, 0, 0, ${result.status === 'UP' ? 1 : 0}, 1, NOW(), NOW())
+			ON CONFLICT ("apiId", region) DO UPDATE SET
+				"averageResponseTime" = (
+					"ApiMetrics"."averageResponseTime" * "ApiMetrics"."totalCount" + ${result.responseTime}
+				) / ("ApiMetrics"."totalCount" + 1),
+				"upCount" = "ApiMetrics"."upCount" + ${result.status === 'UP' ? 1 : 0},
+				"totalCount" = "ApiMetrics"."totalCount" + 1,
+				"updatedAt" = NOW()
+		`;
+
 		if (result.status !== 'UP') {
 			const failureCount = await recordFailure(db, api.id, region, now);
 

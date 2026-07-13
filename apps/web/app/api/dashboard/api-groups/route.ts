@@ -75,7 +75,8 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    void setCached(key, apiGroupsWithStats, 60);
+    // Short TTL: aggregate uptime should reflect a ping shortly after it lands.
+    void setCached(key, apiGroupsWithStats, 20);
 
     return NextResponse.json(apiGroupsWithStats);
   } catch (error) {

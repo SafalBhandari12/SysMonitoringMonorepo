@@ -151,10 +151,14 @@ model Api {
   id String @id @default(uuid())
 
   // Full URL to monitor (copy-paste). The worker will call this directly.
-  targetUrl String @unique
+  // Unique per user (below), not globally, so different users can monitor the same URL.
+  targetUrl String
 
   apiGroupId String
   apiGroup   ApiGroup @relation(fields: [apiGroupId], references: [id], onDelete: Cascade)
+
+  // Denormalized from apiGroup.userId so targetUrl uniqueness can be scoped per user.
+  userId String
 
   name        String
   method      methodEnum
@@ -174,6 +178,7 @@ model Api {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, targetUrl])
   @@index([apiGroupId])
 }
 

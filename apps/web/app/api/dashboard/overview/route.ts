@@ -153,6 +153,8 @@ export async function GET(request: NextRequest) {
     }
 
 
+    // ApiMetrics is updated incrementally on every ping (see the worker's processApi), so
+    // it's already current as of the latest ping.
     const apiStatusRows = apis.map((api) => {
       const totals = api.metrics.reduce(
         (acc, metric) => {
@@ -228,7 +230,8 @@ export async function GET(request: NextRequest) {
       availableGroups: apiGroups,
     };
 
-    void setCached(key, response, 60);
+    // Short TTL: uptime/status should reflect a ping shortly after it lands.
+    void setCached(key, response, 20);
 
     return NextResponse.json(response);
   } catch (error) {
